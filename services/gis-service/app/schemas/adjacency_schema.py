@@ -1,0 +1,6 @@
+from pydantic import BaseModel
+from typing import Dict, List
+
+
+class AdjacencySchema(BaseModel):
+    adjacency: Dict[str, List[str]]
