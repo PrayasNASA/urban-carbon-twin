@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+
+  gis-service:
+    build: ./services/gis-service
+    container_name: gis-service
+    ports:
+      - "8000:8000"
+    restart: always
+
+  emission-engine:
+    build: ./services/emission-engine
+    container_name: emission-engine
+    ports:
+      - "8001:8001"
+    depends_on:
+      - gis-service
+    restart: always
+
+  dispersion-engine:
+    build: ./services/dispersion-engine
+    container_name: dispersion-engine
+    ports:
+      - "8002:8002"
+    depends_on:
+      - gis-service
+      - emission-engine
+    restart: always
+
+  intervention-engine:
+    build: ./services/intervention-engine
+    container_name: intervention-engine
+    ports:
+      - "8003:8003"
+    depends_on:
+      - dispersion-engine
+    restart: always
+
+  optimizer-service:
+    build: ./services/optimizer-service
+    container_name: optimizer-service
+    ports:
+      - "8004:8004"
+    depends_on:
+      - dispersion-engine
+    restart: always
+
+  api-gateway:
+    build: ./services/api-gateway
+    container_name: api-gateway
+    ports:
+      - "8005:8005"
+    depends_on:
+      - gis-service
+      - emission-engine
+      - dispersion-engine
+      - intervention-engine
+      - optimizer-service
+    restart: always
