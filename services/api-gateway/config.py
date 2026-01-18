@@ -5,6 +5,7 @@
 # DISPERSION_ENGINE = "http://localhost:8002"
 # INTERVENTION_ENGINE = "http://localhost:8003"
 # OPTIMIZER_ENGINE = "http://localhost:8004"
+# These are now set via environment variables for flexibility
 
 
 import os
