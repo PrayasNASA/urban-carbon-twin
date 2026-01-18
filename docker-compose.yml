@@ -1,28 +1,35 @@
-version: "3.9"
-
 services:
 
   gis-service:
     build: ./services/gis-service
-    container_name: gis-service
     ports:
       - "8000:8000"
+    volumes:
+      - ./services/gis-service:/app
     restart: always
 
   emission-engine:
     build: ./services/emission-engine
-    container_name: emission-engine
     ports:
       - "8001:8001"
+    volumes:
+      - ./services/emission-engine:/app
+    environment:
+      GIS_BASE_URL: http://gis-service:8000
     depends_on:
       - gis-service
     restart: always
 
   dispersion-engine:
     build: ./services/dispersion-engine
-    container_name: dispersion-engine
     ports:
       - "8002:8002"
+    volumes:
+      - ./services/dispersion-engine:/app
+    environment:
+      GIS_BASE_URL: http://gis-service:8000
+      EMISSION_ENGINE_URL: http://emission-engine:8001
+
     depends_on:
       - gis-service
       - emission-engine
@@ -30,27 +37,44 @@ services:
 
   intervention-engine:
     build: ./services/intervention-engine
-    container_name: intervention-engine
     ports:
       - "8003:8003"
+    volumes:
+      - ./services/intervention-engine:/app
+    environment:
+      DISPERSION_ENGINE_URL: http://dispersion-engine:8002
+
     depends_on:
       - dispersion-engine
     restart: always
 
   optimizer-service:
     build: ./services/optimizer-service
-    container_name: optimizer-service
     ports:
       - "8004:8004"
+    volumes:
+      - ./services/optimizer-service:/app
+    environment:
+      DISPERSION_ENGINE_URL: http://dispersion-engine:8002
+      INTERVENTION_ENGINE_URL: http://intervention-engine:8003
+
     depends_on:
       - dispersion-engine
     restart: always
 
   api-gateway:
     build: ./services/api-gateway
-    container_name: api-gateway
     ports:
       - "8005:8005"
+    volumes:
+      - ./services/api-gateway:/app
+    environment:
+      GIS_BASE_URL: http://gis-service:8000
+      EMISSION_ENGINE_URL: http://emission-engine:8001
+      DISPERSION_ENGINE_URL: http://dispersion-engine:8002
+      INTERVENTION_ENGINE_URL: http://intervention-engine:8003
+      OPTIMIZER_ENGINE_URL: http://optimizer-service:8004
+
     depends_on:
       - gis-service
       - emission-engine

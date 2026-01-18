@@ -1,5 +1,13 @@
 # Upstream services
-DISPERSION_ENGINE_URL = "http://localhost:8002"
+# DISPERSION_ENGINE_URL = "http://localhost:8002"
+
+import os
+
+DISPERSION_ENGINE_URL = os.getenv(
+    "DISPERSION_ENGINE_URL",
+    "http://localhost:8002"
+)
+
 
 # Default intervention efficiencies (fractional reduction)
 INTERVENTION_LIBRARY = {
