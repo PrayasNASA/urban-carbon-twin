@@ -1,5 +1,19 @@
+import os
+
+DISPERSION_ENGINE_URL = os.getenv(
+    "DISPERSION_ENGINE_URL",
+    "http://localhost:8002"
+)
+
+INTERVENTION_ENGINE_URL = os.getenv(
+    "INTERVENTION_ENGINE_URL",
+    "http://localhost:8003"
+)
+
+
 # Upstream services
-DISPERSION_ENGINE_URL = "http://localhost:8002"
+# DISPERSION_ENGINE_URL = "http://localhost:8002"
+
 
 # Intervention catalog (cost + efficiency)
 INTERVENTIONS = {
