@@ -13,6 +13,15 @@ The platform enables planners, researchers, and sustainability teams to **analyz
 
 ---
 
+## 🌍 Live Demo
+
+🚀 **Urban Carbon Twin Dashboard**  
+👉 https://urban-carbon-twin.vercel.app/
+
+## 📊 Dashboard Preview
+[![Dashboard Preview](assets/dashboard.png)](https://urban-carbon-twin.vercel.app/)
+
+
 ## 🌍 Why Urban Carbon Twin
 
 Modern cities face complex challenges related to:
