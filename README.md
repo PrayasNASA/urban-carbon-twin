@@ -9,6 +9,8 @@
 
 The platform enables planners, researchers, and sustainability teams to **analyze urban carbon dynamics digitally**, test mitigation strategies virtually, and make **data-driven decisions** before real-world deployment.
 
+![Dashboard Preview](https://via.placeholder.com/800x400?text=Urban+Carbon+Twin+Dashboard)
+
 ---
 
 ## 🌍 Why Urban Carbon Twin
@@ -38,35 +40,99 @@ Urban Carbon Twin provides a **virtual experimentation environment** where diffe
 
 The system is built using **loosely coupled microservices**, each responsible for a specific domain:
 
-### 🗺️ GIS Service
-- Converts raw spatial data into uniform city grids
-- Generates road networks, buildings, and adjacency graphs
-- Acts as the spatial backbone of the digital twin
+```mermaid
+graph TD
+    user((User/Frontend)) -->|Scenario Request| Gateway[API Gateway :8005]
+    
+    subgraph "Core Simulation Engine"
+        Gateway -->|1. Get Grid| GIS[GIS Service :8000]
+        Gateway -->|2. Compute Source| Emission[Emission Engine :8001]
+        Gateway -->|3. Simulate Spread| Dispersion[Dispersion Engine :8002]
+        Gateway -->|4. Apply Fixes| Intervention[Intervention Engine :8003]
+        Gateway -->|5. Optimize Budget| Optimizer[Optimizer Service :8004]
+    end
+    
+    GIS -->|Grid Metadata| Emission
+    GIS -->|Adjacency Graph| Dispersion
+    Optimizer -.->|Plan| Intervention
+    
+    style Gateway fill:#f9f,stroke:#333
+    style GIS fill:#bbf,stroke:#333
+    style Emission fill:#ff9,stroke:#333
+    style Dispersion fill:#9f9,stroke:#333
+    style Intervention fill:#f96,stroke:#333
+    style Optimizer fill:#99f,stroke:#333
+```
 
-### 🔥 Emission Engine
-- Calculates CO₂ emissions per grid
-- Uses road density, traffic intensity, and baseline parameters
+### Microservices Definition
 
-### 🌫️ Dispersion Engine
-- Simulates how pollution spreads across neighboring grids
-- Models spatial diffusion using adjacency relationships
+| Service | Port | Description |
+| :--- | :--- | :--- |
+| **GIS Service** | `8000` | Generates grid, road network, and spatial adjacency graphs. |
+| **Emission Engine** | `8001` | Calculates base emissions based on traffic and building data. |
+| **Dispersion Engine** | `8002` | Simulates CO₂ spread to neighboring grids over time. |
+| **Intervention Engine** | `8003` | Simulates impact of Green Walls, Filters, etc. |
+| **Optimizer Service** | `8004` | Determines best intervention mix for a given budget. |
+| **API Gateway** | `8005` | Orchestrates the entire pipeline. |
 
-### 🌱 Intervention Engine
-- Applies mitigation actions such as:
-  - Roadside capture units
-  - Green buffers
-  - Localized reduction strategies
-- Evaluates post-intervention concentration changes
+---
 
-### 📊 Optimization Engine
-- Selects the most effective intervention plan
-- Respects budget constraints and cost-effectiveness
-- Produces an optimized action plan per grid
+## 🚀 Quick Start
 
-### 🚪 API Gateway
-- Orchestrates all services
-- Exposes a unified **scenario API**
-- Enables easy frontend and dashboard integration
+### Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- [Git](https://git-scm.com/)
+
+### Installation & Running
+
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/your-username/urban-carbon-twin.git
+   cd urban-carbon-twin
+   ```
+
+2. **Start All Services**
+   The entire system is containerized. Run:
+   ```bash
+   docker compose up --build
+   ```
+
+3. **Access the Application**
+   - **Frontend Dashboard**: [http://localhost:3000](http://localhost:3000)
+   - **API Documentation**: [http://localhost:8005/docs](http://localhost:8005/docs)
+
+---
+
+## 🧪 API Usage
+
+You can interact directly with the simulation engine via the API Gateway.
+
+### Run a Scenario
+
+**Endpoint:** `POST /scenario`
+
+**Request:**
+```json
+{
+  "budget": 50000,
+  "interventions": [] 
+}
+```
+
+**Response:**
+```json
+{
+  "emissions": { ... },
+  "dispersion": { ... },
+  "optimization_plan": {
+    "total_cost": 48000,
+    "plan": [
+      { "grid_id": "1_1", "intervention": "roadside_capture", "units": 2 }
+    ]
+  },
+  "post_intervention": { ... }
+}
+```
 
 ---
 
@@ -88,283 +154,12 @@ This approach ensures:
 
 ---
 
-## 🔁 Scenario Simulation Workflow
-
-1. **Spatial Modeling**  
-   Urban area is converted into grids with spatial metadata
-
-2. **Emission Calculation**  
-   CO₂ emissions are computed per grid
-
-3. **Dispersion Simulation**  
-   Pollution spreads across neighboring grids
-
-4. **Intervention Application**  
-   Mitigation strategies are applied digitally
-
-5. **Optimization**  
-   Best intervention plan is selected under constraints
-
-6. **Unified Output**  
-   Complete scenario results returned via API
-
----
-
-## 📊 Outputs & Insights
-
-The platform produces:
-- Grid-level CO₂ concentration maps
-- Pollution hotspot identification
-- Before-and-after intervention comparison
-- Budget vs impact optimization results
-- Structured data for visualization tools
-
----
-
-## 🏗️ Deployment & Scalability
-
-- Fully containerized using **Docker**
-- One-command startup using Docker Compose
-- Cloud-ready and Kubernetes-compatible
-- Modular design allows future integration with live sensors
-
----
-
-## 🌱 Impact & Use Cases
-
-- Urban sustainability planning
-- Smart city simulations
-- Environmental research and policy modeling
-- Academic and research demonstrations
-- Decision-support dashboards
-
----
-
-## 🏁 Conclusion
-
-Urban Carbon Twin is a **simulation-first digital twin platform** that brings clarity, precision, and scalability to urban CO₂ management.
-
-By enabling virtual experimentation at city scale, the platform helps teams move from assumptions to **evidence-based decisions**, accelerating the path toward sustainable urban futures.
-
----
-
-**Project Type:** Digital Twin • Urban Analytics • Clean-Tech Platform  
-**Status:** Modular, scalable, and production-ready
-
-
-
-## 🧠 System Architecture (High Level)
-
-The Urban Carbon Twin platform is designed as a **microservices-based architecture**, where each component performs a well-defined role in the overall simulation pipeline.
-
-GIS Service
-↓
-Emission Engine
-↓
-Dispersion Engine
-↓
-Intervention Engine
-↓
-Optimization Engine
-↓
-API Gateway
-↓
-Frontend / Dashboard
-
-
-### Architecture Principles
-
-- Each component is deployed as an **independent microservice**
-- Services communicate through **well-defined APIs**
-- Enables **horizontal scalability** and fault isolation
-- Ensures **clean separation of concerns**
-- Allows independent development, testing, and deployment
-
-This architecture supports complex urban simulations while remaining modular, extensible, and production-ready.
-
-
-## 🧩 Microservices Breakdown
-
-The Urban Carbon Twin platform is composed of multiple **loosely coupled microservices**, each responsible for a specific domain within the urban CO₂ simulation pipeline.
-
----
-
-### 1️⃣ GIS Service  
-**Purpose:** Spatial foundation of the digital twin
-
-**Responsibilities:**
-- Generates a grid-based representation of the city
-- Maps roads and buildings to individual grids
-- Computes spatial metrics:
-  - Road length per grid
-  - Building density
-  - Average building height
-- Builds the grid adjacency graph used for dispersion modeling
-
-**Port:** `8000`
-
----
-
-### 2️⃣ Emission Engine  
-**Purpose:** Source modeling
-
-**Responsibilities:**
-- Consumes grid metadata from the GIS Service
-- Computes grid-level CO₂ emissions
-- Uses configurable emission factors for flexibility
-- Produces emission intensity per grid
-
-**Port:** `8001`
-
----
-
-### 3️⃣ Dispersion Engine  
-**Purpose:** Pollution movement modeling
-
-**Responsibilities:**
-- Uses the grid adjacency graph from the GIS Service
-- Simulates CO₂ spread across neighboring grids
-- Applies diffusion and decay factors
-- Outputs spatially adjusted concentration values
-
-**Port:** `8002`
-
----
-
-### 4️⃣ Intervention Engine  
-**Purpose:** Action simulation
-
-**Responsibilities:**
-- Applies digital carbon-capture strategies, including:
-  - Roadside capture units
-  - Vertical gardens
-  - Biofilters
-- Supports multiple interventions per grid
-- Computes post-intervention pollution concentrations
-
-**Port:** `8003`
-
----
-
-### 5️⃣ Optimization Engine  
-**Purpose:** Decision intelligence
-
-**Responsibilities:**
-- Performs budget-aware optimization
-- Selects optimal intervention placement across grids
-- Maximizes CO₂ reduction per unit cost
-- Uses an explainable greedy optimization approach
-
-**Port:** `8004`
-
----
-
-### 6️⃣ API Gateway  
-**Purpose:** Single entry point
-
-**Responsibilities:**
-- Orchestrates all backend services
-- Executes end-to-end scenario simulations
-- Aggregates results into a unified response
-- Exposes a scenario-based API for frontends and demos
-
-**Port:** `8005`
-
----
-
-## 🚀 Tech Stack
-
-### Backend
-- **Python 3.11**
-- **FastAPI**
-- **GeoPandas / Shapely** (GIS & spatial processing)
-- **Requests** (inter-service communication)
-
-### DevOps
-- **Docker**
-- **Docker Compose**
-- **Microservice-based architecture**
-
-### Frontend (Planned)
-- **Next.js**
-- **3D Visualization** (Mapbox / Three.js)
-- **Interactive dashboards**
-
----
-
-## 🐳 Running the Entire System (Recommended)
-
-### Prerequisites
-- Docker
-- Docker Compose
-
-### One-Command Startup
-```bash
-docker compose up --build
-```
-All services start automatically and communicate through Docker’s internal networking.
-
-## 🧪 API Gateway Demo (Single Entry Point)
-
-### Endpoint
-```bash
-POST http://localhost:8005/scenario
-```
-
-### Sample Request
-```bash
-{
-  "budget": 25000,
-  "interventions": [
-    {
-      "grid_id": "grid_1_2",
-      "type": "roadside_capture",
-      "units": 2
-    }
-  ]
-}
-
-```
-
-### 📤 Response Includes
-
-- **Grid-level CO₂ emissions**
-- **Dispersion simulation results**
-- **Optimized intervention plan**
-- **Post-intervention pollution concentrations**
-
-## 📂 Repository Structure
-
-```text
-urban-carbon-twin/
-│
-├── services/
-│   ├── gis-service/
-│   ├── emission-engine/
-│   ├── dispersion-engine/
-│   ├── intervention-engine/
-│   ├── optimizer-service/
-│   └── api-gateway/
-│
-├── docker-compose.yml
-└── README.md
-```
-
-## 🏆 Why This Solution Stands Out
-
-- **Real digital twin architecture**, not a static dashboard  
-- **Explainable and policy-friendly modeling** (no black-box AI)  
-- **Scalable from ward → city → multi-city**  
-- **Fully containerized and production-ready**  
-- **Strong emphasis on system design and DevOps maturity**
-
-## 🔮 Future Enhancements
-
-- **Real-time sensor data integration** (AQI, traffic, weather)
-- **AI-based forecasting and seasonal trend analysis**
-- **Expansion to PM2.5, NO₂, and heat-island modeling**
-- **Smart City Command Center integration**
-- **Kubernetes-based deployment**
+## 📊 Frontend Features
+
+The project includes a **Next.js 15** dashboard with premium styling:
+- **Glassmorphism UI**: Modern, translucent aesthetics.
+- **3D Grid Visualization**: Interactive city grid with tilt/rotate.
+- **Real-time Results**: Instant feedback from the simulation engine.
 
 ---
 
@@ -378,179 +173,3 @@ urban-carbon-twin/
 ## 📜 License
 
 This project is developed for academic and demonstration purposes.
-
----
-
-## ✅ Project Status
-
-- System architecture completed  
-- All core engines implemented  
-- Fully Dockerized & deployment-ready  
-
-## 🧩 System Architecture (Detailed)
-
----
-
-### 🔹 Logical Architecture Overview
-
-The **Urban Carbon Twin** follows a **microservices-based digital twin architecture**, where each service is **single-responsibility**, **stateless**, and **independently scalable**.
-
-Each service represents one stage of the urban carbon lifecycle:
-
-**Spatial context → Emissions → Dispersion → Intervention → Optimization → Decision output**
-
----
-
-### 🔹 High-Level Architecture Diagram (Readable on GitHub)
-
-```text
-┌──────────────────────────┐
-│        GIS SERVICE        │
-│  (Spatial Foundation)    │
-│                          │
-│ • City grids             │
-│ • Roads & buildings      │
-│ • Adjacency graph        │
-└─────────────┬────────────┘
-              │
-              ▼
-┌──────────────────────────┐
-│     EMISSION ENGINE      │
-│  (CO₂ Source Modeling)   │
-│                          │
-│ • Traffic emissions      │
-│ • Residential baseline   │
-│ • Industrial baseline    │
-└─────────────┬────────────┘
-              │
-              ▼
-┌──────────────────────────┐
-│    DISPERSION ENGINE     │
-│ (Pollution Propagation)  │
-│                          │
-│ • Grid adjacency flow    │
-│ • Diffusion & decay      │
-│ • Time-step simulation   │
-└─────────────┬────────────┘
-              │
-              ▼
-┌──────────────────────────┐
-│  INTERVENTION ENGINE     │
-│ (Carbon Capture Actions) │
-│                          │
-│ • Roadside capture       │
-│ • Vertical gardens       │
-│ • Biofilters             │
-└─────────────┬────────────┘
-              │
-              ▼
-┌──────────────────────────┐
-│  OPTIMIZATION ENGINE     │
-│ (Decision Intelligence)  │
-│                          │
-│ • Budget constraints     │
-│ • Max CO₂ reduction      │
-│ • Placement strategy     │
-└─────────────┬────────────┘
-              │
-              ▼
-┌──────────────────────────┐
-│       API GATEWAY        │
-│   (System Orchestrator)  │
-│                          │
-│ • Single scenario API    │
-│ • Aggregated response    │
-└─────────────┬────────────┘
-              │
-              ▼
-┌──────────────────────────┐
-│ FRONTEND / DASHBOARD     │
-│ (Next.js – Planned)      │
-│                          │
-│ • 3D city visualization  │
-│ • Hotspots & scenarios   │
-└──────────────────────────┘
-
-```
-
-### 🔹 Service Interaction Flow (Scenario Execution)
-
-When a scenario request is triggered:
-
-1. **GIS Service** provides spatial grids and topology  
-2. **Emission Engine** computes grid-level CO₂ generation  
-3. **Dispersion Engine** simulates pollution spread  
-4. **Intervention Engine** applies carbon capture strategies  
-5. **Optimization Engine** selects best actions under budget  
-6. **API Gateway** aggregates and returns final results  
-
----
-
-### 🔹 Architectural Guarantees
-
-This architecture ensures:
-
-- **Deterministic results**
-- **Explainable decisions**
-- **Fast re-simulation for multiple scenarios**
-- **Independent service scalability**
-- **Production-ready system design**
-
-### 🔹 Mermaid Diagram (Optional – GitHub Auto Renders)
-
-GitHub supports Mermaid diagrams natively.  
-Paste this as-is in `README.md`.
-
-```mermaid
-graph TD
-    A[GIS Service] --> B[Emission Engine]
-    B --> C[Dispersion Engine]
-    C --> D[Intervention Engine]
-    D --> E[Optimization Engine]
-    E --> F[API Gateway]
-    F --> G[Frontend / Dashboard]
-
-```
-
-
-
-
-## 🔄 Git Branch Strategy
-
-This repository follows a structured Git workflow to ensure clean collaboration, stability, and scalability during development.
-
-### Branches
-
-- **main**  
-  Stable, demo-ready code used for final evaluation and submission.
-
-- **develop**  
-  Integration branch where all tested features are merged before release.
-
-- **feature/***  
-  Individual feature branches created and assigned per team member.
-
-### Feature Branches
-
-- `feature/devops-infra`
-- `feature/simulation-engine`
-- `feature/optimization-engine`
-- `feature/fronted-dashboard`
-- `feature/gis-data`
-
----
-
-## 👥 Team Development Workflow
-
-1. The **team leader** creates and manages all branches.
-2. Each team member works only on their **assigned feature branch**.
-3. Code changes are pushed to the respective `feature/*` branch.
-4. A **Pull Request (PR)** is created from `feature/*` → `develop`.
-5. The team leader reviews and merges approved PRs into `develop`.
-6. After final testing, the team leader merges `develop` → `main`.
-
-🚫 Direct commits to `main` and `develop` are restricted to ensure code stability.
-
----
-
-http://localhost:8005/docs
