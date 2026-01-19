@@ -1,3 +1,4 @@
+from functools import lru_cache
 import geopandas as gpd
 from app.models.grid import Grid
 from app.utils.gcs_loader import load_geojson
@@ -5,6 +6,7 @@ from app.utils.gcs_loader import load_geojson
 DEFAULT_FLOOR_HEIGHT = 3.0  # meters
 
 
+@lru_cache(maxsize=1)
 def load_buildings():
     """
     Loads buildings from Google Cloud Storage instead of local filesystem.

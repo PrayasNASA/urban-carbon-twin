@@ -6,12 +6,12 @@ from app.schemas.grid_schema import GridSchema
 
 router = APIRouter(prefix="/city", tags=["GIS"])
 
-roads_gdf = load_roads()
-buildings_gdf = load_buildings()
-
 
 @router.get("/grids", response_model=list[GridSchema])
 def get_city_grids():
+    roads_gdf = load_roads()
+    buildings_gdf = load_buildings()
+
     grids = generate_grids()
 
     grids = attach_roads_to_grids(grids, roads_gdf)

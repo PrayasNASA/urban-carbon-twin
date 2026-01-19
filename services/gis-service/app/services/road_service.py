@@ -1,8 +1,10 @@
+from functools import lru_cache
 import geopandas as gpd
 from app.models.grid import Grid
 from app.utils.gcs_loader import load_geojson
 
 
+@lru_cache(maxsize=1)
 def load_roads():
     """
     Load roads GeoJSON from Google Cloud Storage
