@@ -1,13 +1,19 @@
 import geopandas as gpd
 from app.models.grid import Grid
+from app.utils.gcs_loader import load_geojson
 
-BUILDINGS_FILE = "data/raw/buildings.geojson"
 DEFAULT_FLOOR_HEIGHT = 3.0  # meters
 
 
 def load_buildings():
-    gdf = gpd.read_file(BUILDINGS_FILE)
-    gdf = gdf.to_crs(epsg=4326)
+    """
+    Loads buildings from Google Cloud Storage instead of local filesystem.
+    """
+    geojson = load_geojson("raw/buildings.geojson")
+
+    # Convert GeoJSON to GeoDataFrame
+    gdf = gpd.GeoDataFrame.from_features(geojson["features"])
+    gdf = gdf.set_crs(epsg=4326, allow_override=True)
 
     # Normalize height
     def extract_height(row):
@@ -22,6 +28,9 @@ def load_buildings():
 
 
 def attach_buildings_to_grids(grids: list[Grid], buildings_gdf):
+    """
+    Attaches building statistics to each grid.
+    """
     for grid in grids:
         intersecting = buildings_gdf[buildings_gdf.intersects(grid.polygon)]
 
