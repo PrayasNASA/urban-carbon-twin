@@ -7,8 +7,8 @@ app = FastAPI(
     version="1.0.0"
 )
 
-app.include_router(grid_router)
-app.include_router(adjacency_router)
+app.include_router(grid_router, prefix="/city")
+app.include_router(adjacency_router, prefix="/city")
 
 
 @app.get("/")
@@ -17,9 +17,3 @@ def health():
         "service": "gis-service",
         "status": "running"
     }
-
-
-# Then always run:
-
-# python
-# uvicorn main:app --reload
