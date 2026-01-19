@@ -9,7 +9,7 @@
 
 The platform enables planners, researchers, and sustainability teams to **analyze urban carbon dynamics digitally**, test mitigation strategies virtually, and make **data-driven decisions** before real-world deployment.
 
-![Dashboard Preview](https://via.placeholder.com/800x400?text=Urban+Carbon+Twin+Dashboard)
+
 
 ---
 
