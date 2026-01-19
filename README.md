@@ -31,15 +31,15 @@ The project follows a **modular, cloud-native architecture** designed for scalab
 ### 🌐 High-Level Flow
 ```mermaid
 flowchart TD
-    U[User / Browser] --> F[Next.js Frontend<br/>(Vercel)]
-    F --> G[API Gateway<br/>(FastAPI – Cloud Run)]
+    U["User / Browser"] --> F["Next.js Frontend<br/>(Vercel)"]
+    F --> G["API Gateway<br/>(FastAPI – Cloud Run)"]
 
     subgraph Simulation_Engines [Simulation Microservices – Full Deployment Mode]
-        GIS[GIS Service]
-        EM[Emission Engine]
-        DP[Dispersion Engine]
-        IN[Intervention Engine]
-        OP[Optimization Engine]
+        GIS["GIS Service"]
+        EM["Emission Engine"]
+        DP["Dispersion Engine"]
+        IN["Intervention Engine"]
+        OP["Optimization Engine"]
     end
 
     G -->|Fetch spatial data| GIS
