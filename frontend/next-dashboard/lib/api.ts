@@ -1,5 +1,5 @@
 const API_GATEWAY =
-  process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_GATEWAY || "http://localhost:8005";
+  process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_GATEWAY || "https://api-gateway-916807068717.us-central1.run.app";
 
 export async function runScenario(budget: number) {
   const res = await fetch(`${API_GATEWAY}/scenario`, {
