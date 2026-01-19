@@ -1,9 +1,12 @@
-FROM ghcr.io/osgeo/gdal:alpine-small-3.9.0
+FROM ghcr.io/osgeo/gdal:ubuntu-small-3.9.0
 
 WORKDIR /app
 
 # Install Python + venv support
-RUN apk add --no-cache python3 py3-pip py3-virtualenv
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip python3-venv && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Create virtual environment
 RUN python3 -m venv /venv
