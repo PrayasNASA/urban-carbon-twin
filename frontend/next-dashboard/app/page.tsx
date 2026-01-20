@@ -19,12 +19,21 @@ export default function Home() {
     setComparisonData(null);
     try {
       if (compareMode) {
-        // Simple comparison: budget vs budget*2
         const result = await compareScenarios(budget, budget * 2);
-        setComparisonData(result);
+        if (result.error) {
+          setError(`Comparison Error: ${result.error}`);
+          setComparisonData(null);
+        } else {
+          setComparisonData(result);
+        }
       } else {
         const result = await runScenario(budget);
-        setData(result);
+        if (result.optimization_plan?.error) {
+          setError(`Backend Error: ${result.optimization_plan.error}`);
+          setData(null);
+        } else {
+          setData(result);
+        }
       }
     } catch (err) {
       console.error(err);

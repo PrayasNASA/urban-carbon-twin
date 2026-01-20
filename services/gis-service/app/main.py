@@ -18,8 +18,8 @@ app = FastAPI(
 async def startup_event():
     logger.info("Application startup complete. Ready to accept requests.")
 
-app.include_router(grid_router, prefix="/city")
-app.include_router(adjacency_router, prefix="/city")
+app.include_router(grid_router)
+app.include_router(adjacency_router)
 
 
 @app.get("/")
