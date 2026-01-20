@@ -1,133 +1,118 @@
-# Urban Carbon Twin 🏙️🌱
-### A Digital Twin Platform for Urban CO₂ Modeling & Mitigation
+# Urban Carbon Twin 🏙️🌌✨
+### An Advanced Digital Twin Platform for Urban CO₂ Modeling & Optimization
 
 ---
 
-## 📌 Project Overview
+## 📌 Project Vision
 
-**Urban Carbon Twin** is a microservices-based **digital twin platform** designed to model, simulate, and optimize **CO₂ emissions, dispersion, and mitigation strategies** in urban environments.
+**Urban Carbon Twin** is a high-fidelity, microservices-powered **digital twin platform** engineered to simulate, visualize, and optimize urban carbon sequestration. By creating a precise virtual replica of urban environments, the platform empowers city planners and environmental teams to test mitigation strategies in a **low-risk, high-intelligence environment** before real-world implementation.
 
-The platform enables planners, researchers, and sustainability teams to **analyze urban carbon dynamics digitally**, test mitigation strategies virtually, and make **data-driven decisions** before real-world deployment.
 ---
 
-## 🌍 Live Demo
+## ⚡ Key Pillars
 
-🚀 **Urban Carbon Twin Dashboard**  
-👉 https://urban-carbon-twin.vercel.app/
+| 🧩 Visibility | 🧠 Intelligence | 📈 Optimization |
+| :--- | :--- | :--- |
+| **Real-time GIS Sync** integrates spatial data into a high-performance 3D dashboard. | **Physics-based Dispersion** models the micro-climatic flow of CO₂ across street layouts. | **Cost-Aware Interventions** use AI to find the most efficient budget allocation. |
 
-## 📊 Dashboard Preview
-[![Dashboard Preview](assets/dashboard.png)](https://urban-carbon-twin.vercel.app/)
+---
 
+## 🌌 The "Dream Dashboard" Aesthetic
 
-## 🌍 Why Urban Carbon Twin
+The platform features a **premium, glassmorphic UI** inspired by high-end Fintech and Staking platforms, designed for maximum decision-making clarity and visual impact.
 
-Modern cities face complex challenges related to:
-- **Traffic-driven emissions** and high-density hotspots.
-- **Micro-climatic dispersion** patterns that vary by street layout.
-- **High costs** and risks associated with real-world infrastructure trials.
-
-Urban Carbon Twin provides a **virtual experimentation environment** where different emission scenarios and mitigation strategies can be tested safely and efficiently.
+- **Deep Space Palette**: A sophisticated black-purple base with vibrant **Violet & Indigo** accents.
+- **Glassmorphism**: Extensive use of `backdrop-blur` and semi-transparent layers for a modern, tactile feel.
+- **Tailwind CSS v4**: Built with the latest **CSS-first architecture** for high performance and design consistency.
+- **Cyber-Spatial Visualization**: 3D grid volumetrics that clearly represent CO₂ concentrations with glowing intensity nodes.
 
 ---
 
 ## 🧠 System Architecture
 
-The project follows a **modular, cloud-native architecture** designed for scalability and clear separation of concerns.
+Urban Carbon Twin utilizes a **decoupled microservice architecture** for maximum scalability and reliability.
 
-### 🌐 High-Level Flow
 ```mermaid
 flowchart TD
-    U["User / Browser"] --> F["Next.js Frontend<br/>(Vercel)"]
-    F --> G["API Gateway<br/>(FastAPI – Cloud Run)"]
-
-    subgraph Simulation_Engines [Simulation Microservices – Full Deployment Mode]
-        GIS["GIS Service"]
-        EM["Emission Engine"]
-        DP["Dispersion Engine"]
-        IN["Intervention Engine"]
-        OP["Optimization Engine"]
+    subgraph Frontend_Layer [User Experience]
+        U["Dashboard (Next.js 15)"]
     end
 
-    G -->|Fetch spatial data| GIS
-    G -->|Compute emissions| EM
-    G -->|Simulate dispersion| DP
-    G -->|Apply interventions| IN
-    G -->|Optimize budget| OP
+    subgraph Orchestration_Layer [Cloud API Gateway]
+        G["FastAPI Gateway<br/>(GCP Cloud Run)"]
+    end
+
+    subgraph Simulation_Core [High-Fidelity Engines]
+        GIS["GIS Service (Spatial Processing)"]
+        EM["Emission Engine (Modeling)"]
+        DP["Dispersion Engine (Physics)"]
+        IN["Intervention Engine (Catalog)"]
+        OP["Optimization Engine (Logic)"]
+    end
+
+    U -->|REST| G
+    G --> GIS & EM & DP & IN & OP
 ```
 
-### 🧩 Data Orchestration
-User requests initiated from the Next.js frontend are routed through a FastAPI-based **API Gateway**. The gateway orchestrates spatial processing, emission modeling, dispersion simulation, intervention evaluation, and optimization services before returning aggregated, decision-ready results to the frontend.
+### 🛠️ Service Directory
+
+| Service | Responsibility | Technology |
+| :--- | :--- | :--- |
+| **Frontend** | Premium Dashboard UI & 3D Visuals | Next.js 15, Tailwind v4, Lucide |
+| **API Gateway** | Request Orchestration & Security | FastAPI, GCP Cloud Run |
+| **GIS Service** | Street Layout & Building Footprints | Python, GeoJSON |
+| **Emission Engine**| Traffic & Point-source computation | Python, Scientific Computing |
+| **Dispersion Engine**| CO₂ Micro-flow simulation | Python, Physics Models |
+| **Optimization Engine**| Budget allocation logic | Python, Linear Optimization |
 
 ---
 
-## 🚀 Scalability & Deployment Modes
+## 🚀 Technical Stack
 
-The system is designed to scale from **Pilot Zones** to **City-Wide** deployments using a phased approach.
-
-| Mode | Execution Model | Use Case |
-| :--- | :--- | :--- |
-| **🟢 Cloud (MVP)** | Frontend on Vercel, API Gateway on Cloud Run. | Rapid demos, government reviews, lightweight simulations. |
-| **🔵 Local (Full)** | Multi-container Docker Compose setup. | Full-scale research, heavy computation, data-intensive modeling. |
-
-> [!NOTE]
-> For the MVP deployment, a lightweight simulation layer is executed within the API Gateway. The dedicated microservices are activated when high-fidelity modeling is required.
+- **Frontend**: Next.js 15, React 19, **Tailwind CSS v4**, Lucide-React.
+- **Backend**: Python 3.12, FastAPI, Pydantic, NumPy.
+- **Infrastructure**: Docker, Docker Compose, Google Cloud Run, Vercel.
+- **Architecture**: RESTful Microservices, Geo-spatial Data Processing.
 
 ---
 
 ## 🛠️ Quick Start
 
-### Prerequisites
-- [Docker Desktop](https://www.docker.com/products/docker-desktop)
-- [Node.js & npm](https://nodejs.org/) (for local frontend dev)
+### 1. Prerequisites
+- **Docker Desktop** installed.
+- **Node.js 20+** (if running frontend separately).
 
-### Running Locally (Full Simulation Mode)
-1. **Clone the Repository**
-   ```bash
-   git clone https://github.com/your-username/urban-carbon-twin.git
-   cd urban-carbon-twin
-   ```
-2. **Start All Services**
-   ```bash
-   docker compose up --build
-   ```
-3. **Access the Application**
-   - **Frontend Dashboard**: [http://localhost:3000](http://localhost:3000)
-   - **API Documentation**: [http://localhost:8005/docs](http://localhost:8005/docs)
-
----
-
-## 🧪 API Usage
-
-Interact directly with the simulation engine via the API Gateway.
-
-**Endpoint:** `POST /scenario`  
-**Description:** Executes a full carbon modeling pipeline based on budget and parameters.
-
-**Example Request:**
-```json
-{
-  "budget": 50000,
-  "interventions": ["green_wall", "roadside_capture"] 
-}
+### 2. Launch Local Environment
+Clone the repo and spin up the entire cluster:
+```bash
+git clone https://github.com/PrayasNASA/urban-carbon-twin.git
+cd urban-carbon-twin
+docker compose up --build
 ```
 
----
-
-## 📊 Core Features
-
-- **3D Grid Visualization**: Interactive city grid with tilt/rotate using Three.js/Next.js.
-- **Scenario Optimization**: Budget-aware intervention placement (AI-driven).
-- **Spatial Analytics**: GIS-integrated adjacency graphs for pollution dispersion.
-- **Glassmorphism UI**: Premium, modern dashboard aesthetics.
+### 3. Access Portals
+- **🌍 Frontend**: [http://localhost:3000](http://localhost:3000)
+- **⚙️ API Gateway**: [http://localhost:8005/docs](http://localhost:8005/docs)
+- **📍 GIS Service**: [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ---
 
-## 📜 License & Team
+## 🧪 Interactive Simulation
 
-- **Team Name:** [Your Team Name]
-- **Project Theme:** Digital Twin for Urban CO₂ Capture  
-- **License:** Developed for academic and demonstration purposes (SIH 2024 candidate).
+Use the dashboard to execute complex carbon sequestration scenarios:
+1. **Define Budget**: Adjust the glowing slider to set your target investment.
+2. **Synchronize Nodes**: The system fetches real-time GIS data for urban nodes.
+3. **Run Simulation**: The engine calculates emissions, simulates dispersion, and finds the optimal intervention plan.
+4. **Compare Mode**: Toggle comparison to test "Baseline" vs. "Optimized" strategies.
+
+---
+
+## 📜 License & Governance
+
+- **Project Status**: ACTIVE - Developed for strategic urban resilience modeling.
+- **Theme**: Digital Twin for Sustainability & Decarbonization.
+- **Context**: SIH 2024 Candidate / Technical Demonstration.
 
 ---
 > [!TIP]
-> **One-Line Architecture Summary**: “The Urban Carbon Twin uses a cloud-native microservice architecture with a Vercel-hosted Next.js frontend and a Google Cloud Run–based API Gateway, enabling scalable and modular urban carbon simulation.”
+> **One-Line Architecture Summary**: “A cloud-native microservice ensemble synchronizing spatial intelligence with physical modeling to deliver actionable urban carbon mitigation strategies.”
