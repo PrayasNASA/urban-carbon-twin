@@ -1,4 +1,3 @@
-from google.cloud import storage
 import json
 import os
 
@@ -11,6 +10,8 @@ def load_geojson(path: str):
     - raw/buildings.geojson
     - processed/grids.geojson
     """
+    from google.cloud import storage
+    
     client = storage.Client()
     bucket = client.bucket(BUCKET_NAME)
     blob = bucket.blob(path)
