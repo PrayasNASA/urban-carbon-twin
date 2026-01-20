@@ -1,25 +1,15 @@
 import type { Metadata } from "next";
-import { Inter, Exo_2, JetBrains_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
-  variable: "--font-body",
   subsets: ["latin"],
-});
-
-const exo2 = Exo_2({
-  variable: "--font-header",
-  subsets: ["latin"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
-  title: "Urban Carbon Twin | Cybernetic Control Center",
-  description: "Advanced spatial carbon emission simulation and optimization engine.",
+  title: "Urban Carbon Twin | Carbon Management Dashboard",
+  description: "Enterprise-grade spatial urban carbon sequestration and emissions intelligence dashboard.",
 };
 
 export default function RootLayout({
@@ -29,9 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${inter.variable} ${exo2.variable} ${jetbrainsMono.variable} antialiased`}
-      >
+      <body className={`${inter.variable} font-sans`}>
         {children}
       </body>
     </html>
