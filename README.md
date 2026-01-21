@@ -40,6 +40,8 @@
 
 Urban Carbon Twin utilizes a **decoupled microservice architecture** for maximum scalability and reliability.
 
+
+
 ```mermaid
 flowchart TD
     subgraph Frontend_Layer [User Experience]
@@ -61,6 +63,8 @@ flowchart TD
     U -->|REST| G
     G --> GIS & EM & DP & IN & OP
 ```
+
+![Project Structure](assets/project%20structure.png)
 
 ### 🛠️ Service Directory
 
