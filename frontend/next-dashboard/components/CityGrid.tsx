@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 export default function CityGrid({ dispersion }: { dispersion: any }) {
   const grids = dispersion?.results || [];
   const [mounted, setMounted] = useState(false);
-  const [is3D, setIs3D] = useState(true);
+  const [is3D, setIs3D] = useState(false);
 
   useEffect(() => {
     setMounted(true);
