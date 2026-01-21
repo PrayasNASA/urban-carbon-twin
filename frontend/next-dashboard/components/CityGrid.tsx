@@ -31,7 +31,7 @@ export default function CityGrid({ dispersion }: { dispersion: any }) {
       <div className="absolute top-6 right-6 z-20 flex gap-3">
         <button
           onClick={() => setIs3D(!is3D)}
-          className={`px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] transition-all border ${is3D
+          className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-[0.2em] transition-all border ${is3D
             ? 'bg-neon-emerald border-neon-emerald text-black shadow-[0_0_15px_#10B981]'
             : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
             }`}
@@ -48,7 +48,7 @@ export default function CityGrid({ dispersion }: { dispersion: any }) {
             transform: is3D ? 'perspective(2000px) rotateX(55deg) rotateZ(-25deg) scale(0.9) translateY(0)' : 'none',
           }}
         >
-          <div className="grid grid-cols-20 gap-1 p-8 bg-neon-emerald/5 rounded-2xl border border-neon-emerald/20 shadow-[0_0_50px_rgba(16,185,129,0.1)]">
+          <div className="grid grid-cols-20 gap-1 p-8 bg-neon-emerald/5 rounded-xl border border-neon-emerald/20 shadow-[0_0_50px_rgba(16,185,129,0.1)]">
             {grids.map((g: any, idx: number) => {
               const intensity = Math.min(g.concentration / 100, 1);
               return (
@@ -117,7 +117,7 @@ export default function CityGrid({ dispersion }: { dispersion: any }) {
         {/* 🛰️ Awaiting Simulation Feed */}
         {!dispersion && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#050C09]/60 backdrop-blur-md z-10 transition-opacity">
-            <div className="w-16 h-16 border-2 border-neon-emerald/20 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.1)] bg-black/40 mb-6 group">
+            <div className="w-16 h-16 border-2 border-neon-emerald/20 rounded-xl flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.1)] bg-black/40 mb-6 group">
               <div className="w-8 h-8 rounded-full border-2 border-neon-emerald border-t-transparent animate-spin" />
             </div>
             <p className="text-[12px] font-bold text-neon-emerald uppercase tracking-[0.3em] animate-pulse">Scanning Biosphere...</p>

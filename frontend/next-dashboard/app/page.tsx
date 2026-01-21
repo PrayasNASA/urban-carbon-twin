@@ -84,7 +84,7 @@ export default function Home() {
           {/* Page Title Row */}
           <div className="flex items-baseline justify-between mt-8">
             <h2 className="text-3xl font-bold text-white tracking-tight">Environmental Sequestration Metrics</h2>
-            <div className="text-[11px] font-extrabold text-neon-emerald uppercase tracking-[0.2em] bg-neon-emerald/10 border border-neon-emerald/20 px-4 py-1.5 rounded-full backdrop-blur-md">
+            <div className="text-[11px] font-extrabold text-neon-emerald uppercase tracking-[0.2em] bg-neon-emerald/10 border border-neon-emerald/20 px-4 py-1.5 rounded-lg backdrop-blur-md">
               Region: South Asia Core
             </div>
           </div>
@@ -98,7 +98,7 @@ export default function Home() {
                   <h3 className="text-[11px] font-extrabold text-emerald-500/60 uppercase tracking-[0.2em]">Scenario</h3>
                   <button
                     onClick={() => setCompareMode(!compareMode)}
-                    className={`text-[10px] font-bold px-3 py-1.5 rounded-full border uppercase tracking-widest transition-all ${compareMode ? 'bg-neon-emerald/20 border-neon-emerald text-neon-emerald shadow-[0_0_10px_rgba(16,185,129,0.2)]' : 'bg-white/5 border-white/10 text-white/40'}`}
+                    className={`text-[10px] font-bold px-3 py-1.5 rounded-md border uppercase tracking-widest transition-all ${compareMode ? 'bg-neon-emerald/20 border-neon-emerald text-neon-emerald shadow-[0_0_10px_rgba(16,185,129,0.2)]' : 'bg-white/5 border-white/10 text-white/40'}`}
                   >
                     {compareMode ? 'MULTI_VIEW' : 'SINGLE_NODE'}
                   </button>
@@ -134,7 +134,7 @@ export default function Home() {
                     <p className="text-[11px] text-emerald-500/40 font-medium tracking-tight">Real-time topographic CO2 distribution</p>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    <div className="flex items-center gap-3 text-[11px] font-bold bg-neon-emerald/10 text-neon-emerald px-4 py-1.5 rounded-full border border-neon-emerald/20">
+                    <div className="flex items-center gap-3 text-[11px] font-bold bg-neon-emerald/10 text-neon-emerald px-4 py-1.5 rounded-lg border border-neon-emerald/20">
                       <div className="w-2 h-2 rounded-full bg-neon-emerald animate-pulse" />
                       <span>LIVE_SENSING_ACTIVE</span>
                     </div>
@@ -157,8 +157,8 @@ export default function Home() {
                   <p className="text-[11px] text-emerald-500/40 font-bold uppercase tracking-[0.2em] mt-1">Optimization analysis & resource distribution</p>
                 </div>
                 <div className="flex items-center gap-4 text-[10px] font-mono font-bold text-neon-emerald">
-                  <span className="bg-neon-emerald/10 px-3 py-1.5 rounded-full border border-neon-emerald/20">SOLVER_V4.2</span>
-                  <span className="bg-white/5 px-3 py-1.5 rounded-full border border-white/10 text-white/40 uppercase">Target: Carbon Neutral 2040</span>
+                  <span className="bg-neon-emerald/10 px-3 py-1.5 rounded-md border border-neon-emerald/20">SOLVER_V4.2</span>
+                  <span className="bg-white/5 px-3 py-1.5 rounded-md border border-white/10 text-white/40 uppercase">Target: Carbon Neutral 2040</span>
                 </div>
               </div>
               <ResultsPanel optimization={data?.optimization_plan} />
