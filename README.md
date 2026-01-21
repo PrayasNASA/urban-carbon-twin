@@ -1,6 +1,12 @@
 # Urban Carbon Twin 🏙️🌌✨
 ### An Advanced Digital Twin Platform for Urban CO₂ Modeling & Optimization
 
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688)
+![Next.js](https://img.shields.io/badge/Next.js-15-black)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Hackathon](https://img.shields.io/badge/Hackathon-Viksit--Bharat-orange)
+
 ---
 
 ## 📌 Project Vision
