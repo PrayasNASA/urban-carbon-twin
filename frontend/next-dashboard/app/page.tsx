@@ -7,6 +7,7 @@ import CityGrid from "@/components/CityGrid";
 import ScenarioPanel from "@/components/ScenarioPanel";
 import ResultsPanel from "@/components/ResultsPanel";
 import LandingPage from "@/components/LandingPage";
+import HeatmapBackground from "@/components/HeatmapBackground";
 
 export default function Home() {
   const [showDashboard, setShowDashboard] = useState(false);
@@ -48,6 +49,7 @@ export default function Home() {
 
   return (
     <main className="h-screen overflow-y-auto overflow-x-hidden snap-y snap-mandatory scroll-smooth grain-overlay">
+      <HeatmapBackground />
       {/* 🌿 Section 1: Landing Page */}
       <section className="h-screen w-screen snap-start">
         <LandingPage onInitialize={() => { }} />
