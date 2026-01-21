@@ -14,11 +14,11 @@ export default function ScenarioPanel({
   return (
     <div className="flex flex-col gap-8 w-full">
 
-      {/* 🎚️ Scientific Budget Control */}
-      <div className="flex flex-col gap-4">
+      {/* 🎚️ Solarpunk Budget Control */}
+      <div className="flex flex-col gap-5">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Global Budget [USD]</label>
-          <div className="text-lg font-bold text-white tabular-nums">
+          <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">Global Capital [USD]</label>
+          <div className="text-2xl font-bold text-neon-emerald tabular-nums drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]">
             ${budget.toLocaleString()}
           </div>
         </div>
@@ -31,21 +31,22 @@ export default function ScenarioPanel({
             step="5000"
             value={budget}
             onChange={(e) => setBudget(Number(e.target.value))}
-            className="w-full h-1.5 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all"
+            className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-neon-emerald hover:accent-emerald-400 transition-all"
           />
-          <div className="flex justify-between mt-3 text-[10px] font-bold text-gray-600 uppercase tracking-tighter">
-            <span>Limit_Min: $5k</span>
-            <span className="text-gray-500">Scale: Linear</span>
-            <span>Limit_Max: $100k</span>
+          <div className="flex justify-between mt-4 text-[9px] font-bold text-white/20 uppercase tracking-widest font-mono">
+            <span>MIN_5K</span>
+            <span className="text-neon-emerald/30 underline decoration-dotted">LINEAR_SCALE</span>
+            <span>MAX_100K</span>
           </div>
         </div>
       </div>
 
       {/* 💡 Intelligence Context Box */}
-      <div className="p-4 bg-gray-800/40 border border-gray-800 rounded-xl">
-        <p className="text-[11px] text-gray-400 leading-relaxed font-medium">
-          <span className="text-blue-400 font-bold uppercase mr-1">Advisory:</span>
-          Budgets &gt;$50k enable multi-agent swarm deployment, increasing sequestration precision by an estimated 24.3%.
+      <div className="p-5 bg-white/5 border border-white/10 rounded-2xl relative overflow-hidden group">
+        <div className="absolute top-0 left-0 w-1 h-full bg-neon-emerald/40" />
+        <p className="text-[11px] text-white/70 leading-relaxed font-medium transition-colors group-hover:text-white">
+          <span className="text-neon-emerald font-bold uppercase mr-2 tracking-tighter">[ADVISORY]</span>
+          Deployments exceeding <span className="text-neon-emerald">$50K</span> activate regional swarm agents, increasing capture efficiency by <span className="font-bold underline">24.3%</span>.
         </p>
       </div>
 
@@ -53,22 +54,24 @@ export default function ScenarioPanel({
       <button
         onClick={() => onRun(budget)}
         disabled={loading}
-        className={`w-full py-4 px-6 rounded-xl font-bold text-[11px] uppercase tracking-[0.15em] transition-all flex items-center justify-center gap-3 active:scale-[0.98] ${loading
-          ? "bg-gray-800 text-gray-600 cursor-not-allowed border border-gray-700"
-          : "bg-gray-50 text-gray-950 hover:bg-white shadow-lg shadow-black/20"
+        className={`w-full py-5 px-8 rounded-full font-bold text-[11px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-4 active:scale-[0.97] group ${loading
+          ? "bg-white/5 text-white/20 cursor-not-allowed border border-white/5"
+          : "bg-neon-emerald text-black hover:bg-white shadow-[0_0_20px_rgba(16,185,129,0.4)]"
           }`}
       >
         {loading ? (
           <>
-            <div className="w-4 h-4 border-2 border-gray-400 border-t-gray-900 rounded-full animate-spin" />
-            <span>Processing...</span>
+            <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+            <span className="italic">Running Sequence...</span>
           </>
         ) : (
           <>
-            <span>Execute Simulation</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-              <path d="M5 12h14m-7-7l7 7-7 7" />
-            </svg>
+            <span>Initialize Simulation</span>
+            <div className="w-5 h-5 rounded-full bg-black/10 flex items-center justify-center group-hover:bg-neon-emerald/10 transition-colors">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4">
+                <path d="M5 12h14m-7-7l7 7-7 7" />
+              </svg>
+            </div>
           </>
         )}
       </button>
