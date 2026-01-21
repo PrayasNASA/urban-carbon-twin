@@ -27,12 +27,12 @@ export default function LandingPage({ onInitialize }: { onInitialize: () => void
                 <img
                     src={`/co2-background-images/ezgif-frame-${currentFrame.toString().padStart(3, '0')}.jpg`}
                     alt="Atmospheric CO2 Migration"
-                    className="w-full h-full object-cover opacity-60 scale-105 transition-opacity duration-300"
+                    className="w-full h-full object-cover opacity-95 scale-105 transition-opacity duration-300"
                 />
             </div>
 
-            {/* Frosted Glass Overlay */}
-            <div className="absolute inset-0 backdrop-blur-3xl bg-black/50" />
+            {/* Frosted Glass Overlay - Reduced for clarity */}
+            <div className="absolute inset-0 backdrop-blur-md bg-black/20" />
 
             {/* Content */}
             <div className="relative z-10 text-center space-y-8 max-w-4xl px-6 mx-auto h-full flex flex-col justify-center items-center">
@@ -40,8 +40,9 @@ export default function LandingPage({ onInitialize }: { onInitialize: () => void
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1.2, ease: "easeOut" }}
+                    className="drop-shadow-[0_0_30px_rgba(0,0,0,0.8)]"
                 >
-                    <h1 className="text-6xl md:text-8xl font-bold text-white tracking-tighter mb-6 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+                    <h1 className="text-6xl md:text-8xl font-bold text-white tracking-tighter mb-6">
                         Urban Carbon <span className="text-neon-emerald">Twin</span>
                     </h1>
                     <p className="text-xl md:text-2xl text-emerald-50/90 font-medium tracking-[0.15em] uppercase">

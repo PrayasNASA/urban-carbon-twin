@@ -97,7 +97,7 @@ export default function HeatmapBackground() {
         <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#050C09]">
             <canvas
                 ref={canvasRef}
-                className="opacity-40"
+                className="opacity-20"
             />
             {/* Scanline / HUD Grid Overlay */}
             <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] z-10 pointer-events-none bg-[length:100%_4px,3px_100%]" />
