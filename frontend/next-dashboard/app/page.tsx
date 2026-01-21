@@ -1,20 +1,32 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef } from "react";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { runScenario, compareScenarios } from "@/lib/api";
 import CityGrid from "@/components/CityGrid";
 import ScenarioPanel from "@/components/ScenarioPanel";
 import ResultsPanel from "@/components/ResultsPanel";
 import LandingPage from "@/components/LandingPage";
+import HeatmapBackground from "@/components/HeatmapBackground";
 
 export default function Home() {
-  const [showDashboard, setShowDashboard] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<any>(null);
   const [comparisonData, setComparisonData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [compareMode, setCompareMode] = useState(false);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
+
+  // Transform values for cinematic transition - mapped to the first 40% of the total container
+  const landingOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
+  const landingScale = useTransform(scrollYProgress, [0, 0.25], [1, 0.98]);
+  const dashboardOpacity = useTransform(scrollYProgress, [0.15, 0.35], [0, 1]);
+  const dashboardY = useTransform(scrollYProgress, [0.15, 0.35], [40, 0]);
 
   async function handleRun(budget: number) {
     setLoading(true);
@@ -47,14 +59,27 @@ export default function Home() {
   }
 
   return (
-    <main className="h-screen overflow-y-auto overflow-x-hidden snap-y snap-mandatory scroll-smooth grain-overlay">
+    <main
+      ref={containerRef}
+      className="min-h-screen overflow-y-auto overflow-x-hidden snap-y snap-proximity scroll-smooth grain-overlay relative bg-background"
+    >
+      <HeatmapBackground scrollProgress={scrollYProgress} />
       {/* 🌿 Section 1: Landing Page */}
-      <section className="h-screen w-screen snap-start">
+      <motion.section
+        style={{
+          opacity: landingOpacity,
+          scale: landingScale,
+        }}
+        className="h-screen w-screen sticky top-0 z-10 snap-start"
+      >
         <LandingPage onInitialize={() => { }} />
-      </section>
+      </motion.section>
 
       {/* 🚀 Section 2: Dashboard Engine */}
-      <section className="min-h-screen w-screen snap-start bg-background text-gray-50 antialiased font-sans">
+      <motion.section
+        style={{ opacity: dashboardOpacity, y: dashboardY }}
+        className="min-h-screen w-screen snap-start bg-transparent text-gray-50 antialiased font-sans relative z-20 pointer-events-auto"
+      >
         {/* 🏛️ Solarpunk Header */}
         <header className="glass-panel border-b border-white/10 sticky top-0 z-50 mx-8 mt-6">
           <div className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
@@ -185,7 +210,7 @@ export default function Home() {
             </div>
           </div>
         </footer>
-      </section>
+      </motion.section>
     </main>
   );
 }

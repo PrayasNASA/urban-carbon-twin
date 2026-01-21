@@ -1,16 +1,15 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #050C09;
-  /* Midnight Forest Darker */
-  --color-background-gradient: linear-gradient(135deg, #0B1A13 0%, #050C09 100%);
-  --color-foreground: #ECFDF5;
+  --color-background: #030806;
+  /* Obsidian Deep */
+  --color-background-gradient: linear-gradient(180deg, #030806 0%, #050C09 100%);
+  --color-foreground: #F0FDF4;
   /* Emerald 50 */
 
-  --color-glass: rgba(11, 26, 19, 0.6);
-  --color-glass-border: rgba(16, 185, 129, 0.2);
-  /* Emerald 500 edge */
-  --color-glass-glow: rgba(16, 185, 129, 0.1);
+  --color-glass: rgba(11, 26, 19, 0.45);
+  --color-glass-border: rgba(16, 185, 129, 0.15);
+  --color-glass-glow: rgba(16, 185, 129, 0.08);
 
   --color-neon-emerald: #10B981;
   --color-soft-amber: #F59E0B;
