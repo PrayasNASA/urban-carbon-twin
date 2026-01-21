@@ -8,15 +8,7 @@ export default function LandingPage({ onInitialize }: { onInitialize: () => void
     const buttonRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
-        if (buttonRef.current) {
-            gsap.to(buttonRef.current, {
-                boxShadow: "0 0 20px rgba(16, 185, 129, 0.6)",
-                repeat: -1,
-                yoyo: true,
-                duration: 1.5,
-                ease: "sine.inOut"
-            });
-        }
+        // Aesthetic entry animation if needed in future
     }, []);
 
     const handleScrollToDashboard = () => {
@@ -57,24 +49,6 @@ export default function LandingPage({ onInitialize }: { onInitialize: () => void
                     </p>
                 </motion.div>
 
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1, duration: 1 }}
-                >
-                    <button
-                        ref={buttonRef}
-                        onClick={handleScrollToDashboard}
-                        className="group relative px-8 py-3 bg-neon-emerald/20 border border-neon-emerald/50 rounded-full text-neon-emerald font-bold text-[12px] uppercase tracking-widest overflow-hidden transition-all hover:bg-neon-emerald hover:text-white"
-                    >
-                        <span className="relative z-10 italic">Initialize Simulation</span>
-                        {/* Ripple Effect Element */}
-                        <span className="absolute inset-0 bg-neon-emerald opacity-0 group-active:opacity-10 group-active:scale-150 transition-all duration-500 rounded-full pointer-events-none" />
-
-                        {/* Inner Glow */}
-                        <div className="absolute inset-0 rounded-full border border-neon-emerald/30 group-hover:border-white/50 transition-colors" />
-                    </button>
-                </motion.div>
             </div>
 
             {/* Scroll Indicator */}

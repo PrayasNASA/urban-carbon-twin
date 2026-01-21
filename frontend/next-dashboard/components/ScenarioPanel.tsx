@@ -42,7 +42,7 @@ export default function ScenarioPanel({
       </div>
 
       {/* 💡 Intelligence Context Box */}
-      <div className="p-5 bg-white/5 border border-white/10 rounded-2xl relative overflow-hidden group">
+      <div className="p-5 bg-white/5 border border-white/10 rounded-xl relative overflow-hidden group">
         <div className="absolute top-0 left-0 w-1 h-full bg-neon-emerald/40" />
         <p className="text-[11px] text-white/70 leading-relaxed font-medium transition-colors group-hover:text-white">
           <span className="text-neon-emerald font-bold uppercase mr-2 tracking-tighter">[ADVISORY]</span>
@@ -54,7 +54,7 @@ export default function ScenarioPanel({
       <button
         onClick={() => onRun(budget)}
         disabled={loading}
-        className={`w-fit py-3.5 px-8 rounded-full font-bold text-[11px] uppercase tracking-[0.25em] transition-all flex items-center justify-center gap-4 active:scale-[0.98] group ${loading
+        className={`w-fit py-3.5 px-8 rounded-xl font-bold text-[11px] uppercase tracking-[0.25em] transition-all flex items-center justify-center gap-4 active:scale-[0.98] group ${loading
           ? "bg-white/5 text-white/20 cursor-not-allowed border border-white/5"
           : "bg-neon-emerald text-black hover:bg-white shadow-[0_0_20px_rgba(16,185,129,0.4)]"
           }`}
