@@ -89,11 +89,11 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Grid Layout */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-start">
+          {/* 🏗️ Tier 1: Core Simulation Workspace */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-stretch">
             {/* Parameters Sidebar */}
             <aside className="md:col-span-3 flex flex-col gap-8">
-              <div className="glass-panel p-8 space-y-6">
+              <div className="glass-panel p-8 space-y-6 flex-1">
                 <div className="flex items-center justify-between">
                   <h3 className="text-[11px] font-extrabold text-emerald-500/60 uppercase tracking-[0.2em]">Scenario</h3>
                   <button
@@ -123,37 +123,22 @@ export default function Home() {
                   </div>
                 </motion.div>
               )}
-
-              <div className="glass-panel p-8 space-y-6">
-                <h4 className="text-[11px] font-extrabold text-emerald-500/40 uppercase tracking-[0.2em]">Live Node Stats</h4>
-                <div className="space-y-6 font-mono text-[11px]">
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/40">Resolution</span>
-                    <span className="text-white/80">200m²_GRID</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/40">Active Nodes</span>
-                    <span className="text-white/80">400_ELMTS</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/40">Solver</span>
-                    <span className="text-neon-emerald font-bold">UTX_v4.2</span>
-                  </div>
-                </div>
-              </div>
             </aside>
 
-            {/* Spatial Grid */}
-            <section className="md:col-span-6 flex flex-col gap-8 h-full">
+            {/* Spatial Grid (Expanded Map) */}
+            <section className="md:col-span-9 flex flex-col gap-8 h-full">
               <div className="glass-panel p-2 overflow-hidden h-full min-h-[600px] flex flex-col">
                 <div className="p-6 flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-bold text-white uppercase tracking-widest">Spatial Concentration Map</h3>
                     <p className="text-[11px] text-emerald-500/40 font-medium tracking-tight">Real-time topographic CO2 distribution</p>
                   </div>
-                  <div className="flex items-center gap-3 text-[11px] font-bold bg-neon-emerald/10 text-neon-emerald px-4 py-1.5 rounded-full border border-neon-emerald/20">
-                    <div className="w-2 h-2 rounded-full bg-neon-emerald animate-pulse" />
-                    <span>LIVE_DATA</span>
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="flex items-center gap-3 text-[11px] font-bold bg-neon-emerald/10 text-neon-emerald px-4 py-1.5 rounded-full border border-neon-emerald/20">
+                      <div className="w-2 h-2 rounded-full bg-neon-emerald animate-pulse" />
+                      <span>LIVE_SENSING_ACTIVE</span>
+                    </div>
+                    <span className="text-[9px] font-mono text-white/20 uppercase tracking-widest">RES: 200m²_GRID • NODES: 400</span>
                   </div>
                 </div>
                 <div className="flex-1 bg-black/40 rounded-xl m-2 border border-white/5 overflow-hidden relative">
@@ -161,19 +146,23 @@ export default function Home() {
                 </div>
               </div>
             </section>
+          </div>
 
-            {/* Metrics Feed */}
-            <aside className="md:col-span-3 flex flex-col gap-8">
-              <div className="glass-panel p-8 h-full min-h-[600px] flex flex-col">
-                <div className="mb-8">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-widest">Deployment Metrics</h3>
-                  <p className="text-[11px] text-emerald-500/40 font-medium tracking-tight mt-2">Resource allocation & efficiency</p>
+          {/* 📽️ Tier 2: Deployment Matrix (Full-Width) */}
+          <div className="w-full">
+            <div className="glass-panel p-8 flex flex-col gap-8">
+              <div className="flex items-center justify-between border-b border-white/5 pb-6">
+                <div>
+                  <h3 className="text-lg font-bold text-white uppercase tracking-widest">Deployment Matrix</h3>
+                  <p className="text-[11px] text-emerald-500/40 font-bold uppercase tracking-[0.2em] mt-1">Optimization analysis & resource distribution</p>
                 </div>
-                <div className="flex-1 overflow-y-auto scrolling-content pr-2">
-                  <ResultsPanel optimization={data?.optimization_plan} />
+                <div className="flex items-center gap-4 text-[10px] font-mono font-bold text-neon-emerald">
+                  <span className="bg-neon-emerald/10 px-3 py-1.5 rounded-full border border-neon-emerald/20">SOLVER_V4.2</span>
+                  <span className="bg-white/5 px-3 py-1.5 rounded-full border border-white/10 text-white/40 uppercase">Target: Carbon Neutral 2040</span>
                 </div>
               </div>
-            </aside>
+              <ResultsPanel optimization={data?.optimization_plan} />
+            </div>
           </div>
         </div>
 

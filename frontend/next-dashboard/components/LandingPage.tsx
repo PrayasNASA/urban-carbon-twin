@@ -65,7 +65,7 @@ export default function LandingPage({ onInitialize }: { onInitialize: () => void
                     <button
                         ref={buttonRef}
                         onClick={handleScrollToDashboard}
-                        className="group relative px-10 py-4 bg-neon-emerald/20 border border-neon-emerald/50 rounded-full text-neon-emerald font-bold text-sm uppercase tracking-widest overflow-hidden transition-all hover:bg-neon-emerald hover:text-white"
+                        className="group relative px-8 py-3 bg-neon-emerald/20 border border-neon-emerald/50 rounded-full text-neon-emerald font-bold text-[12px] uppercase tracking-widest overflow-hidden transition-all hover:bg-neon-emerald hover:text-white"
                     >
                         <span className="relative z-10 italic">Initialize Simulation</span>
                         {/* Ripple Effect Element */}
