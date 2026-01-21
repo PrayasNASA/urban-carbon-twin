@@ -45,7 +45,7 @@ export default function CityGrid({ dispersion }: { dispersion: any }) {
         <div
           className="relative transition-all duration-1000 ease-in-out"
           style={{
-            transform: is3D ? 'perspective(2000px) rotateX(55deg) rotateZ(-25deg) scale(0.85) translateY(-50px)' : 'none',
+            transform: is3D ? 'perspective(2000px) rotateX(55deg) rotateZ(-25deg) scale(0.9) translateY(0)' : 'none',
           }}
         >
           <div className="grid grid-cols-20 gap-1 p-8 bg-neon-emerald/5 rounded-2xl border border-neon-emerald/20 shadow-[0_0_50px_rgba(16,185,129,0.1)]">
