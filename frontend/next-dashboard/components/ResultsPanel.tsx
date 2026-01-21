@@ -12,17 +12,17 @@ export default function ResultsPanel({ optimization }: { optimization: any }) {
     <div className="flex flex-col gap-8 h-full">
 
       {/* 📊 Primary Performance Indicators */}
-      <div className="grid grid-cols-1 gap-4">
-        <div className="p-5 glass-panel !border-white/5 bg-white/5 rounded-2xl">
-          <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3">Allocated Resources</p>
-          <p className="text-3xl font-bold text-white tabular-nums">${budgetUsed.toLocaleString()}</p>
+      <div className="grid grid-cols-1 gap-6">
+        <div className="p-8 glass-panel !border-white/5 bg-white/5 rounded-2xl">
+          <p className="text-[11px] font-bold text-white/30 uppercase tracking-[0.25em] mb-4">Allocated Resources</p>
+          <p className="text-4xl font-bold text-white tabular-nums tracking-tighter">${budgetUsed.toLocaleString()}</p>
         </div>
-        <div className="p-5 bg-neon-emerald/10 border border-neon-emerald/20 rounded-2xl relative overflow-hidden group">
-          <div className="absolute top-0 left-0 w-1 h-full bg-neon-emerald shadow-[0_0_15px_#10B981]" />
-          <p className="text-[10px] font-bold text-neon-emerald uppercase tracking-[0.2em] mb-3">Estimated Sequestration</p>
-          <div className="flex items-baseline gap-3">
-            <p className="text-3xl font-bold text-white tabular-nums">{carbonAvoided.toFixed(2)}</p>
-            <span className="text-[11px] font-bold text-neon-emerald/60 uppercase tracking-tighter font-mono">TN_CO2_EQ</span>
+        <div className="p-8 bg-neon-emerald/10 border border-neon-emerald/20 rounded-2xl relative overflow-hidden group">
+          <div className="absolute top-0 left-0 w-1.5 h-full bg-neon-emerald shadow-[0_0_20px_#10B981]" />
+          <p className="text-[11px] font-bold text-neon-emerald uppercase tracking-[0.25em] mb-4">Estimated Sequestration</p>
+          <div className="flex items-baseline gap-4">
+            <p className="text-4xl font-bold text-white tabular-nums tracking-tighter">{carbonAvoided.toFixed(2)}</p>
+            <span className="text-[12px] font-bold text-neon-emerald/60 uppercase tracking-widest font-mono">TN_CO2_EQ</span>
           </div>
         </div>
       </div>
@@ -60,36 +60,36 @@ export default function ResultsPanel({ optimization }: { optimization: any }) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
-                className="p-5 glass-panel !bg-white/5 border border-white/5 rounded-2xl hover:border-neon-emerald/40 transition-all group/row cursor-pointer relative overflow-hidden"
+                className="p-8 glass-panel !bg-white/5 border border-white/5 rounded-2xl hover:border-neon-emerald/40 transition-all group/row cursor-pointer relative overflow-hidden"
               >
                 {/* Holographic Glow Effect */}
                 <div className="absolute inset-0 bg-gradient-to-br from-neon-emerald/0 via-neon-emerald/0 to-neon-emerald/5 opacity-0 group-hover/row:opacity-100 transition-opacity" />
 
-                <div className="flex justify-between items-start mb-4 relative z-10">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-neon-emerald animate-pulse" />
-                    <span className="text-[10px] font-bold text-neon-emerald font-mono">
+                <div className="flex justify-between items-start mb-6 relative z-10">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-neon-emerald animate-pulse shadow-[0_0_10px_#10B981]" />
+                    <span className="text-[11px] font-bold text-neon-emerald font-mono tracking-widest">
                       ELMT_{p.grid_id.toString().padStart(3, '0')}
                     </span>
                   </div>
                   <div className="flex flex-col items-end">
-                    <span className="text-[8px] font-bold text-white/20 uppercase tracking-widest">Intensity</span>
-                    <span className="text-[11px] font-bold text-white/80 tabular-nums">{p.units} Units</span>
+                    <span className="text-[9px] font-bold text-white/20 uppercase tracking-[0.2em]">Intensity</span>
+                    <span className="text-[12px] font-bold text-white/80 tabular-nums">{p.units} Units</span>
                   </div>
                 </div>
 
-                <p className="text-[13px] font-bold text-white mb-5 capitalize tracking-tight relative z-10 group-hover/row:text-neon-emerald transition-colors">
+                <p className="text-[15px] font-bold text-white mb-6 capitalize tracking-tight relative z-10 group-hover/row:text-neon-emerald transition-colors leading-tight">
                   {p.intervention.replace(/_/g, ' ')}
                 </p>
 
-                <div className="flex justify-between items-center text-[10px] pt-4 border-t border-white/5 relative z-10">
-                  <div className="flex flex-col">
-                    <span className="text-white/20 font-bold uppercase text-[8px] tracking-widest mb-1">Cap_Alloc</span>
-                    <span className="text-white/70 font-bold font-mono">${p.cost.toLocaleString()}</span>
+                <div className="flex justify-between items-center text-[11px] pt-6 border-t border-white/5 relative z-10">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-white/20 font-bold uppercase text-[9px] tracking-[0.2em]">Cap_Alloc</span>
+                    <span className="text-white/70 font-bold font-mono text-[12px] tracking-tight">${p.cost.toLocaleString()}</span>
                   </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-neon-emerald/40 font-bold uppercase text-[8px] tracking-widest mb-1">Impact_Delta</span>
-                    <span className="text-neon-emerald font-bold font-mono">-{p.expected_reduction.toFixed(3)} G/S</span>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="text-neon-emerald/40 font-bold uppercase text-[9px] tracking-[0.2em]">Impact_Delta</span>
+                    <span className="text-neon-emerald font-bold font-mono text-[12px] tracking-tight">-{p.expected_reduction.toFixed(3)} G/S</span>
                   </div>
                 </div>
               </motion.div>

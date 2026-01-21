@@ -1,10 +1,15 @@
 "use client";
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 export default function CityGrid({ dispersion }: { dispersion: any }) {
   const grids = dispersion?.results || [];
+  const [mounted, setMounted] = useState(false);
   const [is3D, setIs3D] = useState(true);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Generate random particles for CO2 density visual
   const particles = useMemo(() => {
@@ -14,7 +19,8 @@ export default function CityGrid({ dispersion }: { dispersion: any }) {
       top: `${Math.random() * 100}%`,
       size: Math.random() * 4 + 2,
       duration: Math.random() * 10 + 10,
-      delay: Math.random() * 5
+      delay: Math.random() * 5,
+      xOffset: (Math.random() - 0.5) * 50
     }));
   }, []);
 
@@ -80,7 +86,7 @@ export default function CityGrid({ dispersion }: { dispersion: any }) {
 
           {/* Floating Neon Particles */}
           <div className="absolute inset-0 pointer-events-none">
-            {particles.map((p) => (
+            {mounted && particles.map((p) => (
               <motion.div
                 key={p.id}
                 initial={{ opacity: 0, scale: 0 }}
@@ -88,7 +94,7 @@ export default function CityGrid({ dispersion }: { dispersion: any }) {
                   opacity: [0.2, 0.8, 0.2],
                   scale: [1, 1.5, 1],
                   y: [-20, -100],
-                  x: [0, (Math.random() - 0.5) * 50]
+                  x: [0, p.xOffset]
                 }}
                 transition={{
                   duration: p.duration,

@@ -24,16 +24,30 @@
 
 @layer base {
   body {
-    @apply bg-[#050C09] text-foreground antialiased min-h-screen selection:bg-neon-emerald/30 selection:text-neon-emerald;
+    @apply bg-background text-foreground antialiased min-h-screen selection:bg-neon-emerald/30 selection:text-neon-emerald;
     background: var(--color-background-gradient);
     font-family: var(--font-sans);
+    overflow-x: hidden;
   }
 }
 
 @layer components {
   .glass-panel {
-    @apply backdrop-blur-lg bg-glass border border-glass-border rounded-xl;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    @apply backdrop-blur-xl bg-glass border border-glass-border rounded-2xl;
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06),
+      0 10px 15px -3px rgba(0, 0, 0, 0.1),
+      inset 0 0 20px rgba(16, 185, 129, 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-panel:hover {
+    @apply border-glass-border/40;
+    box-shadow:
+      0 20px 25px -5px rgba(0, 0, 0, 0.2),
+      0 10px 10px -5px rgba(0, 0, 0, 0.1),
+      inset 0 0 30px rgba(16, 185, 129, 0.1);
   }
 
   .grain-overlay {
@@ -47,49 +61,26 @@
     width: 100%;
     height: 100%;
     background-image: url("https://grainy-gradients.vercel.app/noise.svg");
-    opacity: 0.15;
+    opacity: 0.08;
     pointer-events: none;
     z-index: 10;
   }
 }
 
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-@layer base {
-  body {
-    @apply bg-background text-foreground antialiased min-h-screen;
-    font-family: var(--font-sans);
-  }
-}
-
 @layer components {
+
+
   .card {
-    @apply bg-card-bg border border-card-border rounded-xl p-6 shadow-sm;
+    @apply bg-glass border border-glass-border rounded-2xl p-8 shadow-lg;
   }
 
   .page-title {
-    @apply text-2xl font-semibold text-gray-50 tracking-tight;
+    @apply text-3xl font-bold text-white tracking-tight;
   }
 
   .section-title {
-    @apply text-lg font-medium text-gray-200 mb-4;
-  }
-
-  .label-sm {
-    @apply text-sm text-gray-400;
-  }
-
-  .value-base {
-    @apply text-base text-gray-100;
-  }
-
-  .text-small-muted {
-    @apply text-sm text-gray-500 font-normal;
+    @apply text-[11px] font-extrabold text-emerald-500/40 uppercase tracking-[0.25em] mb-6;
   }
 }
 

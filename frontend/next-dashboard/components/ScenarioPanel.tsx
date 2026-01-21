@@ -54,9 +54,9 @@ export default function ScenarioPanel({
       <button
         onClick={() => onRun(budget)}
         disabled={loading}
-        className={`w-full py-5 px-8 rounded-full font-bold text-[11px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-4 active:scale-[0.97] group ${loading
+        className={`w-full py-6 px-10 rounded-full font-bold text-[12px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-5 active:scale-[0.97] group ${loading
           ? "bg-white/5 text-white/20 cursor-not-allowed border border-white/5"
-          : "bg-neon-emerald text-black hover:bg-white shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+          : "bg-neon-emerald text-black hover:bg-white shadow-[0_0_25px_rgba(16,185,129,0.5)]"
           }`}
       >
         {loading ? (
