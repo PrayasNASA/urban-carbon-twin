@@ -28,15 +28,6 @@
 
 ---
 
-## 🌌 The "Dream Dashboard" Aesthetic
-
-The platform features a **premium, glassmorphic UI** inspired by high-end Fintech and Staking platforms, designed for maximum decision-making clarity and visual impact.
-
-- **Deep Space Palette**: A sophisticated black-purple base with vibrant **Violet & Indigo** accents.
-- **Glassmorphism**: Extensive use of `backdrop-blur` and semi-transparent layers for a modern, tactile feel.
-- **Tailwind CSS v4**: Built with the latest **CSS-first architecture** for high performance and design consistency.
-- **Cyber-Spatial Visualization**: 3D grid volumetrics that clearly represent CO₂ concentrations with glowing intensity nodes.
-
 ---
 
 ## 🧠 System Architecture
@@ -89,41 +80,39 @@ flowchart TD
 
 ## 🛠️ Quick Start
 
-### 1. Prerequisites
-- **Docker Desktop** installed.
-- **Node.js 20+** (if running frontend separately).
-
-### 2. Launch Local Environment
-Clone the repo and spin up the entire cluster:
+### 1. Launch with Docker (Recommended)
+Clone the repository and spin up the entire microservice ecosystem:
 ```bash
 git clone https://github.com/PrayasNASA/urban-carbon-twin.git
 cd urban-carbon-twin
 docker compose up --build
 ```
 
-### 3. Access Portals
-- **🌍 Frontend**: [http://localhost:3000](http://localhost:3000)
-- **⚙️ API Gateway**: [http://localhost:8005/docs](http://localhost:8005/docs)
-- **📍 GIS Service**: [http://localhost:8000/docs](http://localhost:8000/docs)
+### 2. Manual Setup (Development)
+If you prefer running services individually:
+- **Backend Services**: Located in `/services`, each with its own `requirements.txt`.
+- **Frontend Dashboard**: Located in `/frontend/next-dashboard`, run `npm install && npm run dev`.
+
+### 3. Service Access
+- **🌍 Experience Dashboard**: [http://localhost:3000](http://localhost:3000)
+- **⚙️ Simulation Gateway**: [http://localhost:8005/docs](http://localhost:8005/docs)
+- **📍 GIS Spatial Engine**: [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ---
 
-## 🧪 Interactive Simulation
+## 🧪 Interactive Simulation Guide
 
-Use the dashboard to execute complex carbon sequestration scenarios:
-1. **Define Budget**: Adjust the glowing slider to set your target investment.
-2. **Synchronize Nodes**: The system fetches real-time GIS data for urban nodes.
-3. **Run Simulation**: The engine calculates emissions, simulates dispersion, and finds the optimal intervention plan.
-4. **Compare Mode**: Toggle comparison to test "Baseline" vs. "Optimized" strategies.
+The **Urban Carbon Twin** dashboard provides a structured workflow for environmental planning:
+
+1.  **Contextual Awareness**: Navigate the topographic map to understand current CO₂ distribution patterns across the urban grid.
+2.  **Strategic Budgeting**: Use the **Scenario Intelligence** panel to define your intervention budget.
+3.  **Engine Execution**: Click **"Initialize Simulation"**. The platform orchestrates multi-service logic to calculate physics-based dispersion and optimize resource placement.
+4.  **Actionable Results**: Review the **Deployment Matrix** for specific, cost-effective sequestration strategies (e.g., Roadside Capture, Urban Reforestation).
+5.  **Comparative Analysis**: Toggle **"Compare Mode"** to visualize improvements against baseline environmental data.
 
 ---
-
 ## 📜 License & Governance
 
 - **Project Status**: ACTIVE - Developed for strategic urban resilience modeling.
 - **Theme**: Digital Twin for Sustainability & Decarbonization.
-- **Context**: SIH 2024 Candidate / Technical Demonstration.
-
----
-> [!TIP]
-> **One-Line Architecture Summary**: “A cloud-native microservice ensemble synchronizing spatial intelligence with physical modeling to deliver actionable urban carbon mitigation strategies.”
+- **Context**: Hack-4-Viksit Bharat Hackathon
