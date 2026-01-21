@@ -50,10 +50,11 @@ The simulation core is composed of several decoupled Python services orchestrate
 ## 📐 System Flow
 ```mermaid
 flowchart LR
-    A[Dashboard] <-> B(API Gateway)
-    B <-> C[GIS Engine]
-    B <-> D[Simulation Core]
-    B <-> E[Optimization Core]
+    A[Dashboard] <--> B[API Gateway]
+    B <--> C[GIS Engine]
+    B <--> D[Simulation Core]
+    B <--> E[Optimization Core]
+
 ```
 
 ---
