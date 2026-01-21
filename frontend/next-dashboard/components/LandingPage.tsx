@@ -19,8 +19,15 @@ export default function LandingPage({ onInitialize }: { onInitialize: () => void
         }
     }, []);
 
+    const handleScrollToDashboard = () => {
+        window.scrollTo({
+            top: window.innerHeight,
+            behavior: "smooth"
+        });
+    };
+
     return (
-        <div className="relative h-screen w-screen overflow-hidden flex items-center justify-center bg-black">
+        <div className="relative h-screen w-screen overflow-hidden bg-black snap-start">
             {/* Background Video Placeholder */}
             <video
                 autoPlay
@@ -30,14 +37,13 @@ export default function LandingPage({ onInitialize }: { onInitialize: () => void
                 className="absolute inset-0 w-full h-full object-cover opacity-60 scale-105"
             >
                 <source src="https://assets.mixkit.co/videos/preview/mixkit-forest-canopy-and-sky-seen-from-below-1191-large.mp4" type="video/mp4" />
-                {/* Fallback to image if video fails or for development */}
             </video>
 
             {/* Frosted Glass Overlay */}
             <div className="absolute inset-0 backdrop-blur-md bg-black/30" />
 
             {/* Content */}
-            <div className="relative z-10 text-center space-y-8 max-w-2xl px-6">
+            <div className="relative z-10 text-center space-y-8 max-w-2xl px-6 mx-auto h-full flex flex-col justify-center items-center">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -58,7 +64,7 @@ export default function LandingPage({ onInitialize }: { onInitialize: () => void
                 >
                     <button
                         ref={buttonRef}
-                        onClick={onInitialize}
+                        onClick={handleScrollToDashboard}
                         className="group relative px-10 py-4 bg-neon-emerald/20 border border-neon-emerald/50 rounded-full text-neon-emerald font-bold text-sm uppercase tracking-widest overflow-hidden transition-all hover:bg-neon-emerald hover:text-white"
                     >
                         <span className="relative z-10 italic">Initialize Simulation</span>
@@ -70,6 +76,21 @@ export default function LandingPage({ onInitialize }: { onInitialize: () => void
                     </button>
                 </motion.div>
             </div>
+
+            {/* Scroll Indicator */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 2, duration: 1 }}
+                className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-neon-emerald/50"
+            >
+                <span className="text-[10px] uppercase tracking-[0.3em] font-bold">Scroll to Begin</span>
+                <motion.div
+                    animate={{ y: [0, 10, 0] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="w-px h-12 bg-gradient-to-b from-neon-emerald to-transparent"
+                />
+            </motion.div>
 
             {/* Decorative Organic Shapes */}
             <div className="absolute top-[10%] left-[5%] w-64 h-64 bg-neon-emerald/10 rounded-full blur-[100px] animate-pulse" />
