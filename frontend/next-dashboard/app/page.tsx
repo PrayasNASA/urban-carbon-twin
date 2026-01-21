@@ -22,11 +22,11 @@ export default function Home() {
     offset: ["start start", "end end"]
   });
 
-  // Transform values for cinematic transition
-  const landingOpacity = useTransform(scrollYProgress, [0, 0.4], [1, 0]);
-  const landingScale = useTransform(scrollYProgress, [0, 0.4], [1, 0.95]);
-  const dashboardOpacity = useTransform(scrollYProgress, [0.35, 0.6], [0, 1]);
-  const dashboardY = useTransform(scrollYProgress, [0.35, 0.6], [50, 0]);
+  // Transform values for cinematic transition - mapped to the first 40% of the total container
+  const landingOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
+  const landingScale = useTransform(scrollYProgress, [0, 0.25], [1, 0.98]);
+  const dashboardOpacity = useTransform(scrollYProgress, [0.15, 0.35], [0, 1]);
+  const dashboardY = useTransform(scrollYProgress, [0.15, 0.35], [40, 0]);
 
   async function handleRun(budget: number) {
     setLoading(true);
@@ -61,13 +61,16 @@ export default function Home() {
   return (
     <main
       ref={containerRef}
-      className="h-[200vh] overflow-y-auto overflow-x-hidden snap-y snap-mandatory scroll-smooth grain-overlay relative"
+      className="min-h-screen overflow-y-auto overflow-x-hidden snap-y snap-proximity scroll-smooth grain-overlay relative bg-background"
     >
       <HeatmapBackground scrollProgress={scrollYProgress} />
       {/* 🌿 Section 1: Landing Page */}
       <motion.section
-        style={{ opacity: landingOpacity, scale: landingScale }}
-        className="h-screen w-screen sticky top-0 z-10 snap-start pointer-events-none"
+        style={{
+          opacity: landingOpacity,
+          scale: landingScale,
+        }}
+        className="h-screen w-screen sticky top-0 z-10 snap-start"
       >
         <LandingPage onInitialize={() => { }} />
       </motion.section>
@@ -75,7 +78,7 @@ export default function Home() {
       {/* 🚀 Section 2: Dashboard Engine */}
       <motion.section
         style={{ opacity: dashboardOpacity, y: dashboardY }}
-        className="min-h-screen w-screen snap-start bg-transparent text-gray-50 antialiased font-sans relative z-20"
+        className="min-h-screen w-screen snap-start bg-transparent text-gray-50 antialiased font-sans relative z-20 pointer-events-auto"
       >
         {/* 🏛️ Solarpunk Header */}
         <header className="glass-panel border-b border-white/10 sticky top-0 z-50 mx-8 mt-6">
