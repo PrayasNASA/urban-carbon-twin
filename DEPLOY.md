@@ -8,7 +8,7 @@ The backend consists of 6 microservices. We recommend **Google Cloud Run** for i
 
 ### Prerequisites
 1. Install [Google Cloud SDK](https://cloud.google.com/sdk/docs/install).
-2. Create a GCP Project and enable billing.
+2. Create a GCP Project and enable billing ..
 
 ### Steps
 1. **Configure with your project**:
