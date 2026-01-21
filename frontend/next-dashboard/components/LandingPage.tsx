@@ -31,8 +31,8 @@ export default function LandingPage({ onInitialize }: { onInitialize: () => void
                 />
             </div>
 
-            {/* Frosted Glass Overlay - Reduced for clarity */}
-            <div className="absolute inset-0 backdrop-blur-md bg-black/20" />
+            {/* Frosted Glass Overlay with Section Bleed Gradient */}
+            <div className="absolute inset-0 backdrop-blur-md bg-gradient-to-b from-black/20 via-black/30 to-background" />
 
             {/* Content */}
             <div className="relative z-10 text-center space-y-8 max-w-4xl px-6 mx-auto h-full flex flex-col justify-center items-center">
