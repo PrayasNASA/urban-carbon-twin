@@ -16,12 +16,12 @@ export default function Home() {
   const [comparisonData, setComparisonData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [compareMode, setCompareMode] = useState(false);
-
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
   });
+
+  const [compareMode, setCompareMode] = useState(true);
 
   // Transform values for cinematic transition - mapped to the first 40% of the total container
   const landingOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);

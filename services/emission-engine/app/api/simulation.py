@@ -2,7 +2,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
-import random
+import math
 
 router = APIRouter()
 
@@ -30,27 +30,21 @@ def initialize_simulation(req: SimulationRequest):
     real_data = get_co2_data(req.lat, req.lon)
     
     # Baseline concentration for the grid
-    # Default to 0.04 (approx global avg) if no data or error
+    # Fallback to a global average if no data or error
     base_val = 0.04
     
     if real_data and "value" in real_data:
         base_val = real_data["value"]
     
     # Scale up for visualization if the value is raw mol/m^2 (usually small like 0.03)
-    # The frontend expects values around 0-100 or 0-1000 for color mapping?
-    # Looking at CityGrid.tsx: `intensity = Math.min(g.concentration / 100, 1);`
-    # So values around 0-100 are expected.
-    # Sentinel-5P CO is ~0.03 mol/m^2. Let's scale it up to be visible in the 0-100 range.
-    # 0.03 * 2000 = 60.
-    
     display_base = base_val * 2000
     
     results = []
     # Generate a 20x20 grid (400 nodes)
     for i in range(400):
         # Generate some concentration values
-        # Distribute based on a 'heat' map around the center or just random variation
-        # Let's create a bit of a hotspot in the middle for 'realism'
+        # Distribute based on a 'heat' map around the center
+        # Deterministic simulation model
         
         # Grid coordinates 20x20
         x = i % 20
@@ -62,8 +56,10 @@ def initialize_simulation(req: SimulationRequest):
         # Higher concentration in center
         local_concentration = display_base * (1 + (10 - dist)/20) 
         
-        # Add random noise
-        local_concentration += random.uniform(-display_base*0.1, display_base*0.1)
+        # Add deterministic variation (texture) instead of random noise
+        # Use sine waves based on grid position to create 'plumes'
+        variation = math.sin(x * 0.5) * math.cos(y * 0.5) * (display_base * 0.05)
+        local_concentration += variation
         
         results.append(GridResult(
             grid_id=f"G-{i:03d}",
@@ -71,12 +67,10 @@ def initialize_simulation(req: SimulationRequest):
         ))
         
 
-    # Mock optimization plan based on the generated grid
-    mock_plan = []
+    # Deployment plan based on the generated grid
+    deployment_plan = []
     budget_used = 0
-    interventions = ["carbon_capture_v1", "algae_bio_panel", "urban_reforestation", "direct_air_capture"]
     
-
     # Deterministic deployment actions based on concentration
     high_concentration_grids = sorted(results, key=lambda x: x.concentration, reverse=True)
     
@@ -108,7 +102,7 @@ def initialize_simulation(req: SimulationRequest):
         cost = specs["base_cost"] * units
         reduction = val * specs["efficiency"] * (1 + (units * 0.1)) # Diminishing returns or scaling
         
-        mock_plan.append({
+        deployment_plan.append({
             "grid_id": grid.grid_id,
             "intervention": selected_intervention,
             "units": units,
@@ -125,7 +119,7 @@ def initialize_simulation(req: SimulationRequest):
             "target": "Carbon Neutral 2040",
             "total_budget": 50000,
             "budget_used": budget_used,
-            "plan": mock_plan
+            "plan": deployment_plan
         }
     )
 
