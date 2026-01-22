@@ -8,6 +8,7 @@ import ScenarioPanel from "@/components/ScenarioPanel";
 import ResultsPanel from "@/components/ResultsPanel";
 import LandingPage from "@/components/LandingPage";
 import HeatmapBackground from "@/components/HeatmapBackground";
+import Co2Globe from "@/components/Co2Globe";
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -58,6 +59,41 @@ export default function Home() {
     }
   }
 
+
+
+  // New handler for Global View interactions
+  const [globalData, setGlobalData] = useState<any>(null);
+
+  async function handleGlobalSelect(lat: number, lon: number) {
+    setLoading(true); // Reuse loading or create specific one
+    try {
+      // Adjust URL to match your backend port (default 8002 for emission-engine?)
+      // Assuming user ran on 8002 per instructions
+      const res = await fetch(`http://localhost:8002/api/v1/gee/co2?lat=${lat}&lon=${lon}`);
+      if (!res.ok) throw new Error("GEE Fetch Failed");
+      const json = await res.json();
+      setGlobalData(json);
+    } catch (e: any) {
+      console.error(e);
+      // Show non-blocking toast or alert? reuse error state for now
+      // setError(`GEE Error: ${e.message}`); // Maybe too intrusive if just browsing
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleSimulate() {
+    if (globalData) {
+      // Switch to Local Grid
+      setCompareMode(false);
+      // Ideally we would pass the coords to the CityGrid or Backend here.
+      // For now, let's just show a toast/alert or log it, 
+      // and maybe visually indicate we are using real data.
+      console.log("Initializing simulation for:", globalData.location);
+      // Could set a "simulationContext" state here if we had one.
+    }
+  }
+
   return (
     <main
       ref={containerRef}
@@ -89,6 +125,15 @@ export default function Home() {
                 Urban Carbon <span className="text-neon-emerald">Twin</span>
               </h1>
               <p className="text-[11px] text-neon-emerald/60 font-bold uppercase tracking-[0.3em] mt-2">Solarpunk Intelligence Engine</p>
+              {/* Visual Context Indicator */}
+              {!compareMode && globalData && (
+                <div className="absolute top-16 left-0 mt-4 flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
+                  <div className="h-px w-8 bg-neon-emerald/50"></div>
+                  <span className="text-[10px] text-neon-emerald font-bold uppercase tracking-widest bg-neon-emerald/10 px-2 py-1 rounded border border-neon-emerald/20">
+                    Simulating: {globalData.location.lat.toFixed(2)}, {globalData.location.lon.toFixed(2)}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-6">
@@ -125,7 +170,7 @@ export default function Home() {
                     onClick={() => setCompareMode(!compareMode)}
                     className={`text-[10px] font-bold px-3 py-1.5 rounded-md border uppercase tracking-widest transition-all ${compareMode ? 'bg-neon-emerald/20 border-neon-emerald text-neon-emerald shadow-[0_0_10px_rgba(16,185,129,0.2)]' : 'bg-white/5 border-white/10 text-white/40'}`}
                   >
-                    {compareMode ? 'MULTI_VIEW' : 'SINGLE_NODE'}
+                    {compareMode ? 'LOCAL_GRID' : 'GLOBAL_VIEW'}
                   </button>
                 </div>
                 <ScenarioPanel onRun={handleRun} loading={loading} />
@@ -155,7 +200,7 @@ export default function Home() {
               <div className="glass-panel p-2 overflow-hidden h-full min-h-[600px] flex flex-col">
                 <div className="p-6 flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-bold text-white uppercase tracking-widest">Spatial Concentration Map</h3>
+                    <h3 className="text-sm font-bold text-white uppercase tracking-widest">{compareMode ? 'Global CO2 Explorer' : 'Spatial Concentration Map'}</h3>
                     <p className="text-[11px] text-emerald-500/40 font-medium tracking-tight">Real-time topographic CO2 distribution</p>
                   </div>
                   <div className="flex flex-col items-end gap-2">
@@ -167,7 +212,11 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="flex-1 bg-black/40 rounded-xl m-2 border border-white/5 overflow-hidden relative">
-                  <CityGrid dispersion={data?.dispersion} />
+                  {compareMode ? (
+                    <Co2Globe data={globalData} onSelectLocation={handleGlobalSelect} onSimulate={handleSimulate} />
+                  ) : (
+                    <CityGrid dispersion={data?.dispersion} />
+                  )}
                 </div>
               </div>
             </section>
