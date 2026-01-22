@@ -85,13 +85,40 @@ def get_co2_data(lat: float, lon: float, date_from: str = None, date_to: str = N
                 print(f"Geocoding error: {e}")
                 pass
 
+            # Generate Satellite Thumbnail (Visual Context)
+            map_url = None
+            try:
+                # Sentinel-2 Surface Reflectance (RGB)
+                # Filter for low cloud cover
+                s2 = (ee.ImageCollection('COPERNICUS/S2_SR')
+                      .filterBounds(point)
+                      .filterDate(date_from, date_to)
+                      .sort('CLOUDY_PIXEL_PERCENTAGE')
+                      .first())
+                
+                if s2:
+                    # buffer point by 2km to get a 4km x 4km patch
+                    region = point.buffer(2000).bounds().getInfo()
+                    map_url = s2.getThumbURL({
+                        'min': 0,
+                        'max': 3000,
+                        'bands': ['B4', 'B3', 'B2'],
+                        'dimensions': 1024,
+                        'region': region,
+                        'format': 'jpg'
+                    })
+            except Exception as map_err:
+                print(f"Map generation error: {map_err}")
+                pass
+
             return {
                 "location": {"lat": lat, "lon": lon},
                 "place_name": place_name,
                 "period": {"from": date_from, "to": date_to},
                 "value": data['CO_column_number_density'],
                 "unit": "mol/m^2",
-                "sensor": "Sentinel-5P TROPOMI"
+                "sensor": "Sentinel-5P TROPOMI",
+                "map_image": map_url
             }
         else:
             return None

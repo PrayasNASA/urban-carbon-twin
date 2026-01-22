@@ -236,7 +236,7 @@ export default function Home() {
                   {compareMode ? (
                     <Co2Globe data={globalData} onSelectLocation={handleGlobalSelect} onSimulate={handleSimulate} />
                   ) : (
-                    <CityGrid dispersion={data?.dispersion} />
+                    <CityGrid dispersion={data?.dispersion} mapImage={globalData?.map_image} />
                   )}
                 </div>
               </div>

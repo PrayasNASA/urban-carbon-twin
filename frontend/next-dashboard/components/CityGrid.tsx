@@ -2,7 +2,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-export default function CityGrid({ dispersion }: { dispersion: any }) {
+export default function CityGrid({ dispersion, mapImage }: { dispersion: any; mapImage?: string }) {
   const grids = dispersion?.results || [];
   const [mounted, setMounted] = useState(false);
   const [is3D, setIs3D] = useState(false);
@@ -48,15 +48,33 @@ export default function CityGrid({ dispersion }: { dispersion: any }) {
             transform: is3D ? 'perspective(2000px) rotateX(55deg) rotateZ(-25deg) scale(0.9) translateY(0)' : 'none',
           }}
         >
-          <div className="grid grid-cols-20 gap-1 p-8 bg-neon-emerald/5 rounded-xl border border-neon-emerald/20 shadow-[0_0_50px_rgba(16,185,129,0.1)]">
+          {/* 🌍 Satellite Context Layer */}
+          {mapImage && (
+            <div className="absolute inset-[-20%] z-0 rounded-xl overflow-hidden pointer-events-none">
+              {/* Dark Base */}
+              <div className="absolute inset-0 bg-black/80 z-10" />
+
+              {/* The Map Image */}
+              <img src={mapImage} alt="Satellite Context" className="w-full h-full object-cover grayscale-[20%] contrast-[1.2] opacity-60 mix-blend-overlay z-0" />
+
+              {/* Tech Overlay Pattern */}
+              <div className="absolute inset-0 z-20 bg-[linear-gradient(rgba(16,185,129,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.05)_1px,transparent_1px)] bg-[size:40px_40px]" />
+
+              {/* Emerald Tint & Vignette */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-80 z-30" />
+              <div className="absolute inset-0 bg-neon-emerald/10 mix-blend-color-dodge z-30" />
+            </div>
+          )}
+
+          <div className="grid grid-cols-20 gap-1 p-8 bg-black/20 rounded-xl border border-neon-emerald/20 shadow-[0_0_50px_rgba(16,185,129,0.05)] relative z-10 backdrop-blur-[2px]">
             {grids.map((g: any, idx: number) => {
               const intensity = Math.min(g.concentration / 100, 1);
               return (
                 <div
                   key={idx}
-                  className="w-5 h-5 rounded-[2px] transition-all duration-500 group/cell relative cursor-crosshair"
+                  className="w-5 h-5 rounded-[1px] transition-all duration-500 group/cell relative cursor-crosshair border border-neon-emerald/10 hover:border-neon-emerald/50"
                   style={{
-                    backgroundColor: `rgba(16, 185, 129, ${0.1 + intensity * 0.8})`,
+                    backgroundColor: `rgba(16, 185, 129, ${0.05 + intensity * 0.6})`,
                     transform: is3D ? `translateZ(${g.concentration * 1.5}px)` : 'none',
                     boxShadow: is3D && g.concentration > 30
                       ? `0 0 15px rgba(16, 185, 129, ${intensity * 0.4})`
