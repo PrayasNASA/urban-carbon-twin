@@ -69,32 +69,63 @@ export default function CityGrid({ dispersion, mapImage }: { dispersion: any; ma
           <div className="grid grid-cols-20 gap-1 p-8 bg-black/20 rounded-xl border border-neon-emerald/20 shadow-[0_0_50px_rgba(16,185,129,0.05)] relative z-10 backdrop-blur-[2px]">
             {grids.map((g: any, idx: number) => {
               const intensity = Math.min(g.concentration / 100, 1);
+
+              let r, green, b, hexColor;
+              if (g.concentration >= 75) {
+                // High: Red
+                r = 239; green = 68; b = 68;
+                hexColor = '#EF4444';
+              } else if (g.concentration >= 40) {
+                // Medium: Yellow
+                r = 234; green = 179; b = 8;
+                hexColor = '#EAB308';
+              } else {
+                // Low: Emerald (Green)
+                r = 16; green = 185; b = 129;
+                hexColor = '#10B981';
+              }
+              const colorStr = `${r}, ${green}, ${b}`;
+
               return (
                 <div
                   key={idx}
-                  className="w-5 h-5 rounded-[1px] transition-all duration-500 group/cell relative cursor-crosshair border border-neon-emerald/10 hover:border-neon-emerald/50"
+                  className="w-5 h-5 rounded-[1px] transition-all duration-500 group/cell relative cursor-crosshair border border-white/5 hover:border-white/50"
                   style={{
-                    backgroundColor: `rgba(16, 185, 129, ${0.05 + intensity * 0.6})`,
+                    backgroundColor: `rgba(${colorStr}, ${0.05 + intensity * 0.6})`,
                     transform: is3D ? `translateZ(${g.concentration * 1.5}px)` : 'none',
+                    borderColor: `rgba(${colorStr}, 0.2)`,
                     boxShadow: is3D && g.concentration > 30
-                      ? `0 0 15px rgba(16, 185, 129, ${intensity * 0.4})`
+                      ? `0 0 15px rgba(${colorStr}, ${intensity * 0.4})`
                       : 'none'
                   }}
                 >
                   {/* 3D Pillars for Topography */}
                   {is3D && g.concentration > 5 && (
                     <>
-                      <div className="absolute inset-x-0 top-full bg-emerald-500/10 border-b border-emerald-500/20 pointer-events-none"
-                        style={{ height: `${g.concentration * 1.5}px`, transform: 'rotateX(-90deg)', transformOrigin: 'top' }} />
-                      <div className="absolute inset-y-0 left-full bg-emerald-500/5 border-r border-emerald-500/10 pointer-events-none text-transparent"
-                        style={{ width: `${g.concentration * 1.5}px`, transform: 'rotateY(90deg)', transformOrigin: 'left' }} />
+                      <div className="absolute inset-x-0 top-full pointer-events-none"
+                        style={{
+                          height: `${g.concentration * 1.5}px`,
+                          transform: 'rotateX(-90deg)',
+                          transformOrigin: 'top',
+                          backgroundColor: `rgba(${colorStr}, 0.1)`,
+                          borderBottom: `1px solid rgba(${colorStr}, 0.2)`
+                        }} />
+                      <div className="absolute inset-y-0 left-full pointer-events-none"
+                        style={{
+                          width: `${g.concentration * 1.5}px`,
+                          transform: 'rotateY(90deg)',
+                          transformOrigin: 'left',
+                          backgroundColor: `rgba(${colorStr}, 0.05)`,
+                          borderRight: `1px solid rgba(${colorStr}, 0.1)`
+                        }} />
                     </>
                   )}
 
                   {/* 🔬 Holographic Tooltip */}
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 px-3 py-2 bg-black/80 border border-neon-emerald/30 text-white rounded-lg text-[10px] font-mono opacity-0 group-hover/cell:opacity-100 transition-all z-50 pointer-events-none whitespace-nowrap shadow-[0_0_20px_rgba(16,185,129,0.3)] backdrop-blur-md">
-                    <span className="text-neon-emerald underline mb-1 block">NODE_{g.grid_id}</span>
-                    <div className="text-white/90">CONCENTRATION: <span className="text-neon-emerald font-bold">{g.concentration.toFixed(2)}</span> PPM</div>
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 px-3 py-2 bg-black/80 border text-white rounded-lg text-[10px] font-mono opacity-0 group-hover/cell:opacity-100 transition-all z-50 pointer-events-none whitespace-nowrap backdrop-blur-md"
+                    style={{ borderColor: `rgba(${colorStr}, 0.3)`, boxShadow: `0 0 20px rgba(${colorStr}, 0.3)` }}>
+                    <span className="underline mb-1 block" style={{ color: hexColor }}>NODE_{g.grid_id}</span>
+                    <div className="text-white/90">CONCENTRATION: <span className="font-bold" style={{ color: hexColor }}>{g.concentration.toFixed(2)}</span> PPM</div>
                     <div className="text-white/40 text-[8px] mt-1">LAT: 12.9716, LNG: 77.5946</div>
                   </div>
                 </div>
@@ -157,7 +188,7 @@ export default function CityGrid({ dispersion, mapImage }: { dispersion: any; ma
             <span>Baseline</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-neon-emerald shadow-[0_0_10px_#10B981]" />
+            <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_10px_#EF4444]" />
             <span className="text-white/80">Anomaly Peak</span>
           </div>
         </div>
