@@ -76,17 +76,42 @@ def initialize_simulation(req: SimulationRequest):
     budget_used = 0
     interventions = ["carbon_capture_v1", "algae_bio_panel", "urban_reforestation", "direct_air_capture"]
     
-    # Generate deployment actions for highest concentration grids
+
+    # Deterministic deployment actions based on concentration
     high_concentration_grids = sorted(results, key=lambda x: x.concentration, reverse=True)
     
+    intervention_catalog = {
+        "direct_air_capture": {"threshold": 90.0, "base_cost": 8000, "efficiency": 0.25},
+        "carbon_capture_v1": {"threshold": 70.0, "base_cost": 5000, "efficiency": 0.18},
+        "algae_bio_panel": {"threshold": 50.0, "base_cost": 3000, "efficiency": 0.12},
+        "urban_reforestation": {"threshold": 0.0, "base_cost": 1500, "efficiency": 0.08}
+    }
+
     for i, grid in enumerate(high_concentration_grids[:8]): # Pick top 8 hot zones
-        cost = random.randint(2000, 8000)
-        reduction = grid.concentration * 0.15 # Mock reduction
+        val = grid.concentration
+        selected_intervention = "urban_reforestation"
+        
+        # Select intervention based on severity
+        if val > intervention_catalog["direct_air_capture"]["threshold"]:
+            selected_intervention = "direct_air_capture"
+        elif val > intervention_catalog["carbon_capture_v1"]["threshold"]:
+            selected_intervention = "carbon_capture_v1"
+        elif val > intervention_catalog["algae_bio_panel"]["threshold"]:
+            selected_intervention = "algae_bio_panel"
+            
+        specs = intervention_catalog[selected_intervention]
+        
+        # Calculate units needed (higher concentration = more units, capped at 10)
+        units = min(10, max(1, int(val / 20)))
+        
+        # Calculate cost and reduction
+        cost = specs["base_cost"] * units
+        reduction = val * specs["efficiency"] * (1 + (units * 0.1)) # Diminishing returns or scaling
         
         mock_plan.append({
             "grid_id": grid.grid_id,
-            "intervention": random.choice(interventions),
-            "units": random.randint(1, 5),
+            "intervention": selected_intervention,
+            "units": units,
             "cost": cost,
             "expected_reduction": reduction
         })
