@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.api.gee import router as gee_router
 from app.api.emissions import router as emission_router
+from app.api.simulation import router as simulation_router
 
 app = FastAPI(
     title="Emission Engine",
@@ -18,6 +19,7 @@ app.add_middleware(
 
 app.include_router(emission_router)
 app.include_router(gee_router, prefix="/api/v1/gee", tags=["Google Earth Engine"])
+app.include_router(simulation_router, prefix="/simulation", tags=["Simulation"])
 
 
 @app.get("/")

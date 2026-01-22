@@ -4,3 +4,4 @@ pydantic
 numpy
 requests
 earthengine-api
+geopy

@@ -5,7 +5,7 @@ from app.services.gee_service import get_co2_data
 router = APIRouter()
 
 @router.get("/co2")
-async def get_carbon_data(
+def get_carbon_data(
     lat: float = Query(..., description="Latitude"),
     lon: float = Query(..., description="Longitude"),
     start_date: str = Query(None, description="Start Date YYYY-MM-DD"),

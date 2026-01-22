@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
-import { runScenario, compareScenarios } from "@/lib/api";
+import { runScenario, compareScenarios, initializeSimulation } from "@/lib/api";
 import CityGrid from "@/components/CityGrid";
 import ScenarioPanel from "@/components/ScenarioPanel";
 import ResultsPanel from "@/components/ResultsPanel";
@@ -82,15 +82,20 @@ export default function Home() {
     }
   }
 
-  function handleSimulate() {
+  async function handleSimulate() {
     if (globalData) {
-      // Switch to Local Grid
-      setCompareMode(false);
-      // Ideally we would pass the coords to the CityGrid or Backend here.
-      // For now, let's just show a toast/alert or log it, 
-      // and maybe visually indicate we are using real data.
-      console.log("Initializing simulation for:", globalData.location);
-      // Could set a "simulationContext" state here if we had one.
+      setLoading(true);
+      setError(null);
+      try {
+        const result = await initializeSimulation(globalData.location.lat, globalData.location.lon);
+        setData(result);
+        setCompareMode(false);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to initialize simulation via backend.");
+      } finally {
+        setLoading(false);
+      }
     }
   }
 
@@ -155,7 +160,7 @@ export default function Home() {
           <div className="flex items-baseline justify-between mt-8">
             <h2 className="text-3xl font-bold text-white tracking-tight">Environmental Sequestration Metrics</h2>
             <div className="text-[11px] font-extrabold text-neon-emerald uppercase tracking-[0.2em] bg-neon-emerald/10 border border-neon-emerald/20 px-4 py-1.5 rounded-lg backdrop-blur-md">
-              Region: South Asia Core
+              Region: {globalData?.place_name ? globalData.place_name : 'South Asia Core'}
             </div>
           </div>
 

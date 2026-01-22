@@ -35,3 +35,22 @@ export async function compareScenarios(budgetA: number, budgetB: number) {
   return res.json();
 }
 
+
+
+export async function initializeSimulation(lat: number, lon: number) {
+  // Using localhost:8002 for the local emission-engine service which hosts this new endpoint
+  const res = await fetch("http://localhost:8002/simulation/initialize", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ lat, lon }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to initialize simulation");
+  }
+
+  return res.json();
+}
+

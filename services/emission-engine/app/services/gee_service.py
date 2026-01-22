@@ -65,8 +65,29 @@ def get_co2_data(lat: float, lon: float, date_from: str = None, date_to: str = N
         ).getInfo()
 
         if data and 'CO_column_number_density' in data and data['CO_column_number_density'] is not None:
+            # Reverse Geocoding
+            place_name = "Unknown Location"
+            try:
+                from geopy.geocoders import Nominatim
+                geolocator = Nominatim(user_agent="urban-carbon-twin")
+                location = geolocator.reverse((lat, lon), language='en', timeout=5)
+                if location:
+                    address = location.raw.get('address', {})
+                    city = address.get('city') or address.get('town') or address.get('village') or address.get('county')
+                    country = address.get('country')
+                    if city and country:
+                        place_name = f"{city}, {country}"
+                    elif country:
+                        place_name = country
+                    elif city:
+                        place_name = city
+            except Exception as e:
+                print(f"Geocoding error: {e}")
+                pass
+
             return {
                 "location": {"lat": lat, "lon": lon},
+                "place_name": place_name,
                 "period": {"from": date_from, "to": date_to},
                 "value": data['CO_column_number_density'],
                 "unit": "mol/m^2",
