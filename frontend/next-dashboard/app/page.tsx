@@ -61,6 +61,8 @@ export default function Home() {
 
 
 
+  const [budget, setBudget] = useState(25000);
+
   // New handler for Global View interactions
   const [globalData, setGlobalData] = useState<any>(null);
 
@@ -87,7 +89,7 @@ export default function Home() {
       setLoading(true);
       setError(null);
       try {
-        const result = await initializeSimulation(globalData.location.lat, globalData.location.lon);
+        const result = await initializeSimulation(globalData.location.lat, globalData.location.lon, budget);
         setData(result);
         setCompareMode(false);
       } catch (err) {
@@ -178,7 +180,13 @@ export default function Home() {
                     {compareMode ? 'LOCAL_GRID' : 'GLOBAL_VIEW'}
                   </button>
                 </div>
-                <ScenarioPanel onRun={handleRun} loading={loading} />
+                <ScenarioPanel
+                  onRun={handleRun}
+                  loading={loading}
+                  budget={budget}
+                  setBudget={setBudget}
+                  idealBudget={data?.optimization_plan?.ideal_budget_required}
+                />
               </div>
 
               {error && (

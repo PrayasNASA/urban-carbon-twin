@@ -49,7 +49,7 @@ const Helper = ({ onSelect }: { onSelect?: (lat: number, lon: number) => void })
     return null;
 }
 
-const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon: number) => void; onSimulate?: () => void }> = ({ data, onSelectLocation, onSimulate }) => {
+const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon: number) => void; onSimulate?: () => void; budget?: number }> = ({ data, onSelectLocation, onSimulate, budget }) => {
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {

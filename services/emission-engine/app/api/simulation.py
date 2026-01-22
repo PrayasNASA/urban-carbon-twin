@@ -9,6 +9,7 @@ router = APIRouter()
 class SimulationRequest(BaseModel):
     lat: float
     lon: float
+    budget: float = 50000.0
 
 class GridResult(BaseModel):
     grid_id: str
@@ -67,9 +68,11 @@ def initialize_simulation(req: SimulationRequest):
         ))
         
 
-    # Deployment plan based on the generated grid
+
     deployment_plan = []
     budget_used = 0
+    total_budget = req.budget
+    ideal_budget_accumulator = 0
     
     # Deterministic deployment actions based on concentration
     high_concentration_grids = sorted(results, key=lambda x: x.concentration, reverse=True)
@@ -81,35 +84,79 @@ def initialize_simulation(req: SimulationRequest):
         "urban_reforestation": {"threshold": 0.0, "base_cost": 1500, "efficiency": 0.08}
     }
 
-    for i, grid in enumerate(high_concentration_grids[:8]): # Pick top 8 hot zones
+    # First pass: Calculate Ideal Budget (what is needed to fix everything optimally)
+    # We scan all relevant grids, not just the top 12
+    for grid in high_concentration_grids:
         val = grid.concentration
-        selected_intervention = "urban_reforestation"
+        if val < 5: continue # Ignore negligible pollution
         
-        # Select intervention based on severity
+        # Determine optimal intervention
+        opt_intervention = "urban_reforestation"
+        if val > intervention_catalog["direct_air_capture"]["threshold"]:
+            opt_intervention = "direct_air_capture"
+        elif val > intervention_catalog["carbon_capture_v1"]["threshold"]:
+            opt_intervention = "carbon_capture_v1"
+        elif val > intervention_catalog["algae_bio_panel"]["threshold"]:
+            opt_intervention = "algae_bio_panel"
+            
+        specs = intervention_catalog[opt_intervention]
+        ideal_units = min(10, max(1, int(val / 20)))
+        ideal_budget_accumulator += specs["base_cost"] * ideal_units
+
+
+    # Second pass: Actual Deployment (Constrained by Budget)
+    for i, grid in enumerate(high_concentration_grids[:12]): # Check top 12 hot zones (scan deeper)
+        # Stop if budget is exhausted
+        if budget_used >= total_budget:
+            break
+            
+        val = grid.concentration
+        
+        # Determine best INTERVENTION for this spot
+        selected_intervention = "urban_reforestation"
         if val > intervention_catalog["direct_air_capture"]["threshold"]:
             selected_intervention = "direct_air_capture"
         elif val > intervention_catalog["carbon_capture_v1"]["threshold"]:
             selected_intervention = "carbon_capture_v1"
         elif val > intervention_catalog["algae_bio_panel"]["threshold"]:
             selected_intervention = "algae_bio_panel"
-            
+
+        # Check affordability
         specs = intervention_catalog[selected_intervention]
         
-        # Calculate units needed (higher concentration = more units, capped at 10)
-        units = min(10, max(1, int(val / 20)))
+        # Downgrade intervention if too expensive for remaining budget
+        if specs["base_cost"] > (total_budget - budget_used):
+             # Try fallback 1: Algae
+             if (total_budget - budget_used) > intervention_catalog["algae_bio_panel"]["base_cost"]:
+                 selected_intervention = "algae_bio_panel"
+                 specs = intervention_catalog["algae_bio_panel"]
+             # Try fallback 2: Reforestation
+             elif (total_budget - budget_used) > intervention_catalog["urban_reforestation"]["base_cost"]:
+                 selected_intervention = "urban_reforestation"
+                 specs = intervention_catalog["urban_reforestation"]
+             else:
+                 # Cannot afford anything for this node
+                 continue
+
+        # Calculate max units affordable/needed
+        max_units_budget = int((total_budget - budget_used) // specs["base_cost"])
+        ideal_units = min(10, max(1, int(val / 20)))
         
-        # Calculate cost and reduction
-        cost = specs["base_cost"] * units
-        reduction = val * specs["efficiency"] * (1 + (units * 0.1)) # Diminishing returns or scaling
+        units = min(ideal_units, max_units_budget)
         
-        deployment_plan.append({
-            "grid_id": grid.grid_id,
-            "intervention": selected_intervention,
-            "units": units,
-            "cost": cost,
-            "expected_reduction": reduction
-        })
-        budget_used += cost
+        if units > 0:
+            # Calculate cost and reduction
+            cost = specs["base_cost"] * units
+            reduction = val * specs["efficiency"] * (1 + (units * 0.1)) 
+            
+            deployment_plan.append({
+                "grid_id": grid.grid_id,
+                "intervention": selected_intervention,
+                "units": units,
+                "cost": cost,
+                "expected_reduction": reduction
+            })
+            budget_used += cost
 
     return SimulationResponse(
         dispersion=DispersionData(results=results),
@@ -117,8 +164,9 @@ def initialize_simulation(req: SimulationRequest):
             "status": "Optimization Online",
             "solver": "V4.2",
             "target": "Carbon Neutral 2040",
-            "total_budget": 50000,
+            "total_budget": total_budget,
             "budget_used": budget_used,
+            "ideal_budget_required": ideal_budget_accumulator,
             "plan": deployment_plan
         }
     )
