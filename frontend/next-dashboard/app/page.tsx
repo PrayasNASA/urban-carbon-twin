@@ -34,7 +34,13 @@ export default function Home() {
     setError(null);
     setComparisonData(null);
     try {
-      if (compareMode) {
+      // If we are in Global View mode (or have global data loaded), assume we want to re-run the LIVE simulation
+      if (globalData && !compareMode) {
+        const result = await initializeSimulation(globalData.location.lat, globalData.location.lon, budget);
+        setData(result);
+      }
+      // Fallback for "Local Grid" mode (Legacy/Mock)
+      else if (compareMode) {
         const result = await compareScenarios(budget, budget * 2);
         if (result.error) {
           setError(`Comparison Error: ${result.error}`);
@@ -43,6 +49,7 @@ export default function Home() {
           setComparisonData(result);
         }
       } else {
+        // Fallback if no global data is present (should rarely happen in non-compare mode now)
         const result = await runScenario(budget);
         if (result.optimization_plan?.error) {
           setError(`Backend Error: ${result.optimization_plan.error}`);
@@ -104,7 +111,7 @@ export default function Home() {
   return (
     <main
       ref={containerRef}
-      className="min-h-screen overflow-y-auto overflow-x-hidden snap-y snap-proximity scroll-smooth grain-overlay relative bg-background"
+      className="min-h-screen overflow-y-auto overflow-x-hidden scroll-smooth grain-overlay relative bg-background"
     >
       <HeatmapBackground scrollProgress={scrollYProgress} />
       {/* 🌿 Section 1: Landing Page */}
@@ -112,20 +119,21 @@ export default function Home() {
         style={{
           opacity: landingOpacity,
           scale: landingScale,
+          pointerEvents: landingOpacity.get() === 0 ? 'none' : 'auto'
         }}
-        className="h-screen w-screen sticky top-0 z-10 snap-start"
+        className="h-screen w-screen sticky top-0 z-10"
       >
         <LandingPage onInitialize={() => { }} />
       </motion.section>
 
       {/* 🚀 Section 2: Dashboard Engine */}
       <motion.section
-        style={{ opacity: dashboardOpacity, y: dashboardY }}
-        className="min-h-screen w-screen snap-start bg-transparent text-gray-50 antialiased font-sans relative z-20 pointer-events-auto"
+        style={{ opacity: dashboardOpacity }}
+        className="min-h-screen w-screen relative z-20 bg-transparent text-gray-50 antialiased font-sans pointer-events-auto"
       >
         {/* 🏛️ Solarpunk Header */}
-        <header className="glass-panel border-b border-white/10 sticky top-0 z-50 mx-8 mt-6">
-          <div className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
+        <header className="glass-panel border-b border-white/10 sticky top-4 z-50 mx-4 md:mx-8 mb-8 backdrop-blur-xl">
+          <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             <div className="flex flex-col">
               <h1 className="text-2xl font-bold text-white tracking-tight leading-none flex items-center gap-3">
                 <span className="w-4 h-4 rounded-full bg-neon-emerald shadow-[0_0_15px_#10B981]" />

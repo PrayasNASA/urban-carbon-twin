@@ -45,7 +45,7 @@ export default function ScenarioPanel({
             {idealBudget && (
               <div
                 className="absolute top-0 bottom-0 bg-rose-500/30 w-1 z-0"
-                style={{ left: `${Math.min(100, (idealBudget / 100000) * 100)}%` }}
+                style={{ left: `${Math.min(100, (idealBudget / 500000) * 100)}%` }}
               />
             )}
           </div>
@@ -53,8 +53,8 @@ export default function ScenarioPanel({
           <input
             type="range"
             min="5000"
-            max="100000"
-            step="1000"
+            max="500000"
+            step="5000"
             value={budget}
             onChange={(e) => setBudget(Number(e.target.value))}
             className="relative w-full h-1 bg-transparent rounded-full appearance-none cursor-pointer accent-neon-emerald hover:accent-emerald-400 transition-all z-10"
@@ -64,7 +64,7 @@ export default function ScenarioPanel({
           {idealBudget && (
             <div
               className="absolute top-[-8px] -ml-1.5 w-3 h-3 text-rose-500 pointer-events-none transition-all duration-500"
-              style={{ left: `${Math.min(100, (idealBudget / 100000) * 100)}%`, opacity: budget >= idealBudget ? 0 : 1 }}
+              style={{ left: `${Math.min(100, (idealBudget / 500000) * 100)}%`, opacity: budget >= idealBudget ? 0 : 1 }}
             >
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L1 21h22L12 2zm1 16h-2v-2h2v2zm0-4h-2v-4h2v4z" /></svg>
             </div>
@@ -78,7 +78,7 @@ export default function ScenarioPanel({
           {idealBudget && budget >= idealBudget && <span className="text-neon-emerald font-bold">OPTIMIZED</span>}
           {!idealBudget && <span className="text-neon-emerald/30 underline decoration-dotted">LINEAR_SCALE</span>}
 
-          <span>MAX_100K</span>
+          <span>MAX_500K</span>
         </div>
       </div>
 
