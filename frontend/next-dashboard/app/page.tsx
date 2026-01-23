@@ -10,6 +10,10 @@ import LandingPage from "@/components/LandingPage";
 import HeatmapBackground from "@/components/HeatmapBackground";
 import Co2Globe from "@/components/Co2Globe";
 
+if (typeof window !== "undefined") {
+  (window as any).CESIUM_BASE_URL = "/cesium";
+}
+
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<any>(null);

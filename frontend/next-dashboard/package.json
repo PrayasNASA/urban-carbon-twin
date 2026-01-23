@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "next build",
+    "build": "node scripts/copy-cesium-assets.js && next build",
     "start": "next start -p 3000",
     "lint": "next lint"
   },
