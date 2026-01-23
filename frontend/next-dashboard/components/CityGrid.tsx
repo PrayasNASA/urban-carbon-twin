@@ -1,6 +1,6 @@
 "use client";
 import { useState, useMemo, useEffect } from 'react';
-import { motion } from 'framer-motion';
+
 
 export default function CityGrid({ dispersion, mapImage }: { dispersion: any; mapImage?: string }) {
   const grids = dispersion?.results || [];
@@ -25,171 +25,133 @@ export default function CityGrid({ dispersion, mapImage }: { dispersion: any; ma
   }, []);
 
   return (
-    <div className="w-full h-full relative flex flex-col overflow-hidden bg-black/20 backdrop-blur-sm">
+    <div className="w-full h-full relative flex flex-col overflow-hidden rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl">
 
       {/* 🧭 Interaction Controls */}
-      <div className="absolute top-6 right-6 z-20 flex gap-3">
+      <div className="absolute top-6 right-6 z-30 flex gap-3">
         <button
           onClick={() => setIs3D(!is3D)}
-          className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-[0.2em] transition-all border ${is3D
-            ? 'bg-neon-emerald border-neon-emerald text-black shadow-[0_0_15px_#10B981]'
-            : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+          className={`px-4 py-2 rounded-full text-xs font-medium tracking-wide transition-all duration-300 ${is3D
+            ? 'bg-white text-black shadow-lg'
+            : 'bg-black/20 text-white/80 hover:bg-white/10 hover:text-white backdrop-blur-md border border-white/5'
             }`}
         >
-          {is3D ? 'TOPOGRAPHIC_ACTIVE' : 'PLANAR_SCAN'}
+          {is3D ? '3D View' : '2D Map'}
         </button>
       </div>
 
       {/* 📍 Spatial Grid Canvas */}
-      <div className="flex-1 relative flex items-center justify-center">
+      <div className="flex-1 relative flex items-center justify-center p-8">
         <div
-          className="relative transition-all duration-1000 ease-in-out"
+          className="relative transition-all duration-1000 ease-out"
           style={{
-            transform: is3D ? 'perspective(2000px) rotateX(55deg) rotateZ(-25deg) scale(0.9) translateY(0)' : 'none',
+            transform: is3D ? 'perspective(2000px) rotateX(45deg) rotateZ(0deg) scale(0.85)' : 'none',
           }}
         >
-          {/* 🌍 Satellite Context Layer */}
-          {mapImage && (
-            <div className="absolute inset-[-20%] z-0 rounded-xl overflow-hidden pointer-events-none">
-              {/* Dark Base */}
-              <div className="absolute inset-0 bg-black/80 z-10" />
 
-              {/* The Map Image */}
-              <img src={mapImage} alt="Satellite Context" className="w-full h-full object-cover grayscale-[20%] contrast-[1.2] opacity-60 mix-blend-overlay z-0" />
 
-              {/* Tech Overlay Pattern */}
-              <div className="absolute inset-0 z-20 bg-[linear-gradient(rgba(16,185,129,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.05)_1px,transparent_1px)] bg-[size:40px_40px]" />
-
-              {/* Emerald Tint & Vignette */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-80 z-30" />
-              <div className="absolute inset-0 bg-neon-emerald/10 mix-blend-color-dodge z-30" />
-            </div>
-          )}
-
-          <div className="grid grid-cols-20 gap-1 p-8 bg-black/20 rounded-xl border border-neon-emerald/20 shadow-[0_0_50px_rgba(16,185,129,0.05)] relative z-10 backdrop-blur-[2px]">
+          {/* Main Grid Container */}
+          <div className={`grid grid-cols-20 gap-1 p-2 transition-all duration-500 ${!is3D ? 'bg-black/20 rounded-xl border border-white/5 shadow-inner' : ''}`}>
             {grids.map((g: any, idx: number) => {
-              const intensity = Math.min(g.concentration / 100, 1);
+              const val = g.concentration;
 
-              let r, green, b, hexColor;
-              if (g.concentration >= 75) {
-                // High: Red
-                r = 239; green = 68; b = 68;
-                hexColor = '#EF4444';
-              } else if (g.concentration >= 40) {
-                // Medium: Yellow
-                r = 234; green = 179; b = 8;
-                hexColor = '#EAB308';
+              // 🎨 "Beautiful" High-End Palette
+              // We use a continuous-feeling set of vibrant, "cosmic" data colors
+
+              let bgStyle;
+              let glowColor;
+              let borderColor;
+
+              if (val >= 75) {
+                // High: Red / Rose (Danger)
+                // Using a sophisticated, deep red/rose instead of harsh #FF0000
+                bgStyle = `rgba(225, 29, 72, ${0.5 + (val / 100) * 0.4})`; // Rose-600
+                glowColor = 'rgba(225, 29, 72, 0.6)';
+                borderColor = 'rgba(225, 29, 72, 0.4)';
+              } else if (val >= 40) {
+                // Med: Amber / Orange (Warning)
+                bgStyle = `rgba(245, 158, 11, ${0.5 + (val / 100) * 0.4})`; // Amber-500
+                glowColor = 'rgba(245, 158, 11, 0.6)';
+                borderColor = 'rgba(245, 158, 11, 0.4)';
               } else {
-                // Low: Emerald (Green)
-                r = 16; green = 185; b = 129;
-                hexColor = '#10B981';
+                // Low: Emerald / Green (Safe)
+                bgStyle = `rgba(16, 185, 129, ${0.4 + (val / 100) * 0.3})`; // Emerald-500
+                glowColor = 'rgba(16, 185, 129, 0.5)';
+                borderColor = 'rgba(16, 185, 129, 0.3)';
               }
-              const colorStr = `${r}, ${green}, ${b}`;
 
               return (
                 <div
                   key={idx}
-                  className="w-5 h-5 rounded-[1px] transition-all duration-500 group/cell relative cursor-crosshair border border-white/5 hover:border-white/50"
+                  className="w-5 h-5 rounded-[3px] transition-all duration-500 group/cell relative"
                   style={{
-                    backgroundColor: `rgba(${colorStr}, ${0.05 + intensity * 0.6})`,
-                    transform: is3D ? `translateZ(${g.concentration * 1.5}px)` : 'none',
-                    borderColor: `rgba(${colorStr}, 0.2)`,
-                    boxShadow: is3D && g.concentration > 30
-                      ? `0 0 15px rgba(${colorStr}, ${intensity * 0.4})`
-                      : 'none'
+                    backgroundColor: bgStyle,
+                    border: `1px solid ${borderColor}`,
+                    transform: is3D ? `translateZ(${val * 0.8}px)` : 'none',
+                    boxShadow: is3D ? `0 0 15px ${glowColor}` : 'none' // Always glow a bit for beauty
                   }}
                 >
-                  {/* 3D Pillars for Topography */}
-                  {is3D && g.concentration > 5 && (
-                    <>
-                      <div className="absolute inset-x-0 top-full pointer-events-none"
-                        style={{
-                          height: `${g.concentration * 1.5}px`,
-                          transform: 'rotateX(-90deg)',
-                          transformOrigin: 'top',
-                          backgroundColor: `rgba(${colorStr}, 0.1)`,
-                          borderBottom: `1px solid rgba(${colorStr}, 0.2)`
-                        }} />
-                      <div className="absolute inset-y-0 left-full pointer-events-none"
-                        style={{
-                          width: `${g.concentration * 1.5}px`,
-                          transform: 'rotateY(90deg)',
-                          transformOrigin: 'left',
-                          backgroundColor: `rgba(${colorStr}, 0.05)`,
-                          borderRight: `1px solid rgba(${colorStr}, 0.1)`
-                        }} />
-                    </>
+                  {/* 3D Pillars */}
+                  {is3D && val > 10 && (
+                    <div className="absolute inset-0 pointer-events-none mix-blend-screen"
+                      style={{
+                        transform: `translateZ(-${val * 0.8}px)`,
+                        height: `${val * 0.8}px`,
+                        backgroundColor: glowColor,
+                        opacity: 0.15
+                      }}
+                    />
                   )}
 
-                  {/* 🔬 Holographic Tooltip */}
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 px-3 py-2 bg-black/80 border text-white rounded-lg text-[10px] font-mono opacity-0 group-hover/cell:opacity-100 transition-all z-50 pointer-events-none whitespace-nowrap backdrop-blur-md"
-                    style={{ borderColor: `rgba(${colorStr}, 0.3)`, boxShadow: `0 0 20px rgba(${colorStr}, 0.3)` }}>
-                    <span className="underline mb-1 block" style={{ color: hexColor }}>NODE_{g.grid_id}</span>
-                    <div className="text-white/90">CONCENTRATION: <span className="font-bold" style={{ color: hexColor }}>{g.concentration.toFixed(2)}</span> PPM</div>
-                    <div className="text-white/40 text-[8px] mt-1">LAT: 12.9716, LNG: 77.5946</div>
+                  {/* Minimal Tooltip */}
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-black/90 text-white rounded-md shadow-2xl opacity-0 group-hover/cell:opacity-100 transition-opacity duration-200 pointer-events-none z-50 min-w-[100px] border border-white/10 backdrop-blur-md">
+                    <div className="flex flex-col items-center">
+                      <span className="text-[9px] uppercase font-bold tracking-widest text-white/40">Reading</span>
+                      <div className="text-xs font-bold tabular-nums text-white">{val.toFixed(1)} PPM</div>
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
 
-          {/* Floating Neon Particles */}
-          <div className="absolute inset-0 pointer-events-none">
-            {mounted && particles.map((p) => (
-              <motion.div
-                key={p.id}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{
-                  opacity: [0.2, 0.8, 0.2],
-                  scale: [1, 1.5, 1],
-                  y: [-20, -100],
-                  x: [0, p.xOffset]
-                }}
-                transition={{
-                  duration: p.duration,
-                  delay: p.delay,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-                className="absolute rounded-full bg-neon-emerald blur-[1px] shadow-[0_0_8px_#10B981]"
-                style={{
-                  left: p.left,
-                  top: p.top,
-                  width: p.size,
-                  height: p.size
-                }}
-              />
-            ))}
-          </div>
         </div>
 
-        {/* 🛰️ Awaiting Simulation Feed */}
+        {/* Loading State - Minimalist */}
         {!dispersion && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#050C09]/60 backdrop-blur-md z-10 transition-opacity">
-            <div className="w-16 h-16 border-2 border-neon-emerald/20 rounded-xl flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.1)] bg-black/40 mb-6 group">
-              <div className="w-8 h-8 rounded-full border-2 border-neon-emerald border-t-transparent animate-spin" />
-            </div>
-            <p className="text-[12px] font-bold text-neon-emerald uppercase tracking-[0.3em] animate-pulse">Scanning Biosphere...</p>
-            <p className="text-[10px] text-white/30 mt-2 uppercase tracking-widest">Awaiting spatial concentration data stream</p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+            <div className="w-12 h-12 rounded-full border-2 border-white/10 border-t-white animate-spin mb-4" />
+            <span className="text-xs font-medium text-white/40 tracking-widest uppercase">Calibrating Sensors</span>
           </div>
         )}
       </div>
 
-      {/* 📊 Resolution & Status Footer */}
-      <div className="px-8 py-4 border-t border-white/5 bg-black/40 backdrop-blur-md flex justify-between items-center text-[10px] font-bold text-white/40 uppercase tracking-widest">
+      {/* 📊 Refined Footer */}
+      <div className="px-8 py-5 border-t border-white/5 bg-black/20 flex justify-between items-center text-xs text-white/60 font-medium">
         <div className="flex items-center gap-6">
-          <span className="text-neon-emerald/60">Sensing Mode: Ultra_Precision</span>
-          <span className="h-3 w-px bg-white/10" />
-          <span className="font-mono">{grids.length} Active_Nodes</span>
-        </div>
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full border border-white/20" />
-            <span>Baseline</span>
+          <div className="flex flex-col">
+            <span className="text-[10px] text-white/30 uppercase tracking-wider">Resolution</span>
+            <span>High-Fidelity Grid</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_10px_#EF4444]" />
-            <span className="text-white/80">Anomaly Peak</span>
+          <div className="w-px h-6 bg-white/10" />
+          <div className="flex flex-col">
+            <span className="text-[10px] text-white/30 uppercase tracking-wider">Active Nodes</span>
+            <span>{grids.length > 0 ? grids.length : 'OFFLINE'}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-8">
+          <div className="flex items-center gap-3">
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-white/50">Safe</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_10px_#f59e0b]" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-white/50">Caution</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-2.5 h-2.5 rounded-full bg-rose-600 shadow-[0_0_10px_#e11d48] animate-pulse" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-white/80">Hazardous</span>
           </div>
         </div>
       </div>

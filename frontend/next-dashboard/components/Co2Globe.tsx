@@ -77,41 +77,45 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
             </Viewer>
 
             {/* Static overlay */}
-            <div className="absolute top-4 left-4 z-50 bg-black/60 backdrop-blur-md p-4 rounded-lg border border-white/10 pointer-events-none">
-                <h3 className="text-white font-bold text-sm">Global Sensor Network</h3>
-                <p className="text-xs text-white/50 mb-2">Powered by Google Earth Engine & Sentinel-5P</p>
-                <p className="text-[10px] text-neon-emerald font-mono uppercase">Instruction: Click anywhere to sample CO2.</p>
+            <div className="absolute top-6 left-6 z-50 bg-black/40 backdrop-blur-xl p-5 rounded-2xl border border-white/10 shadow-2xl pointer-events-none">
+                <h3 className="text-white font-medium text-sm tracking-wide">Global Sensor Network</h3>
+                <p className="text-xs text-white/50 mt-1">Powered by Google Earth Engine & Sentinel-5P</p>
+                <p className="text-[10px] text-teal-400 font-medium uppercase mt-3 tracking-widest flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
+                    System Active
+                </p>
             </div>
 
             {/* Active Data Overlay */}
             {data && (
-                <div className="absolute bottom-8 right-8 z-50 bg-gray-900/90 backdrop-blur-xl p-6 rounded-xl border border-neon-emerald/30 shadow-[0_0_30px_rgba(16,185,129,0.1)] max-w-sm">
-                    <div className="flex items-start justify-between mb-4">
+                <div className="absolute bottom-8 right-8 z-50 bg-black/60 backdrop-blur-2xl p-6 rounded-3xl border border-white/10 shadow-2xl max-w-sm w-full">
+                    <div className="flex items-start justify-between mb-6">
                         <div>
-                            <h3 className="text-neon-emerald font-bold text-lg">Sensor Reading</h3>
-                            <p className="text-xs text-white/40 font-mono">{data.location.lat.toFixed(4)}°N, {data.location.lon.toFixed(4)}°E</p>
+                            <h3 className="text-white font-medium text-lg tracking-tight">Sensor Reading</h3>
+                            <p className="text-xs text-white/40 font-mono mt-1">{data.location.lat.toFixed(4)}°N, {data.location.lon.toFixed(4)}°E</p>
                         </div>
-                        <div className="bg-neon-emerald/20 text-neon-emerald text-xs px-2 py-1 rounded font-bold">
-                            LIVE
+                        <div className="bg-teal-500/10 text-teal-400 text-[10px] px-3 py-1.5 rounded-full font-bold tracking-widest uppercase border border-teal-500/20">
+                            Live Feed
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 mb-6">
-                        <div className="bg-black/40 p-3 rounded-lg">
-                            <p className="text-[10px] text-white/50 uppercase tracking-widest">Concentration</p>
-                            <p className="text-xl font-bold text-white mt-1">{data.value.toFixed(4)} <span className="text-xs text-white/50">{data.unit}</span></p>
+                    <div className="grid grid-cols-2 gap-3 mb-6">
+                        <div className="bg-white/5 p-4 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
+                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-medium">Concentration</p>
+                            <p className="text-2xl font-light text-white mt-1 tabular-nums">{data.value.toFixed(2)} <span className="text-xs text-white/30 font-normal">{data.unit}</span></p>
                         </div>
-                        <div className="bg-black/40 p-3 rounded-lg">
-                            <p className="text-[10px] text-white/50 uppercase tracking-widest">Quality</p>
-                            <p className="text-xl font-bold text-white mt-1">Moderate</p>
+                        <div className="bg-white/5 p-4 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
+                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-medium">Air Quality</p>
+                            <p className="text-lg font-medium text-white mt-2">Moderate</p>
                         </div>
                     </div>
 
                     <button
                         onClick={onSimulate}
-                        className="w-full py-3 bg-neon-emerald hover:bg-emerald-400 text-black font-bold uppercase tracking-widest text-xs rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+                        className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest text-[11px] rounded-xl transition-all hover:bg-gray-100 active:scale-[0.98] shadow-lg flex items-center justify-center gap-3"
                     >
-                        Initialize Simulation Here
+                        <span>Run Simulation</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
                     </button>
                 </div>
             )}
