@@ -1,10 +1,7 @@
-# deploy-gcp.ps1
-# Automates deployment of Urban Carbon Twin microservices to Google Cloud Run
-
-$PROJECT_ID = "YOUR_PROJECT_ID"
+$PROJECT_ID = "urbun-carbon-twin"
 $REGION = "us-central1"
 
-Write-Host "🚀 Starting deployment to GCP Project: $PROJECT_ID" -ForegroundColor Cyan
+Write-Host "Starting deployment to GCP Project: $PROJECT_ID" -ForegroundColor Cyan
 
 $services = @(
     "gis-service",
@@ -16,23 +13,20 @@ $services = @(
 )
 
 # 1. Enable APIs
-Write-Host "🔧 Enabling required APIs..."
+Write-Host "Enabling required APIs..."
 gcloud services enable run.googleapis.com containerregistry.googleapis.com cloudbuild.googleapis.com --project $PROJECT_ID
 
 # 2. Build and Push images
 foreach ($service in $services) {
-    Write-Host "📦 Building and pushing $service..." -ForegroundColor Yellow
-    gcloud builds submit --tag gcr.io/$PROJECT_ID/$service ./services/$service --project $PROJECT_ID
+    Write-Host "Building and pushing $service..." -ForegroundColor Yellow
+    gcloud builds submit --tag gcr.io/$PROJECT_ID/$service "./services/$service" --project $PROJECT_ID
 }
 
 # 3. Deploy to Cloud Run
-Write-Host "☁️ Deploying to Cloud Run..." -ForegroundColor Green
-
-# Note: In a real flow, you'd deploy them and grab the URLs to pass as ENV vars to dependencies.
-# For simplicity, we deploy with placeholders and user can update URLs in the GCP Console 
-# OR we do it in a two-pass approach.
+Write-Host "Deploying to Cloud Run..." -ForegroundColor Green
 
 foreach ($service in $services) {
+    Write-Host "Deploying $service..." -ForegroundColor Yellow
     gcloud run deploy $service `
         --image gcr.io/$PROJECT_ID/$service `
         --platform managed `
@@ -41,5 +35,5 @@ foreach ($service in $services) {
         --project $PROJECT_ID
 }
 
-Write-Host "✅ All services deployed!" -ForegroundColor Green
-Write-Host "🔗 Please grab the URLs from the output above and update the environment variables in the api-gateway Cloud Run configuration."
+Write-Host "All services deployed!" -ForegroundColor Green
+Write-Host "Please grab the URLs from the output above and update the environment variables in the api-gateway Cloud Run configuration."
