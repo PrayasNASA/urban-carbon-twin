@@ -58,7 +58,7 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
 
     if (!isMounted) return <div className="h-[600px] w-full flex items-center justify-center bg-black/40 text-emerald-500">Loading Globe Engine...</div>;
 
-    const targetPos = data
+    const targetPos = (data && data.location)
         ? Cartesian3.fromDegrees(data.location.lon, data.location.lat, 20000)
         : Cartesian3.fromDegrees(77.20, 28.61, 2000000);
 
@@ -68,7 +68,7 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
                 <CameraFlyTo destination={targetPos} duration={2} />
                 <Helper onSelect={onSelectLocation} />
 
-                {data && (
+                {data && data.location && (
                     <Entity
                         position={Cartesian3.fromDegrees(data.location.lon, data.location.lat)}
                         point={{ pixelSize: 20, color: Color.RED }}

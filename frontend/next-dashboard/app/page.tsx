@@ -84,6 +84,9 @@ export default function Home() {
       const res = await fetch(`${API_GATEWAY}/scenario/gee/co2?lat=${lat}&lon=${lon}`);
       if (!res.ok) throw new Error("GEE Fetch Failed");
       const json = await res.json();
+      if (json.error) {
+        throw new Error(json.error);
+      }
       setGlobalData(json);
     } catch (e: any) {
       console.error(e);

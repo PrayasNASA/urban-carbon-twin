@@ -28,13 +28,25 @@ Write-Host "Deploying to Cloud Run..." -ForegroundColor Green
 foreach ($service in $services) {
     Write-Host "Deploying $service..." -ForegroundColor Yellow
     
-    $env_vars = ""
     if ($service -eq "api-gateway") {
-        $env_vars = "--set-env-vars GIS_BASE_URL=https://gis-service-owkex2u2ca-uc.a.run.app,EMISSION_ENGINE_URL=https://emission-engine-owkex2u2ca-uc.a.run.app,DISPERSION_ENGINE_URL=https://dispersion-engine-owkex2u2ca-uc.a.run.app,INTERVENTION_ENGINE_URL=https://intervention-engine-owkex2u2ca-uc.a.run.app,OPTIMIZER_ENGINE_URL=https://optimizer-service-owkex2u2ca-uc.a.run.app"
+        # Using expanded arguments for robustness
+        gcloud run deploy $service `
+            --image gcr.io/$PROJECT_ID/$service `
+            --platform managed `
+            --region $REGION `
+            --allow-unauthenticated `
+            --project $PROJECT_ID `
+            --set-env-vars "GIS_BASE_URL=https://gis-service-owkex2u2ca-uc.a.run.app,EMISSION_ENGINE_URL=https://emission-engine-owkex2u2ca-uc.a.run.app,DISPERSION_ENGINE_URL=https://dispersion-engine-owkex2u2ca-uc.a.run.app,INTERVENTION_ENGINE_URL=https://intervention-engine-owkex2u2ca-uc.a.run.app,OPTIMIZER_ENGINE_URL=https://optimizer-service-owkex2u2ca-uc.a.run.app"
     }
-
-    Invoke-Expression "gcloud run deploy $service --image gcr.io/$PROJECT_ID/$service --platform managed --region $REGION --allow-unauthenticated --project $PROJECT_ID $env_vars"
+    else {
+        gcloud run deploy $service `
+            --image gcr.io/$PROJECT_ID/$service `
+            --platform managed `
+            --region $REGION `
+            --allow-unauthenticated `
+            --project $PROJECT_ID
+    }
 }
 
 Write-Host "All services deployed!" -ForegroundColor Green
-Write-Host "Please grab the URLs from the output above and update the environment variables in the api-gateway Cloud Run configuration."
+Write-Host "Please grab the URLs if you need to manually verify them in the Google Cloud Console."
