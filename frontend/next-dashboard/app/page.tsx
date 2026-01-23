@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
-import { runScenario, compareScenarios, initializeSimulation } from "@/lib/api";
+import { runScenario, compareScenarios, initializeSimulation, API_GATEWAY } from "@/lib/api";
 import CityGrid from "@/components/CityGrid";
 import ScenarioPanel from "@/components/ScenarioPanel";
 import ResultsPanel from "@/components/ResultsPanel";
@@ -80,9 +80,8 @@ export default function Home() {
   async function handleGlobalSelect(lat: number, lon: number) {
     setLoading(true); // Reuse loading or create specific one
     try {
-      // Adjust URL to match your backend port (default 8002 for emission-engine?)
-      // Assuming user ran on 8002 per instructions
-      const res = await fetch(`http://localhost:8002/api/v1/gee/co2?lat=${lat}&lon=${lon}`);
+      // Using API Gateway instead of hardcoded localhost
+      const res = await fetch(`${API_GATEWAY}/scenario/gee/co2?lat=${lat}&lon=${lon}`);
       if (!res.ok) throw new Error("GEE Fetch Failed");
       const json = await res.json();
       setGlobalData(json);

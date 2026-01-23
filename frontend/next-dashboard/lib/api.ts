@@ -1,4 +1,4 @@
-const API_GATEWAY = process.env.NEXT_PUBLIC_API_GATEWAY || "https://api-gateway-916807068717.us-central1.run.app";
+export const API_GATEWAY = process.env.NEXT_PUBLIC_API_GATEWAY || "https://api-gateway-owkex2u2ca-uc.a.run.app";
 
 export async function runScenario(budget: number) {
   const res = await fetch(`${API_GATEWAY}/scenario`, {
@@ -39,8 +39,8 @@ export async function compareScenarios(budgetA: number, budgetB: number) {
 
 
 export async function initializeSimulation(lat: number, lon: number, budget: number) {
-  // Using localhost:8002 for the local emission-engine service which hosts this new endpoint
-  const res = await fetch("http://localhost:8002/simulation/initialize", {
+  // Using API Gateway instead of hardcoded localhost
+  const res = await fetch(`${API_GATEWAY}/scenario/simulation/initialize`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

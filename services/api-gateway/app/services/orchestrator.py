@@ -36,3 +36,18 @@ def run_interventions(interventions: list):
     )
     r.raise_for_status()
     return r.json()
+
+
+def get_gee_co2(lat: float, lon: float):
+    r = requests.get(f"{EMISSION_ENGINE_URL}/api/v1/gee/co2?lat={lat}&lon={lon}")
+    r.raise_for_status()
+    return r.json()
+
+
+def init_simulation(lat: float, lon: float, budget: float):
+    r = requests.post(
+        f"{EMISSION_ENGINE_URL}/simulation/initialize",
+        json={"lat": lat, "lon": lon, "budget": budget}
+    )
+    r.raise_for_status()
+    return r.json()

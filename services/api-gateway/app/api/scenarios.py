@@ -4,8 +4,12 @@ from app.services.orchestrator import (
     run_emissions,
     run_dispersion,
     run_optimization,
-    run_interventions
+    run_interventions,
+    get_gee_co2,
+    init_simulation
 )
+import os
+from fastapi import Query
 
 router = APIRouter(prefix="/scenario", tags=["Scenario"])
 
@@ -83,5 +87,25 @@ def compare_scenarios(payload: ComparisonRequest):
             },
             "insight": f"Scenario B reduces {(plan_b.get('total_reduction', 0) - plan_a.get('total_reduction', 0)):.2f} more units of CO2."
         }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.get("/gee/co2")
+def get_gee_data(lat: float = Query(...), lon: float = Query(...)):
+    try:
+        return get_gee_co2(lat, lon)
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.post("/simulation/initialize")
+def initialize_simulation(payload: dict):
+    try:
+        return init_simulation(
+            payload.get("lat"), 
+            payload.get("lon"), 
+            payload.get("budget")
+        )
     except Exception as e:
         return {"error": str(e)}
