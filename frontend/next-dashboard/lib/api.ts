@@ -39,12 +39,10 @@ export async function compareScenarios(budgetA: number, budgetB: number) {
 
 
 
-export async function initializeSimulation(lat: number, lon: number, budget: number) {
-  // Using Local Emission Engine for verifying the deterministic fix
-  // const API_GATEWAY = process.env.NEXT_PUBLIC_API_GATEWAY || "https://api-gateway-owkex2u2ca-uc.a.run.app";
-  const LOCAL_URL = "http://localhost:8002";
 
-  const res = await fetch(`${LOCAL_URL}/simulation/initialize`, {
+export async function initializeSimulation(lat: number, lon: number, budget: number) {
+  // Using API Gateway instead of hardcoded localhost
+  const res = await fetch(`${API_GATEWAY}/scenario/simulation/initialize`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
