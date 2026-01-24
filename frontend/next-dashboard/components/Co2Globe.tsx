@@ -72,7 +72,16 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
 
     return (
         <div className="h-[600px] w-full relative overflow-hidden rounded-xl border border-white/10">
-            <Viewer full selectionIndicator={false} infoBox={false}>
+            <Viewer
+                full
+                selectionIndicator={false}
+                infoBox={false}
+                geocoder={true}
+                homeButton={true}
+                baseLayerPicker={true}
+                sceneModePicker={true}
+                navigationHelpButton={false}
+            >
                 <CameraFlyTo destination={targetPos} duration={2} />
                 <Helper onSelect={onSelectLocation} />
 

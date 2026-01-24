@@ -108,3 +108,70 @@
     @apply bg-white/10 rounded-full hover:bg-white/20;
   }
 }
+
+/* Cesium Custom Styling */
+.cesium-viewer-geocoderContainer {
+  margin: 12px;
+}
+
+.cesium-geocoder-input {
+  background-color: rgba(3, 8, 6, 0.8) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  color: #F0FDF4 !important;
+  border-radius: 8px 0 0 8px !important;
+  backdrop-filter: blur(12px) !important;
+  padding: 8px 12px !important;
+  height: 38px !important;
+}
+
+.cesium-geocoder-input:focus {
+  border-color: #10B981 !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2) !important;
+}
+
+.cesium-geocoder-searchButton {
+  background-color: rgba(16, 185, 129, 0.2) !important;
+  fill: #10B981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  border-left: none !important;
+  border-radius: 0 8px 8px 0 !important;
+  height: 38px !important;
+}
+
+.cesium-geocoder-searchButton:hover {
+  background-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+.cesium-button {
+  background-color: rgba(3, 8, 6, 0.8) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  border-radius: 8px !important;
+  fill: #F0FDF4 !important;
+  backdrop-filter: blur(12px) !important;
+  margin: 4px !important;
+  transition: all 0.2s ease !important;
+}
+
+.cesium-button:hover {
+  background-color: rgba(16, 185, 129, 0.2) !important;
+  border-color: #10B981 !important;
+  color: #10B981 !important;
+  fill: #10B981 !important;
+}
+
+.cesium-viewer-bottom {
+  display: none !important;
+  /* Hide credits for cleaner UI as per user's aesthetic request */
+}
+
+.cesium-baseLayerPicker-dropDown {
+  background-color: rgba(3, 8, 6, 0.9) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  backdrop-filter: blur(20px) !important;
+  border-radius: 12px !important;
+  padding: 8px !important;
+}
+
+.cesium-baseLayerPicker-item-label {
+  color: #F0FDF4 !important;
+}

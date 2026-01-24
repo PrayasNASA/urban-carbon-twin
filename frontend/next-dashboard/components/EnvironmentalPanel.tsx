@@ -56,7 +56,7 @@ export default function EnvironmentalPanel({ data, onSimulate }: EnvironmentalPa
         <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="absolute top-4 right-4 z-50 w-[380px] bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[calc(100%-2rem)]"
+            className="absolute top-24 right-4 z-50 w-[380px] bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[calc(100%-6rem)]"
         >
             {/* Header / AQI Main */}
             <div className={`p-6 bg-gradient-to-br ${aqiBg} border-b border-white/5 relative`}>
