@@ -105,3 +105,20 @@ $env:NEXT_PUBLIC_API_GATEWAY="http://127.0.0.1:8000"
 npm run dev
 
 Testing: Open http://localhost:3000, increase the capital allocation slider to $500k, and hit Initialize Simulation. You should see the grids turn Green! 🟢
+
+
+
+
+
+
+
+I spotted the issue! The Global View uses specific scientific units (mol/m² for column density) which are much smaller numbers than surface-level PPM.
+
+Your readout of 0.0493 is actually quite high for column density, but my previous "Good" threshold was expecting 50.0.
+
+I have calibrated the global sensor criteria to match the satellite data:
+
+Hazardous: ≥ 0.045
+Moderate: ≥ 0.035
+Good: < 0.035
+With this fix, your reading of 0.0493 will now correctly show as Hazardous. I've pushed this update, so you should see it reflect on the frontend shortly!

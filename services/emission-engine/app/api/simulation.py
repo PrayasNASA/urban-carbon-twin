@@ -30,7 +30,7 @@ class SimulationResponse(BaseModel):
     optimization_plan: Optional[dict] = None
 
 
-from app.services.gee_service import get_co2_data
+from app.services.aqi_service import get_aqi_data
 
 
 def generate_voronoi_regions(center_lat, center_lon, num_points=120, radius_deg=0.03):
@@ -92,10 +92,21 @@ def initialize_simulation(req: SimulationRequest):
     # Hash for tracking this specific run
     sim_id = f"sim_{hash(f'{req.lat}{req.lon}{req.budget}')}"
     
-    # Fetch real baseline (stable)
-    real_data = get_co2_data(req.lat, req.lon)
-    base_val = real_data.get("value", 0.04) if real_data else 0.04
-    display_base = base_val * 2000
+    # Fetch real baseline (stable) from AQI Service
+    real_data = get_aqi_data(req.lat, req.lon)
+    # Get AQI, default to 50 if missing
+    base_aqi = real_data.get("value", 50) if real_data else 50
+    
+    # Map AQI to Grid Concentration Logic for Colors
+    # CityMap Logic: Red >= 80, Amber >= 50, Green < 50
+    # AQI Logic: Hazardous > 300, Unhealthy > 100, Moderate > 50
+    
+    # Scaling Factor:
+    # If AQI = 300 (Hazardous) -> Concentration should be ~90 (Red)
+    # If AQI = 150 (Unhealthy) -> Concentration should be ~60 (Amber)
+    # If AQI = 30 (Good) -> Concentration should be ~20 (Green)
+    
+    display_base = base_aqi * 0.35 # 300 * 0.35 = 105 (Red), 150 * 0.35 = 52.5 (Amber)
     
     # Generate stable map
     voronoi_cells = generate_voronoi_regions(req.lat, req.lon)

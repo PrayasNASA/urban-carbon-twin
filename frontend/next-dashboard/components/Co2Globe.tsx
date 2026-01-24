@@ -108,16 +108,20 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
 
                     <div className="grid grid-cols-2 gap-3 mb-6">
                         <div className="bg-white/5 p-4 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
-                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-medium">Concentration</p>
-                            <p className="text-2xl font-light text-white mt-1 tabular-nums">{data.value.toFixed(4)} <span className="text-xs text-white/30 font-normal">{data.unit}</span></p>
+                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-medium">PM2.5</p>
+                            <p className="text-2xl font-light text-white mt-1 tabular-nums">{data.full_details ? data.full_details.pm2_5 : data.value} <span className="text-xs text-white/30 font-normal">µg/m³</span></p>
                         </div>
                         <div className="bg-white/5 p-4 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
-                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-medium">Air Quality</p>
-                            <p className={`text-lg font-medium mt-2 ${data.value >= 0.045 ? 'text-rose-500' :
-                                    data.value >= 0.035 ? 'text-amber-500' : 'text-emerald-500'
+                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-medium">Air Quality Index</p>
+                            <p className={`text-lg font-medium mt-2 ${data.value > 300 ? 'text-purple-500' :
+                                    data.value > 200 ? 'text-red-500' :
+                                        data.value > 100 ? 'text-orange-500' :
+                                            data.value > 50 ? 'text-yellow-500' : 'text-green-500'
                                 }`}>
-                                {data.value >= 0.045 ? 'Hazardous' :
-                                    data.value >= 0.035 ? 'Moderate' : 'Good'}
+                                {data.value > 300 ? (data.value > 500 ? 'Extreme Hazardous' : 'Hazardous') :
+                                    data.value > 200 ? 'Very Unhealthy' :
+                                        data.value > 100 ? 'Unhealthy' :
+                                            data.value > 50 ? 'Moderate' : 'Good'}
                             </p>
                         </div>
                     </div>
