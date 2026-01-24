@@ -81,7 +81,7 @@ export default function EnvironmentalPanel({ data, onSimulate }: EnvironmentalPa
             </div>
 
             {/* Scrollable Content */}
-            <div className="p-6 overflow-y-auto custom-scrollbar space-y-6">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
 
                 {/* Pollutants Grid */}
                 <div className="space-y-3">
@@ -129,11 +129,13 @@ export default function EnvironmentalPanel({ data, onSimulate }: EnvironmentalPa
                         />
                     </div>
                 </div>
+            </div>
 
-                {/* Simulation Action */}
+            {/* Simulation Action - Sticky Footer */}
+            <div className="p-4 bg-black/40 border-t border-white/10 backdrop-blur-md">
                 <button
                     onClick={onSimulate}
-                    className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest text-[11px] rounded-xl transition-all hover:bg-emerald-400 hover:scale-[1.02] active:scale-[0.98] shadow-lg flex items-center justify-center gap-3 mt-4"
+                    className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest text-[11px] rounded-xl transition-all hover:bg-emerald-400 hover:scale-[1.02] active:scale-[0.98] shadow-lg flex items-center justify-center gap-3"
                 >
                     <span>Run Carbon Simulation</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>

@@ -95,4 +95,16 @@
   .scrolling-content::-webkit-scrollbar-thumb {
     @apply bg-gray-800 rounded-full hover:bg-gray-700;
   }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-white/10 rounded-full hover:bg-white/20;
+  }
 }
