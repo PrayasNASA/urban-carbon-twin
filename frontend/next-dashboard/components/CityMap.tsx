@@ -220,7 +220,7 @@ export default function CityMap({ dispersion, optimizationPlan, initialCenter }:
                         {grids.find((g: any) => g.grid_id === selectedFeature)?.grid_id}
                     </div>
                     <div className="text-sm font-mono text-emerald-400 mt-1">
-                        {grids.find((g: any) => g.grid_id === selectedFeature)?.concentration.toFixed(2)} <span className="text-white/40">ppm</span>
+                        {grids.find((g: any) => g.grid_id === selectedFeature)?.concentration.toFixed(0)} <span className="text-white/40">AQI</span>
                     </div>
                 </div>
             )}

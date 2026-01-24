@@ -18,10 +18,10 @@ export default function ResultsPanel({ optimization }: { optimization: any }) {
         </div>
         <div className="p-8 bg-neon-emerald/20 border border-neon-emerald/30 rounded-xl relative overflow-hidden group shadow-xl">
           <div className="absolute top-0 left-0 w-1.5 h-full bg-neon-emerald shadow-[0_0_20px_#10B981]" />
-          <p className="text-[11px] font-bold text-neon-emerald uppercase tracking-[0.25em] mb-4">Estimated Sequestration</p>
+          <p className="text-[11px] font-bold text-neon-emerald uppercase tracking-[0.25em] mb-4">Projected AQI Improvement</p>
           <div className="flex items-baseline gap-4">
-            <p className="text-4xl font-extrabold text-white tabular-nums tracking-tighter drop-shadow-sm">{carbonAvoided.toFixed(2)}</p>
-            <span className="text-[12px] font-bold text-neon-emerald uppercase tracking-widest font-mono">TN_CO2_EQ</span>
+            <p className="text-4xl font-extrabold text-white tabular-nums tracking-tighter drop-shadow-sm">{carbonAvoided.toFixed(0)}</p>
+            <span className="text-[12px] font-bold text-neon-emerald uppercase tracking-widest font-mono">AQI_PTS</span>
           </div>
         </div>
         <div className="p-8 glass-panel !border-white/10 bg-white/5 rounded-xl flex flex-col justify-center">
@@ -87,7 +87,7 @@ export default function ResultsPanel({ optimization }: { optimization: any }) {
                   </div>
                   <div className="flex flex-col items-end gap-1.5">
                     <span className="text-neon-emerald/50 font-bold uppercase text-[9px] tracking-[0.2em]">Impact_Delta</span>
-                    <span className="text-neon-emerald font-extrabold font-mono text-[13px] tracking-tight">-{p.expected_reduction.toFixed(3)} G/S</span>
+                    <span className="text-neon-emerald font-extrabold font-mono text-[13px] tracking-tight">-{p.expected_reduction.toFixed(1)} AQI</span>
                   </div>
                 </div>
               </motion.div>
