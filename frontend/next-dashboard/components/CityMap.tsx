@@ -137,7 +137,7 @@ export default function CityMap({ dispersion, initialCenter }: { dispersion: any
 
                 {geoJsonData && (
                     <GeoJSON
-                        key={`${grids.length}-${theme}`} // Force re-render on theme change too
+                        key={`${grids.length}-${theme}-${grids.reduce((acc: number, g: any) => acc + g.concentration, 0)}`}
                         data={geoJsonData as any}
                         style={style}
                         onEachFeature={onEachFeature}
@@ -176,8 +176,8 @@ export default function CityMap({ dispersion, initialCenter }: { dispersion: any
 
             {/* Floating Legend */}
             <div className={`absolute bottom-6 right-6 z-[1000] backdrop-blur-md border p-4 rounded-xl shadow-2xl transition-colors duration-300 ${theme === 'dark'
-                    ? 'bg-black/80 border-white/10 text-white'
-                    : 'bg-white/90 border-black/10 text-black'
+                ? 'bg-black/80 border-white/10 text-white'
+                : 'bg-white/90 border-black/10 text-black'
                 }`}>
                 <div className={`text-[10px] uppercase font-bold tracking-widest mb-3 ${theme === 'dark' ? 'text-white/40' : 'text-black/40'}`}>Concentration Zones</div>
                 <div className="flex flex-col gap-2">

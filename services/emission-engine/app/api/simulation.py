@@ -101,6 +101,12 @@ def initialize_simulation(req: SimulationRequest):
     
     display_base = base_val * 2000
     
+    # DETERMINSTIC SEEDING
+    # Use lat/lon to seed the random number generator so the map looks the same 
+    # for the same location, regardless of budget.
+    seed_val = int((abs(req.lat) * 1000 + abs(req.lon) * 1000)) % 4294967295
+    np.random.seed(seed_val)
+    
     # Generate Voronoi Regions
     voronoi_cells = generate_voronoi_regions(req.lat, req.lon)
     
@@ -119,6 +125,7 @@ def initialize_simulation(req: SimulationRequest):
         local_concentration = display_base * (0.8 + factor * 0.4)
         
         # Add "hotspot" noise
+        # Since seed is set, this noise is now deterministic for this location
         if i % 7 == 0:
             local_concentration *= 1.3
         
@@ -148,7 +155,8 @@ def initialize_simulation(req: SimulationRequest):
     # If provided budget is high (e.g. > 80% of ideal), apply MASSIVE reduction to simulate "Green Future"
     # This directly answers the user's request: "more amount than required -> all green"
     
-    is_fully_funded = total_budget >= (ideal_budget_accumulator * 0.9)
+    # Relaxed threshold to 80% so users see the effect more easily
+    is_fully_funded = total_budget >= (ideal_budget_accumulator * 0.8)
     
     if is_fully_funded:
         # SUPER GREEN MODE: Apply 90% reduction across the board
