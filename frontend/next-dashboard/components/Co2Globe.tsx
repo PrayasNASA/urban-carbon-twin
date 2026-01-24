@@ -113,11 +113,11 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
                         </div>
                         <div className="bg-white/5 p-4 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
                             <p className="text-[10px] text-white/40 uppercase tracking-widest font-medium">Air Quality</p>
-                            <p className={`text-lg font-medium mt-2 ${data.value >= 80 ? 'text-rose-500' :
-                                    data.value >= 50 ? 'text-amber-500' : 'text-emerald-500'
+                            <p className={`text-lg font-medium mt-2 ${data.value >= 0.045 ? 'text-rose-500' :
+                                    data.value >= 0.035 ? 'text-amber-500' : 'text-emerald-500'
                                 }`}>
-                                {data.value >= 80 ? 'Hazardous' :
-                                    data.value >= 50 ? 'Moderate' : 'Good'}
+                                {data.value >= 0.045 ? 'Hazardous' :
+                                    data.value >= 0.035 ? 'Moderate' : 'Good'}
                             </p>
                         </div>
                     </div>
