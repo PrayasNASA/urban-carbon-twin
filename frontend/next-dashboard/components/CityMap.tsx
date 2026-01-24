@@ -19,7 +19,7 @@ function MapUpdater({ center }: { center: [number, number] }) {
     return null;
 }
 
-export default function CityMap({ dispersion, initialCenter }: { dispersion: any; initialCenter?: [number, number] }) {
+export default function CityMap({ dispersion, optimizationPlan, initialCenter }: { dispersion: any; optimizationPlan?: any; initialCenter?: [number, number] }) {
     const grids = dispersion?.results || [];
     const [center, setCenter] = useState<[number, number] | null>(initialCenter || null);
     const [selectedFeature, setSelectedFeature] = useState<any>(null);
@@ -137,7 +137,8 @@ export default function CityMap({ dispersion, initialCenter }: { dispersion: any
 
                 {geoJsonData && (
                     <GeoJSON
-                        key={`${grids.length}-${theme}-${grids.reduce((acc: number, g: any) => acc + g.concentration, 0)}`}
+                        // Force re-render on data change or theme change
+                        key={`${optimizationPlan?.simulation_id || grids.length}-${theme}`}
                         data={geoJsonData as any}
                         style={style}
                         onEachFeature={onEachFeature}

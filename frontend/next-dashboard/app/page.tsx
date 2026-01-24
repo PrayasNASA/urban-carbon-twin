@@ -252,6 +252,7 @@ export default function Home() {
                     // Using CityMap instead of CityGrid for Real Map visualization
                     <CityMap
                       dispersion={data?.dispersion}
+                      optimizationPlan={data?.optimization_plan}
                       initialCenter={globalData?.location ? [globalData.location.lat, globalData.location.lon] : undefined}
                     />
                   )}

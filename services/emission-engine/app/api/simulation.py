@@ -32,57 +32,55 @@ class SimulationResponse(BaseModel):
 
 from app.services.gee_service import get_co2_data
 
+
 def generate_voronoi_regions(center_lat, center_lon, num_points=120, radius_deg=0.03):
-    # Create a bounding box around the center
-    min_lat, max_lat = center_lat - radius_deg, center_lat + radius_deg
-    min_lon, max_lon = center_lon - radius_deg, center_lon + radius_deg
+    # Purely mathematical point generation (Spiral-Grid)
+    # No np.random involved to ensure 100% stability
+    points = []
     
-    # Generate random seed points, concentrated slightly in the center
-    # Uniform distribution for base
-    points = np.random.rand(num_points, 2)
+    # 1. Add center point
+    points.append([center_lon, center_lat])
     
-    # Convert to lat/lon range
-    points[:,0] = points[:,0] * (max_lon - min_lon) + min_lon
-    points[:,1] = points[:,1] * (max_lat - min_lat) + min_lat
-    
-    # Add the exact center point to ensure we have a central region
-    points = np.vstack([points, [center_lon, center_lat]])
+    # 2. Add points in a Fermat's Spiral pattern
+    # This creates a very even, natural-looking distribution
+    phi = (1 + 5**0.5) / 2 # Golden ratio
+    for i in range(1, num_points):
+        # Calculate angle and distance based on golden ratio
+        angle = 2 * math.pi * i / (phi**2)
+        r = radius_deg * math.sqrt(i / num_points)
+        
+        # Add a tiny deterministic jitter using sine waves
+        # This keeps the "irregular" district look without randomness
+        jitter_x = math.sin(i * 123.456) * (radius_deg / 20)
+        jitter_y = math.cos(i * 789.012) * (radius_deg / 20)
+        
+        p_lon = center_lon + r * math.cos(angle) + jitter_x
+        p_lat = center_lat + r * math.sin(angle) + jitter_y
+        points.append([p_lon, p_lat])
+        
+    points = np.array(points)
     
     # helper to voronoi
     vor = Voronoi(points)
     
     regions = []
-    bbox = box(min_lon, min_lat, max_lon, max_lat)
+    bbox = box(center_lon - radius_deg, center_lat - radius_deg, center_lon + radius_deg, center_lat + radius_deg)
     
     for point_idx, region_idx in enumerate(vor.point_region):
         region = vor.regions[region_idx]
-        if -1 in region or len(region) == 0:
-            continue
+        if -1 in region or len(region) == 0: continue
             
-        # Get vertices
         polygon_points = vor.vertices[region]
-        
-        # Create shapely polygon
         poly = Polygon(polygon_points)
-        
-        # Clip to bounding box
         clipped = poly.intersection(bbox)
         
         if not clipped.is_empty and isinstance(clipped, Polygon):
-            # Convert back to list of coordinates
-            # GeoJSON expects [lon, lat]
             coords = list(clipped.exterior.coords)
-            
-            # Calculate centroid
             centroid = clipped.centroid
             
             regions.append({
                 "id": str(point_idx),
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": [coords] 
-                },
-                "centroid": (centroid.y, centroid.x), # lat, lon
+                "geometry": {"type": "Polygon", "coordinates": [coords]},
                 "lat": centroid.y,
                 "lon": centroid.x
             })
@@ -91,124 +89,81 @@ def generate_voronoi_regions(center_lat, center_lon, num_points=120, radius_deg=
 
 @router.post("/initialize", response_model=SimulationResponse)
 def initialize_simulation(req: SimulationRequest):
-    # Fetch real data for the location
+    # Hash for tracking this specific run
+    sim_id = f"sim_{hash(f'{req.lat}{req.lon}{req.budget}')}"
+    
+    # Fetch real baseline (stable)
     real_data = get_co2_data(req.lat, req.lon)
-    
-    # Baseline concentration
-    base_val = 0.04
-    if real_data and "value" in real_data:
-        base_val = real_data["value"]
-    
+    base_val = real_data.get("value", 0.04) if real_data else 0.04
     display_base = base_val * 2000
     
-    # DETERMINSTIC SEEDING
-    # Use lat/lon to seed the random number generator so the map looks the same 
-    # for the same location, regardless of budget.
-    seed_val = int((abs(req.lat) * 1000 + abs(req.lon) * 1000)) % 4294967295
-    np.random.seed(seed_val)
-    
-    # Generate Voronoi Regions
+    # Generate stable map
     voronoi_cells = generate_voronoi_regions(req.lat, req.lon)
     
     results = []
+    total_ideal_cost = 0
     
+    # 1. GENERATE BASELINE (Fixed for Location)
     for i, cell in enumerate(voronoi_cells):
-        cell_lat = cell["lat"]
-        cell_lon = cell["lon"]
+        dist = ((cell["lat"] - req.lat)**2 + (cell["lon"] - req.lon)**2)**0.5
+        factor = max(0, 1 - (dist / 0.04))
         
-        # Distance from center
-        dist = ((cell_lat - req.lat)**2 + (cell_lon - req.lon)**2)**0.5
+        # Use a deterministic noise function (sinusoidal) instead of random
+        noise = 1.0 + 0.3 * math.sin(i * 0.7) * math.cos(i * 0.3)
+        concentration = display_base * (0.8 + factor * 0.4) * noise
         
-        # Create meaningful data variation
-        # Higher concentration in center, falling off
-        factor = max(0, 1 - (dist / 0.04)) # Normalized by radius
-        local_concentration = display_base * (0.8 + factor * 0.4)
-        
-        # Add "hotspot" noise
-        # Since seed is set, this noise is now deterministic for this location
-        if i % 7 == 0:
-            local_concentration *= 1.3
-        
+        if concentration > 40:
+             multiplier = 2.0 if concentration > 80 else 1.0
+             total_ideal_cost += 4000 * multiplier
+             
         results.append(GridResult(
             grid_id=f"Zone-{i:03d}",
-            concentration=local_concentration,
-            lat=cell_lat,
-            lon=cell_lon,
+            concentration=concentration,
+            lat=cell["lat"],
+            lon=cell["lon"],
             geometry=cell["geometry"]
         ))
 
-    # Calculate Optimization Plan
-    deployment_plan = []
-    budget_used = 0
+    # 2. APPLY BUDGET (Strictly Monotonic)
     total_budget = req.budget
-    ideal_budget_accumulator = 0
+    total_ideal_cost = max(80000, total_ideal_cost)
     
-    # Calculate Total Ideal Budget first (approximate)
-    # Assume every zone needs at least some intervention
-    # 5K per zone average * len(results)
-    # But let's be more precise based on concentration
+    # Factor is strictly tied to budget ratio
+    mitigation_factor = min(0.98, total_budget / total_ideal_cost)
+    
+    deployment_plan = []
+    
+    # Sort for the plan display
+    high_concentration_grids = sorted(results, key=lambda x: x.concentration, reverse=True)
+
+    # Reduction Step
     for grid in results:
-        if grid.concentration > 40:
-             ideal_budget_accumulator += 5000
-    
-    # AGGRESSIVE MITIGATION LOGIC
-    # If provided budget is high (e.g. > 80% of ideal), apply MASSIVE reduction to simulate "Green Future"
-    # This directly answers the user's request: "more amount than required -> all green"
-    
-    # Relaxed threshold to 80% so users see the effect more easily
-    is_fully_funded = total_budget >= (ideal_budget_accumulator * 0.8)
-    
-    if is_fully_funded:
-        # SUPER GREEN MODE: Apply 90% reduction across the board
-        for grid in results:
-            grid.concentration = grid.concentration * 0.15 # Force it down below 50 (Safe threshold)
-            
-            # Record a "Global Action" in the plan
-            if len(deployment_plan) < 5: # Limit plan items
-                 deployment_plan.append({
-                    "grid_id": grid.grid_id,
-                    "intervention": "Global Carbon Shield",
-                    "cost": total_budget / len(results),
-                    "expected_reduction": 99.9
-                 })
-        budget_used = total_budget # Consume it all for the effect
-        
-    else:
-        # Standard targeted reduction (Greedy approach)
-        high_concentration_grids = sorted(results, key=lambda x: x.concentration, reverse=True)
-        
-        for i, grid in enumerate(high_concentration_grids): 
-            val = grid.concentration
-            if val < 40: continue # Skip safe zones
-            
-            cost = 4000
-            if val > 80: cost = 8000 # Expensive to fix hotspots
-            
-            if budget_used + cost <= total_budget:
-                budget_used += cost
-                
-                # Apply reduction
-                reduction_factor = 0.3 # Reduce to 30% of original (strong reduction)
-                grid.concentration = grid.concentration * reduction_factor
-                
-                if len(deployment_plan) < 20:
-                    deployment_plan.append({
-                        "grid_id": grid.grid_id,
-                        "intervention": "Advanced Capture",
-                        "cost": cost,
-                        "expected_reduction": val * (1-reduction_factor)
-                    })
-            else:
-                break # Out of budget
+        # Hotspots get penalized/mitigated slightly more efficiently if there's budget
+        power = 1.1 if grid.concentration > 70 else 1.0
+        grid.concentration = grid.concentration * (1 - (mitigation_factor ** (1/power)))
+
+    # Plan Summary (UI only)
+    budget_remaining = total_budget
+    for grid in high_concentration_grids[:15]:
+        if budget_remaining <= 0: break
+        cost_share = min(budget_remaining, total_budget / 15)
+        budget_remaining -= cost_share
+        deployment_plan.append({
+            "grid_id": grid.grid_id,
+            "intervention": "Quantum Filtration" if grid.concentration > 30 else "Bio-Regrid",
+            "cost": cost_share,
+            "expected_reduction": mitigation_factor * 100
+        })
+
     return SimulationResponse(
         dispersion=DispersionData(results=results),
         optimization_plan={
-            "status": "Optimization Online",
-            "solver": "Voronoi-Solver-V1",
-            "target": "Carbon Neutral 2040",
+            "simulation_id": sim_id,
+            "status": "Analysis Optimized",
+            "solver": "Monotonic-Spiral-V3",
             "total_budget": total_budget,
-            "budget_used": budget_used,
-            "ideal_budget_required": ideal_budget_accumulator,
+            "budget_used": total_budget - budget_remaining,
+            "ideal_budget_required": total_ideal_cost,
             "plan": deployment_plan
         }
     )
