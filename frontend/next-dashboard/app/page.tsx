@@ -46,9 +46,10 @@ export default function Home() {
     setComparisonData(null);
     try {
       // If we are in Global View mode (or have global data loaded), assume we want to re-run the LIVE simulation
-      if (globalData && !compareMode) {
+      if (globalData) {
         const result = await initializeSimulation(globalData.location.lat, globalData.location.lon, budget);
         setData(result);
+        setCompareMode(false); // Switch to map view
       }
       // Fallback for "Local Grid" mode (Legacy/Mock)
       else if (compareMode) {

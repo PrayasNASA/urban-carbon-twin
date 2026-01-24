@@ -59,9 +59,13 @@ export default function CityMap({ dispersion, optimizationPlan, initialCenter }:
     }, [grids]);
 
     const getColor = (val: number) => {
-        if (val >= 80) return '#e11d48'; // Rose-600
-        if (val >= 50) return '#f59e0b'; // Amber-500
-        return '#10b981'; // Emerald-500
+        // AQI Standard Color Scale
+        if (val > 300) return '#7f1d1d'; // Hazardous (Maroon)
+        if (val > 200) return '#7c3aed'; // Very Unhealthy (Purple)
+        if (val > 150) return '#dc2626'; // Unhealthy (Red)
+        if (val > 100) return '#f97316'; // Unhealthy for Sensitive Groups (Orange)
+        if (val > 50) return '#facc15';  // Moderate (Yellow)
+        return '#10b981'; // Good (Green)
     };
 
     const style = (feature: any) => {
@@ -183,16 +187,24 @@ export default function CityMap({ dispersion, optimizationPlan, initialCenter }:
                 <div className={`text-[10px] uppercase font-bold tracking-widest mb-3 ${theme === 'dark' ? 'text-white/40' : 'text-black/40'}`}>Concentration Zones</div>
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 rounded-sm bg-rose-600 shadow-[0_0_8px_#e11d48]" />
-                        <span className={`text-xs font-medium ${theme === 'dark' ? 'text-white/80' : 'text-black/80'}`}>Hazardous (80+)</span>
+                        <div className="w-3 h-3 rounded-sm bg-purple-600 shadow-[0_0_8px_#7c3aed]" />
+                        <span className={`text-xs font-medium ${theme === 'dark' ? 'text-white/80' : 'text-black/80'}`}>Very Unhealthy (200+)</span>
                     </div>
                     <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 rounded-sm bg-amber-500 shadow-[0_0_8px_#f59e0b]" />
-                        <span className={`text-xs font-medium ${theme === 'dark' ? 'text-white/80' : 'text-black/80'}`}>Moderate (50-79)</span>
+                        <div className="w-3 h-3 rounded-sm bg-red-600 shadow-[0_0_8px_#dc2626]" />
+                        <span className={`text-xs font-medium ${theme === 'dark' ? 'text-white/80' : 'text-black/80'}`}>Unhealthy (150-200)</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-sm bg-orange-500 shadow-[0_0_8px_#f97316]" />
+                        <span className={`text-xs font-medium ${theme === 'dark' ? 'text-white/80' : 'text-black/80'}`}>Sensitive (100-150)</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-sm bg-yellow-400 shadow-[0_0_8px_#facc15]" />
+                        <span className={`text-xs font-medium ${theme === 'dark' ? 'text-white/80' : 'text-black/80'}`}>Moderate (50-100)</span>
                     </div>
                     <div className="flex items-center gap-3">
                         <div className="w-3 h-3 rounded-sm bg-emerald-500 shadow-[0_0_8px_#10b981]" />
-                        <span className={`text-xs font-medium ${theme === 'dark' ? 'text-white/80' : 'text-black/80'}`}>Safe (0-49)</span>
+                        <span className={`text-xs font-medium ${theme === 'dark' ? 'text-white/80' : 'text-black/80'}`}>Good (0-50)</span>
                     </div>
                 </div>
             </div>
