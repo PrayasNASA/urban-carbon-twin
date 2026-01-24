@@ -40,14 +40,14 @@ export async function compareScenarios(budgetA: number, budgetB: number) {
 
 
 
-export async function initializeSimulation(lat: number, lon: number, budget: number) {
+export async function initializeSimulation(lat: number, lon: number, budget: number, initial_aqi?: number) {
   // Using API Gateway instead of hardcoded localhost
   const res = await fetch(`${API_GATEWAY}/scenario/simulation/initialize`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ lat, lon, budget }),
+    body: JSON.stringify({ lat, lon, budget, initial_aqi }),
   });
 
   if (!res.ok) {

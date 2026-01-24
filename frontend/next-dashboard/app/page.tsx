@@ -47,7 +47,8 @@ export default function Home() {
     try {
       // If we are in Global View mode (or have global data loaded), assume we want to re-run the LIVE simulation
       if (globalData) {
-        const result = await initializeSimulation(globalData.location.lat, globalData.location.lon, budget);
+        const initialAqi = globalData?.full_details?.aqi || 50;
+        const result = await initializeSimulation(globalData.location.lat, globalData.location.lon, budget, initialAqi);
         setData(result);
         setCompareMode(false); // Switch to map view
       }
@@ -110,7 +111,8 @@ export default function Home() {
       setLoading(true);
       setError(null);
       try {
-        const result = await initializeSimulation(globalData.location.lat, globalData.location.lon, budget);
+        const initialAqi = globalData?.full_details?.aqi || 50;
+        const result = await initializeSimulation(globalData.location.lat, globalData.location.lon, budget, initialAqi);
         setData(result);
         setCompareMode(false);
       } catch (err) {
