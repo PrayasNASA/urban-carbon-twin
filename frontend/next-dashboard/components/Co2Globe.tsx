@@ -55,6 +55,8 @@ const Helper = ({ onSelect }: { onSelect?: (lat: number, lon: number) => void })
     return null;
 }
 
+const EnvironmentalPanel = dynamic(() => import("./EnvironmentalPanel"), { ssr: false });
+
 const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon: number) => void; onSimulate?: () => void; budget?: number }> = ({ data, onSelectLocation, onSimulate, budget }) => {
     const [isMounted, setIsMounted] = useState(false);
 
@@ -85,7 +87,7 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
             {/* Static overlay */}
             <div className="absolute top-6 left-6 z-50 bg-black/40 backdrop-blur-xl p-5 rounded-2xl border border-white/10 shadow-2xl pointer-events-none">
                 <h3 className="text-white font-medium text-sm tracking-wide">Global Sensor Network</h3>
-                <p className="text-xs text-white/50 mt-1">Powered by Google Earth Engine & Sentinel-5P</p>
+                <p className="text-xs text-white/50 mt-1">Powered by Open-Meteo & Sentinel-5P</p>
                 <div className="mt-4 flex items-center gap-3">
                     <p className="text-[10px] text-teal-400 font-medium uppercase tracking-widest flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
@@ -99,47 +101,9 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
                 </div>
             </div>
 
-            {/* Active Data Overlay */}
+            {/* Active Data Overlay - Replaced with EnvironmentalPanel */}
             {data && (
-                <div className="absolute bottom-8 right-8 z-50 bg-black/60 backdrop-blur-2xl p-6 rounded-3xl border border-white/10 shadow-2xl max-w-sm w-full">
-                    <div className="flex items-start justify-between mb-6">
-                        <div>
-                            <h3 className="text-white font-medium text-lg tracking-tight">Sensor Reading</h3>
-                            <p className="text-xs text-white/40 font-mono mt-1">{data.location.lat.toFixed(4)}°N, {data.location.lon.toFixed(4)}°E</p>
-                        </div>
-                        <div className="bg-teal-500/10 text-teal-400 text-[10px] px-3 py-1.5 rounded-full font-bold tracking-widest uppercase border border-teal-500/20">
-                            Live Feed
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 mb-6">
-                        <div className="bg-white/5 p-4 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
-                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-medium">PM2.5</p>
-                            <p className="text-2xl font-light text-white mt-1 tabular-nums">{data.full_details ? data.full_details.pm2_5 : data.value} <span className="text-xs text-white/30 font-normal">µg/m³</span></p>
-                        </div>
-                        <div className="bg-white/5 p-4 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
-                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-medium">Air Quality Index</p>
-                            <p className={`text-lg font-medium mt-2 ${data.value > 300 ? 'text-purple-500' :
-                                data.value > 200 ? 'text-red-500' :
-                                    data.value > 100 ? 'text-orange-500' :
-                                        data.value > 50 ? 'text-yellow-500' : 'text-green-500'
-                                }`}>
-                                {data.value > 300 ? (data.value > 500 ? 'Extreme Hazardous' : 'Hazardous') :
-                                    data.value > 200 ? 'Very Unhealthy' :
-                                        data.value > 100 ? 'Unhealthy' :
-                                            data.value > 50 ? 'Moderate' : 'Good'}
-                            </p>
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={onSimulate}
-                        className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest text-[11px] rounded-xl transition-all hover:bg-gray-100 active:scale-[0.98] shadow-lg flex items-center justify-center gap-3"
-                    >
-                        <span>Run Simulation</span>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                    </button>
-                </div>
+                <EnvironmentalPanel data={data} onSimulate={onSimulate || (() => { })} />
             )}
         </div>
     );
