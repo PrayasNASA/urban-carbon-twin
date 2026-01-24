@@ -44,10 +44,14 @@ def get_gee_co2(lat: float, lon: float):
     return r.json()
 
 
-def init_simulation(lat: float, lon: float, budget: float):
+def init_simulation(lat: float, lon: float, budget: float, initial_aqi: float = None):
+    payload = {"lat": lat, "lon": lon, "budget": budget}
+    if initial_aqi is not None:
+        payload["initial_aqi"] = initial_aqi
+        
     r = requests.post(
         f"{EMISSION_ENGINE_URL}/simulation/initialize",
-        json={"lat": lat, "lon": lon, "budget": budget}
+        json=payload
     )
     r.raise_for_status()
     return r.json()

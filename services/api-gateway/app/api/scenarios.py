@@ -85,7 +85,7 @@ def compare_scenarios(payload: ComparisonRequest):
                 "impact": plan_b.get("total_reduction", 0) if plan_b else 0,
                 "plan": plan_b
             },
-            "insight": f"Scenario B reduces {(plan_b.get('total_reduction', 0) - plan_a.get('total_reduction', 0)):.2f} more units of CO2."
+            "insight": f"Scenario B reduces {(plan_b.get('total_reduction', 0) - plan_a.get('total_reduction', 0)):.2f} more units of AQI."
         }
     except Exception as e:
         return {"error": str(e)}
@@ -105,7 +105,8 @@ def initialize_simulation(payload: dict):
         return init_simulation(
             payload.get("lat"), 
             payload.get("lon"), 
-            payload.get("budget")
+            payload.get("budget"),
+            payload.get("initial_aqi")
         )
     except Exception as e:
         return {"error": str(e)}
