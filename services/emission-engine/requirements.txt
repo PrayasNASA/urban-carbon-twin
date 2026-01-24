@@ -5,3 +5,5 @@ numpy
 requests
 earthengine-api
 geopy
+scipy
+shapely

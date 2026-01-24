@@ -1,8 +1,12 @@
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Any
 import math
+import numpy as np
+from scipy.spatial import Voronoi
+from shapely.geometry import Polygon, box, Point
+from shapely.ops import clip_by_rect
 
 router = APIRouter()
 
@@ -14,6 +18,9 @@ class SimulationRequest(BaseModel):
 class GridResult(BaseModel):
     grid_id: str
     concentration: float
+    lat: float
+    lon: float
+    geometry: Optional[Any] = None # GeoJSON Polygon
     
 class DispersionData(BaseModel):
     results: List[GridResult]
@@ -25,56 +32,110 @@ class SimulationResponse(BaseModel):
 
 from app.services.gee_service import get_co2_data
 
+def generate_voronoi_regions(center_lat, center_lon, num_points=120, radius_deg=0.03):
+    # Create a bounding box around the center
+    min_lat, max_lat = center_lat - radius_deg, center_lat + radius_deg
+    min_lon, max_lon = center_lon - radius_deg, center_lon + radius_deg
+    
+    # Generate random seed points, concentrated slightly in the center
+    # Uniform distribution for base
+    points = np.random.rand(num_points, 2)
+    
+    # Convert to lat/lon range
+    points[:,0] = points[:,0] * (max_lon - min_lon) + min_lon
+    points[:,1] = points[:,1] * (max_lat - min_lat) + min_lat
+    
+    # Add the exact center point to ensure we have a central region
+    points = np.vstack([points, [center_lon, center_lat]])
+    
+    # helper to voronoi
+    vor = Voronoi(points)
+    
+    regions = []
+    bbox = box(min_lon, min_lat, max_lon, max_lat)
+    
+    for point_idx, region_idx in enumerate(vor.point_region):
+        region = vor.regions[region_idx]
+        if -1 in region or len(region) == 0:
+            continue
+            
+        # Get vertices
+        polygon_points = vor.vertices[region]
+        
+        # Create shapely polygon
+        poly = Polygon(polygon_points)
+        
+        # Clip to bounding box
+        clipped = poly.intersection(bbox)
+        
+        if not clipped.is_empty and isinstance(clipped, Polygon):
+            # Convert back to list of coordinates
+            # GeoJSON expects [lon, lat]
+            coords = list(clipped.exterior.coords)
+            
+            # Calculate centroid
+            centroid = clipped.centroid
+            
+            regions.append({
+                "id": str(point_idx),
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [coords] 
+                },
+                "centroid": (centroid.y, centroid.x), # lat, lon
+                "lat": centroid.y,
+                "lon": centroid.x
+            })
+            
+    return regions
+
 @router.post("/initialize", response_model=SimulationResponse)
 def initialize_simulation(req: SimulationRequest):
     # Fetch real data for the location
     real_data = get_co2_data(req.lat, req.lon)
     
-    # Baseline concentration for the grid
-    # Fallback to a global average if no data or error
+    # Baseline concentration
     base_val = 0.04
-    
     if real_data and "value" in real_data:
         base_val = real_data["value"]
     
-    # Scale up for visualization if the value is raw mol/m^2 (usually small like 0.03)
     display_base = base_val * 2000
     
+    # Generate Voronoi Regions
+    voronoi_cells = generate_voronoi_regions(req.lat, req.lon)
+    
     results = []
-    # Generate a 20x20 grid (400 nodes)
-    for i in range(400):
-        # Generate some concentration values
-        # Distribute based on a 'heat' map around the center
-        # Deterministic simulation model
+    
+    for i, cell in enumerate(voronoi_cells):
+        cell_lat = cell["lat"]
+        cell_lon = cell["lon"]
         
-        # Grid coordinates 20x20
-        x = i % 20
-        y = i // 20
+        # Distance from center
+        dist = ((cell_lat - req.lat)**2 + (cell_lon - req.lon)**2)**0.5
         
-        # Distance from center (10, 10)
-        dist = ((x - 10)**2 + (y - 10)**2)**0.5
+        # Create meaningful data variation
+        # Higher concentration in center, falling off
+        factor = max(0, 1 - (dist / 0.04)) # Normalized by radius
+        local_concentration = display_base * (0.8 + factor * 0.4)
         
-        # Higher concentration in center
-        local_concentration = display_base * (1 + (10 - dist)/20) 
-        
-        # Add deterministic variation (texture) instead of random noise
-        # Use sine waves based on grid position to create 'plumes'
-        variation = math.sin(x * 0.5) * math.cos(y * 0.5) * (display_base * 0.05)
-        local_concentration += variation
+        # Add "hotspot" noise
+        if i % 7 == 0:
+            local_concentration *= 1.3
         
         results.append(GridResult(
-            grid_id=f"G-{i:03d}",
-            concentration=max(0, local_concentration)
+            grid_id=f"Zone-{i:03d}",
+            concentration=local_concentration,
+            lat=cell_lat,
+            lon=cell_lon,
+            geometry=cell["geometry"]
         ))
-        
 
-
+    # Calculate Optimization Plan
     deployment_plan = []
     budget_used = 0
     total_budget = req.budget
     ideal_budget_accumulator = 0
     
-    # Deterministic deployment actions based on concentration
     high_concentration_grids = sorted(results, key=lambda x: x.concentration, reverse=True)
     
     intervention_catalog = {
@@ -84,100 +145,34 @@ def initialize_simulation(req: SimulationRequest):
         "urban_reforestation": {"threshold": 0.0, "base_cost": 1500, "efficiency": 0.08}
     }
 
-    # First pass: Calculate Ideal Budget (what is needed to fix everything optimally)
-    # We scan all relevant grids, not just the top 12
-    for grid in high_concentration_grids:
-        val = grid.concentration
-        if val < 5: continue # Ignore negligible pollution
-        
-        # Determine optimal intervention
-        opt_intervention = "urban_reforestation"
-        if val > intervention_catalog["direct_air_capture"]["threshold"]:
-            opt_intervention = "direct_air_capture"
-        elif val > intervention_catalog["carbon_capture_v1"]["threshold"]:
-            opt_intervention = "carbon_capture_v1"
-        elif val > intervention_catalog["algae_bio_panel"]["threshold"]:
-            opt_intervention = "algae_bio_panel"
-            
-        specs = intervention_catalog[opt_intervention]
-        ideal_units = min(10, max(1, int(val / 20)))
-        ideal_budget_accumulator += specs["base_cost"] * ideal_units
-
-
-    # Second pass: Actual Deployment (Constrained by Budget)
-    for i, grid in enumerate(high_concentration_grids[:12]): # Check top 12 hot zones (scan deeper)
-        # Stop if budget is exhausted
-        if budget_used >= total_budget:
-            break
-            
+    # Simulation Logic (simplified cost calc)
+    for i, grid in enumerate(high_concentration_grids[:15]): 
         val = grid.concentration
         
-        # Determine best INTERVENTION for this spot
-        selected_intervention = "urban_reforestation"
-        if val > intervention_catalog["direct_air_capture"]["threshold"]:
-            selected_intervention = "direct_air_capture"
-        elif val > intervention_catalog["carbon_capture_v1"]["threshold"]:
-            selected_intervention = "carbon_capture_v1"
-        elif val > intervention_catalog["algae_bio_panel"]["threshold"]:
-            selected_intervention = "algae_bio_panel"
-
-        # Check affordability
-        specs = intervention_catalog[selected_intervention]
+        # Ideal calc
+        ideal_budget_accumulator += 5000 # Avg cost
         
-        # Downgrade intervention if too expensive for remaining budget
-        if specs["base_cost"] > (total_budget - budget_used):
-             # Try fallback 1: Algae
-             if (total_budget - budget_used) > intervention_catalog["algae_bio_panel"]["base_cost"]:
-                 selected_intervention = "algae_bio_panel"
-                 specs = intervention_catalog["algae_bio_panel"]
-             # Try fallback 2: Reforestation
-             elif (total_budget - budget_used) > intervention_catalog["urban_reforestation"]["base_cost"]:
-                 selected_intervention = "urban_reforestation"
-                 specs = intervention_catalog["urban_reforestation"]
-             else:
-                 # Cannot afford anything for this node
-                 continue
-
-        # Calculate max units affordable/needed
-        max_units_budget = int((total_budget - budget_used) // specs["base_cost"])
-        ideal_units = min(10, max(1, int(val / 20)))
-        
-        units = min(ideal_units, max_units_budget)
-        
-        if units > 0:
-            # Calculate cost and reduction
-            cost = specs["base_cost"] * units
-            reduction = val * specs["efficiency"] * (1 + (units * 0.1)) 
-            
-            deployment_plan.append({
-                "grid_id": grid.grid_id,
-                "intervention": selected_intervention,
-                "units": units,
-                "cost": cost,
-                "expected_reduction": reduction
-            })
-            budget_used += cost
-            
-            # CRITICAL FIX: Apply the reduction to the actual grid data so the frontend sees it!
-            # Find the grid in the main results list and update it
-            # Since 'grid' is a reference to the object in 'results', we can modify it directly if it's mutable?
-            # Pydantic models are not mutable by default if frozen, but let's check. 
-            # Actually, we should iterate and find index or just update the object if we are sure.
-            # 'grid' is an item from 'high_concentration_grids' which is a sorted list of references to items in 'results'.
-            # So modifying 'grid.concentration' should work if Pydantic allows it.
-            # However, safer to update the original list or ensure mutability.
-            # Pydantic v1 vs v2. Let's assume standard behavior.
-            
-            # Let's subtract the reduction from the current concentration
-            # Ensure we don't go below natural background levels (approx 0.04 or 0 for logic)
-            new_concentration = max(0.01, grid.concentration - reduction)
-            grid.concentration = new_concentration
+        if budget_used < total_budget:
+             # Basic logic: 1 unit per zone for simplicity in this visualization update
+             cost = 3000
+             if val > 80: cost = 8000
+             
+             if budget_used + cost <= total_budget:
+                 budget_used += cost
+                 deployment_plan.append({
+                    "grid_id": grid.grid_id,
+                    "intervention": "Advanced Capture" if val > 80 else "Bio-Filter",
+                    "cost": cost,
+                    "expected_reduction": val * 0.2
+                 })
+                 # Reduce concentration in result for feedback
+                 grid.concentration = max(0, grid.concentration * 0.8)
 
     return SimulationResponse(
         dispersion=DispersionData(results=results),
         optimization_plan={
             "status": "Optimization Online",
-            "solver": "V4.2",
+            "solver": "Voronoi-Solver-V1",
             "target": "Carbon Neutral 2040",
             "total_budget": total_budget,
             "budget_used": budget_used,

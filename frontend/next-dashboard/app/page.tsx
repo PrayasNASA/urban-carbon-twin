@@ -1,14 +1,21 @@
 "use client";
 
 import { useState, useRef } from "react";
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { runScenario, compareScenarios, initializeSimulation, API_GATEWAY } from "@/lib/api";
-import CityGrid from "@/components/CityGrid";
+import CityGrid from "@/components/CityGrid"; // Keeping for fallback/reference if needed, or we can remove usage
 import ScenarioPanel from "@/components/ScenarioPanel";
 import ResultsPanel from "@/components/ResultsPanel";
 import LandingPage from "@/components/LandingPage";
 import HeatmapBackground from "@/components/HeatmapBackground";
 import Co2Globe from "@/components/Co2Globe";
+
+// Dynamic import for Leaflet map to avoid window is not defined during SSR
+const CityMap = dynamic(() => import("@/components/CityMap"), {
+  ssr: false,
+  loading: () => <div className="w-full h-full flex items-center justify-center text-white/40 text-xs tracking-widest uppercase">Initializing Map Engine...</div>
+});
 
 if (typeof window !== "undefined") {
   (window as any).CESIUM_BASE_URL = "/cesium";
@@ -242,7 +249,11 @@ export default function Home() {
                   {compareMode ? (
                     <Co2Globe data={globalData} onSelectLocation={handleGlobalSelect} onSimulate={handleSimulate} />
                   ) : (
-                    <CityGrid dispersion={data?.dispersion} mapImage={globalData?.map_image} />
+                    // Using CityMap instead of CityGrid for Real Map visualization
+                    <CityMap
+                      dispersion={data?.dispersion}
+                      initialCenter={globalData?.location ? [globalData.location.lat, globalData.location.lon] : undefined}
+                    />
                   )}
                 </div>
               </div>

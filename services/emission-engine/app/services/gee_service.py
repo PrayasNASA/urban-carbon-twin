@@ -78,7 +78,7 @@ def get_co2_data(lat: float, lon: float, date_from: str = None, date_to: str = N
                 # Generate Map Thumbnail
                 map_url = None
                 try:
-                    s2 = (ee.ImageCollection('COPERNICUS/S2_SR')
+                    s2 = (ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED')
                           .filterBounds(point)
                           .filterDate(date_from, date_to)
                           .sort('CLOUDY_PIXEL_PERCENTAGE')
