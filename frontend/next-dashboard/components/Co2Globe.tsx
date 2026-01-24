@@ -80,10 +80,17 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
             <div className="absolute top-6 left-6 z-50 bg-black/40 backdrop-blur-xl p-5 rounded-2xl border border-white/10 shadow-2xl pointer-events-none">
                 <h3 className="text-white font-medium text-sm tracking-wide">Global Sensor Network</h3>
                 <p className="text-xs text-white/50 mt-1">Powered by Google Earth Engine & Sentinel-5P</p>
-                <p className="text-[10px] text-teal-400 font-medium uppercase mt-3 tracking-widest flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
-                    System Active
-                </p>
+                <div className="mt-4 flex items-center gap-3">
+                    <p className="text-[10px] text-teal-400 font-medium uppercase tracking-widest flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
+                        System Active
+                    </p>
+                    <div className="h-4 w-px bg-white/10"></div>
+                    <p className="text-[10px] text-white/60 uppercase tracking-widest flex items-center gap-2 animate-pulse">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="3" /></svg>
+                        Click Map to Analyze
+                    </p>
+                </div>
             </div>
 
             {/* Active Data Overlay */}

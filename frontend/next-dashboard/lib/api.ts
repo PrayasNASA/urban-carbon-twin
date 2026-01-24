@@ -40,12 +40,8 @@ export async function compareScenarios(budgetA: number, budgetB: number) {
 
 
 export async function initializeSimulation(lat: number, lon: number, budget: number) {
-  // Using Local Emission Engine directly for testing Voronoi updates
-  // const API_GATEWAY = process.env.NEXT_PUBLIC_API_GATEWAY || "https://api-gateway-owkex2u2ca-uc.a.run.app";
-  const LOCAL_URL = "http://localhost:8002";
-
-  // Note: Local emission-engine uses /simulation prefix directly, not /scenario/simulation
-  const res = await fetch(`${LOCAL_URL}/simulation/initialize`, {
+  // Using API Gateway instead of hardcoded localhost
+  const res = await fetch(`${API_GATEWAY}/scenario/simulation/initialize`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
