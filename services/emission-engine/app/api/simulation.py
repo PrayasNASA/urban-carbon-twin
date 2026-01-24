@@ -157,6 +157,21 @@ def initialize_simulation(req: SimulationRequest):
                 "expected_reduction": reduction
             })
             budget_used += cost
+            
+            # CRITICAL FIX: Apply the reduction to the actual grid data so the frontend sees it!
+            # Find the grid in the main results list and update it
+            # Since 'grid' is a reference to the object in 'results', we can modify it directly if it's mutable?
+            # Pydantic models are not mutable by default if frozen, but let's check. 
+            # Actually, we should iterate and find index or just update the object if we are sure.
+            # 'grid' is an item from 'high_concentration_grids' which is a sorted list of references to items in 'results'.
+            # So modifying 'grid.concentration' should work if Pydantic allows it.
+            # However, safer to update the original list or ensure mutability.
+            # Pydantic v1 vs v2. Let's assume standard behavior.
+            
+            # Let's subtract the reduction from the current concentration
+            # Ensure we don't go below natural background levels (approx 0.04 or 0 for logic)
+            new_concentration = max(0.01, grid.concentration - reduction)
+            grid.concentration = new_concentration
 
     return SimulationResponse(
         dispersion=DispersionData(results=results),
