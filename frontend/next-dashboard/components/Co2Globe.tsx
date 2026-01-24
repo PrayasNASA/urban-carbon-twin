@@ -16,6 +16,12 @@ interface Co2Data {
     value: number;
     unit: string;
     location: { lat: number, lon: number };
+    place_name?: string;
+    full_details?: {
+        aqi: number;
+        pm2_5: number;
+        unit: string;
+    };
 }
 
 interface Co2GlobeProps {
@@ -114,9 +120,9 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
                         <div className="bg-white/5 p-4 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
                             <p className="text-[10px] text-white/40 uppercase tracking-widest font-medium">Air Quality Index</p>
                             <p className={`text-lg font-medium mt-2 ${data.value > 300 ? 'text-purple-500' :
-                                    data.value > 200 ? 'text-red-500' :
-                                        data.value > 100 ? 'text-orange-500' :
-                                            data.value > 50 ? 'text-yellow-500' : 'text-green-500'
+                                data.value > 200 ? 'text-red-500' :
+                                    data.value > 100 ? 'text-orange-500' :
+                                        data.value > 50 ? 'text-yellow-500' : 'text-green-500'
                                 }`}>
                                 {data.value > 300 ? (data.value > 500 ? 'Extreme Hazardous' : 'Hazardous') :
                                     data.value > 200 ? 'Very Unhealthy' :
