@@ -129,47 +129,27 @@
   box-shadow: 0 0 10px rgba(16, 185, 129, 0.2) !important;
 }
 
+.cesium-baseLayerPicker-dropDown {
+  z-index: 101 !important;
+  background-color: rgba(3, 8, 6, 0.9) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+  backdrop-filter: blur(20px) !important;
+  border-radius: 12px !important;
+  padding: 8px !important;
+}
+
+.cesium-viewer-toolbar {
+  z-index: 100 !important;
+}
+
 .cesium-geocoder-searchButton {
+  z-index: 101 !important;
   background-color: rgba(16, 185, 129, 0.2) !important;
   fill: #10B981 !important;
   border: 1px solid rgba(16, 185, 129, 0.2) !important;
   border-left: none !important;
   border-radius: 0 8px 8px 0 !important;
   height: 38px !important;
-}
-
-.cesium-geocoder-searchButton:hover {
-  background-color: rgba(16, 185, 129, 0.4) !important;
-}
-
-.cesium-button {
-  background-color: rgba(3, 8, 6, 0.8) !important;
-  border: 1px solid rgba(16, 185, 129, 0.2) !important;
-  border-radius: 8px !important;
-  fill: #F0FDF4 !important;
-  backdrop-filter: blur(12px) !important;
-  margin: 4px !important;
-  transition: all 0.2s ease !important;
-}
-
-.cesium-button:hover {
-  background-color: rgba(16, 185, 129, 0.2) !important;
-  border-color: #10B981 !important;
-  color: #10B981 !important;
-  fill: #10B981 !important;
-}
-
-.cesium-viewer-bottom {
-  display: none !important;
-  /* Hide credits for cleaner UI as per user's aesthetic request */
-}
-
-.cesium-baseLayerPicker-dropDown {
-  background-color: rgba(3, 8, 6, 0.9) !important;
-  border: 1px solid rgba(16, 185, 129, 0.2) !important;
-  backdrop-filter: blur(20px) !important;
-  border-radius: 12px !important;
-  padding: 8px !important;
 }
 
 .cesium-baseLayerPicker-item-label {
