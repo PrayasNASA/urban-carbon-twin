@@ -103,6 +103,18 @@ export default function Home() {
       if (json.error) {
         throw new Error(json.error);
       }
+
+      // MOCK ENRICHMENT FOR PHASE 1
+      // Adding simulated multi-pollutant data until backend supports it
+      if (json.full_details && !json.full_details.pollutants) {
+        json.full_details.pollutants = {
+          co2: { label: 'CO2', value: 420 + Math.floor(Math.random() * 50), unit: 'ppm' },
+          no2: { label: 'NO₂', value: Math.floor(Math.random() * 80), unit: 'µg/m³' },
+          pm25: { label: 'PM2.5', value: Math.floor(Math.random() * 150), unit: 'µg/m³' },
+          methane: { label: 'CH₄', value: (1.8 + Math.random()).toFixed(2), unit: 'ppm' }
+        };
+      }
+
       setGlobalData(json);
     } catch (e: any) {
       console.error(e);
