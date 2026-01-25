@@ -175,60 +175,72 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
 
             {/* Legend for Simultaneous View with Toggles */}
             {simultaneousView && (
-                <div className="absolute top-6 right-6 z-50 bg-black/60 backdrop-blur-xl p-4 rounded-xl border border-white/10 flex flex-col gap-4 min-w-[160px]">
+                <div className="absolute top-24 right-6 z-50 bg-black/60 backdrop-blur-xl p-4 rounded-xl border border-white/10 flex flex-col gap-4 min-w-[200px]">
                     <h4 className="text-[10px] font-extrabold text-white/40 uppercase tracking-[0.2em] border-b border-white/5 pb-2">Visualization Layers</h4>
-                    <div
-                        onClick={() => setViewMode(viewMode === 'aqi' ? 'both' : (viewMode === 'both' ? 'temp' : 'aqi'))} // Simple cycling or individual buttons
-                        className="flex flex-col gap-3"
+
+                    {/* Temperature Legend (Identifying colors) */}
+                    {(viewMode === 'temp' || viewMode === 'both') && (
+                        <div className="flex flex-col gap-2 p-2 rounded-lg bg-orange-500/5 border border-orange-500/10">
+                            <span className="text-[9px] font-bold text-orange-500/60 uppercase tracking-widest">Temp Scale</span>
+                            <div className="flex items-center gap-1.5 h-1.5 w-full rounded-full bg-gradient-to-r from-deepskyblue via-white to-orangered" />
+                            <div className="flex justify-between text-[8px] font-mono text-white/30 uppercase">
+                                <span>Cool</span>
+                                <span>Warm</span>
+                                <span>Hot</span>
+                            </div>
+                        </div>
+                    )}
+                    <button
+                        onClick={(e) => { e.stopPropagation(); setViewMode('aqi'); }}
+                        className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'aqi' ? 'bg-neon-emerald/20 border border-neon-emerald/30' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
                     >
-                        <button
-                            onClick={(e) => { e.stopPropagation(); setViewMode('aqi'); }}
-                            className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'aqi' ? 'bg-neon-emerald/20 border border-neon-emerald/30' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
-                        >
-                            <div className="flex items-center gap-2">
-                                <div className="w-2.5 h-2.5 rounded-full bg-lime-500 shadow-[0_0_8px_rgba(132,204,22,0.4)]" />
-                                <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'aqi' ? 'text-neon-emerald' : 'text-white/60'}`}>AQI</span>
-                            </div>
-                            {viewMode === 'aqi' && <div className="w-1.5 h-1.5 rounded-full bg-neon-emerald" />}
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <div className="w-2.5 h-2.5 rounded-full bg-lime-500 shadow-[0_0_8px_rgba(132,204,22,0.4)]" />
+                            <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'aqi' ? 'text-neon-emerald' : 'text-white/60'}`}>AQI</span>
+                        </div>
+                        {viewMode === 'aqi' && <div className="w-1.5 h-1.5 rounded-full bg-neon-emerald" />}
+                    </button>
 
-                        <button
-                            onClick={(e) => { e.stopPropagation(); setViewMode('temp'); }}
-                            className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'temp' ? 'bg-orange-500/20 border border-orange-500/30' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
-                        >
-                            <div className="flex items-center gap-2">
-                                <div className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
-                                <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'temp' ? 'text-orange-500' : 'text-white/60'}`}>Temp</span>
-                            </div>
-                            {viewMode === 'temp' && <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />}
-                        </button>
+                    <button
+                        onClick={(e) => { e.stopPropagation(); setViewMode('temp'); }}
+                        className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'temp' ? 'bg-orange-500/20 border border-orange-500/30' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
+                    >
+                        <div className="flex items-center gap-2">
+                            <div className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
+                            <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'temp' ? 'text-orange-500' : 'text-white/60'}`}>Temp</span>
+                        </div>
+                        {viewMode === 'temp' && <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />}
+                    </button>
 
-                        <button
-                            onClick={(e) => { e.stopPropagation(); setViewMode('both'); }}
-                            className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'both' ? 'bg-white/10 border border-white/20' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
-                        >
-                            <div className="flex items-center gap-2">
-                                <div className="flex -space-x-1">
-                                    <div className="w-2 h-2 rounded-full bg-lime-500 border border-black/50" />
-                                    <div className="w-2 h-2 rounded-full bg-orange-500 border border-black/50" />
-                                </div>
-                                <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'both' ? 'text-white' : 'text-white/60'}`}>Dual View</span>
+                    <button
+                        onClick={(e) => { e.stopPropagation(); setViewMode('both'); }}
+                        className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'both' ? 'bg-white/10 border border-white/20' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
+                    >
+                        <div className="flex items-center gap-2">
+                            <div className="flex -space-x-1">
+                                <div className="w-2 h-2 rounded-full bg-lime-500 border border-black/50" />
+                                <div className="w-2 h-2 rounded-full bg-orange-500 border border-black/50" />
                             </div>
-                            {viewMode === 'both' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                        </button>
-                    </div>
+                            <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'both' ? 'text-white' : 'text-white/60'}`}>Dual View</span>
+                        </div>
+                        {viewMode === 'both' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                    </button>
                 </div>
-            )}
+                </div>
+    )
+}
 
-            {/* Active Data Overlay - Replaced with EnvironmentalPanel */}
-            {data && (
-                <EnvironmentalPanel
-                    data={data}
-                    onSimulate={onSimulate || (() => { })}
-                    onClose={onCloseData || (() => { })}
-                />
-            )}
-        </div>
+{/* Active Data Overlay - Replaced with EnvironmentalPanel */ }
+{
+    data && (
+        <EnvironmentalPanel
+            data={data}
+            onSimulate={onSimulate || (() => { })}
+            onClose={onCloseData || (() => { })}
+        />
+    )
+}
+        </div >
     );
 };
 

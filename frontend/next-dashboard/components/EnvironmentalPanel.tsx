@@ -72,14 +72,16 @@ export default function EnvironmentalPanel({ data, onSimulate, onClose }: Enviro
 
             {/* Header / AQI Main */}
             <div className={`p-6 bg-gradient-to-br ${aqiBg} border-b border-white/5 relative`}>
-                <div className="flex justify-between items-start">
-                    <div>
+                <div className="flex flex-col gap-3">
+                    <div className="pr-12">
                         <h2 className="text-white font-bold text-lg leading-tight tracking-tight">{locationName}</h2>
                         <p className="text-xs text-white/50 font-mono mt-1">{data.location.lat.toFixed(3)}°N, {data.location.lon.toFixed(3)}°E</p>
                     </div>
-                    <div className="bg-black/30 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${aqiColor.replace('text-', 'bg-')} animate-pulse`} />
-                        <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Live Station</span>
+                    <div className="flex">
+                        <div className="bg-black/30 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${aqiColor.replace('text-', 'bg-')} animate-pulse`} />
+                            <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Live Station</span>
+                        </div>
                     </div>
                 </div>
 
