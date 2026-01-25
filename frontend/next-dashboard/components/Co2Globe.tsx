@@ -190,57 +190,56 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
                             </div>
                         </div>
                     )}
-                    <button
-                        onClick={(e) => { e.stopPropagation(); setViewMode('aqi'); }}
-                        className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'aqi' ? 'bg-neon-emerald/20 border border-neon-emerald/30' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
-                    >
-                        <div className="flex items-center gap-2">
-                            <div className="w-2.5 h-2.5 rounded-full bg-lime-500 shadow-[0_0_8px_rgba(132,204,22,0.4)]" />
-                            <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'aqi' ? 'text-neon-emerald' : 'text-white/60'}`}>AQI</span>
-                        </div>
-                        {viewMode === 'aqi' && <div className="w-1.5 h-1.5 rounded-full bg-neon-emerald" />}
-                    </button>
 
-                    <button
-                        onClick={(e) => { e.stopPropagation(); setViewMode('temp'); }}
-                        className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'temp' ? 'bg-orange-500/20 border border-orange-500/30' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
-                    >
-                        <div className="flex items-center gap-2">
-                            <div className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
-                            <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'temp' ? 'text-orange-500' : 'text-white/60'}`}>Temp</span>
-                        </div>
-                        {viewMode === 'temp' && <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />}
-                    </button>
-
-                    <button
-                        onClick={(e) => { e.stopPropagation(); setViewMode('both'); }}
-                        className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'both' ? 'bg-white/10 border border-white/20' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
-                    >
-                        <div className="flex items-center gap-2">
-                            <div className="flex -space-x-1">
-                                <div className="w-2 h-2 rounded-full bg-lime-500 border border-black/50" />
-                                <div className="w-2 h-2 rounded-full bg-orange-500 border border-black/50" />
+                    <div className="flex flex-col gap-3">
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setViewMode('aqi'); }}
+                            className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'aqi' ? 'bg-neon-emerald/20 border border-neon-emerald/30' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
+                        >
+                            <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full bg-lime-500 shadow-[0_0_8px_rgba(132,204,22,0.4)]" />
+                                <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'aqi' ? 'text-neon-emerald' : 'text-white/60'}`}>AQI</span>
                             </div>
-                            <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'both' ? 'text-white' : 'text-white/60'}`}>Dual View</span>
-                        </div>
-                        {viewMode === 'both' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                    </button>
-                </div>
-                </div>
-    )
-}
+                            {viewMode === 'aqi' && <div className="w-1.5 h-1.5 rounded-full bg-neon-emerald" />}
+                        </button>
 
-{/* Active Data Overlay - Replaced with EnvironmentalPanel */ }
-{
-    data && (
-        <EnvironmentalPanel
-            data={data}
-            onSimulate={onSimulate || (() => { })}
-            onClose={onCloseData || (() => { })}
-        />
-    )
-}
-        </div >
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setViewMode('temp'); }}
+                            className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'temp' ? 'bg-orange-500/20 border border-orange-500/30' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
+                        >
+                            <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
+                                <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'temp' ? 'text-orange-500' : 'text-white/60'}`}>Temp</span>
+                            </div>
+                            {viewMode === 'temp' && <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />}
+                        </button>
+
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setViewMode('both'); }}
+                            className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'both' ? 'bg-white/10 border border-white/20' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
+                        >
+                            <div className="flex items-center gap-2">
+                                <div className="flex -space-x-1">
+                                    <div className="w-2 h-2 rounded-full bg-lime-500 border border-black/50" />
+                                    <div className="w-2 h-2 rounded-full bg-orange-500 border border-black/50" />
+                                </div>
+                                <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'both' ? 'text-white' : 'text-white/60'}`}>Dual View</span>
+                            </div>
+                            {viewMode === 'both' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Active Data Overlay - Replaced with EnvironmentalPanel */}
+            {data && (
+                <EnvironmentalPanel
+                    data={data}
+                    onSimulate={onSimulate || (() => { })}
+                    onClose={onCloseData || (() => { })}
+                />
+            )}
+        </div>
     );
 };
 
