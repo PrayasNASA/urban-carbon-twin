@@ -1,0 +1,39 @@
+1. How the Deployment Matrix Works
+The matrix is the brain of your resource distribution. When you run a simulation, the system:
+
+Scans the Grid: It analyzes 120-400 unique geographical nodes.
+Identifies Hotspots: It sorts these nodes by AQI concentration from highest to lowest.
+Arms Nodes: It selects the top 15 most polluted nodes (the "Nodes Armed") and prepares an intervention plan for them.
+2. Is the Budget Sufficient?
+The system calculates an "Ideal Budget" required to fix every hotspot at 100% capacity.
+
+Base Cost: Each regular node ($>80$ AQI) costs $5,000 to treat.
+Hazardous Premium: If a node is $>150$ AQI, the cost doubles to $10,000 because it requires heavy industrial "Smog Towers."
+Sufficiency: If your allocated budget matches or exceeds this "Ideal Budget," the system considers it "Sufficient" and gives you 100% efficiency.
+3. Naming Pattern: ELMT_Desc-002
+ELMT: Stands for Element, representing a specific physical grid location.
+Desc: Short for Descriptor, the internal ID prefix used by the logic engine.
+002: The unique sequence number of the grid cell (padded to 3 digits).
+Pattern: ELMT_ + Descriptor Type + 00X. This allows the system to track thousands of unique urban blocks individually.
+4. What is "Nano-Mist Ops"?
+The system automatically chooses the intervention based on the severity of the pollution:
+
+Smog Tower: Deployed only in Hazardous zones (AQI $>150$). These are high-cost, high-power filtration units.
+Nano-Mist Ops: Deployed in Moderate/Caution zones. This is a biophilic, soft-tech solution that uses fine particles to bind with urban pollutants, making them fall to the ground safely.
+5. Budget Accordance & AQI Reduction Basis
+Budget Allocation: The total budget is divided equally among the 15 armed nodes. If you have $85,000, each node gets roughly $5,666 (as seen in your screenshot's Cap_Alloc).
+AQI Reduction: This is calculated based on Mitigation Power.
+Mitigation Power = (Your Budget / Ideal Budget).
+The "Impact Delta" (e.g., -34.1 AQI) is the real-time subtraction from the baseline pollution. Hotspots (Red zones) actually get a 20% efficiency bonus in the code to ensure they are cleaned faster.
+6. Efficiency Index
+This measures Capital Performance.
+
+Calculation: 
+(Allocated Resources / Slider Budget) * 100
+.
+If it shows 100%, it means every single dollar you allocated with the slider was successfully converted into "Armed Nodes." If it drops below 100%, it means the city wasn't polluted enough to justify your total spend!
+7. Projected AQI Improvement
+This is the Total Environmental ROI.
+
+Calculation: It is the sum of every Impact_Delta from all 15 nodes.
+In your image: The 459 is the combined total of points removed from the air across all active deployment zones.
