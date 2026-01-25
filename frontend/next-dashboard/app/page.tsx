@@ -165,25 +165,7 @@ export default function Home() {
               <p className="text-[11px] text-neon-emerald/60 font-bold uppercase tracking-[0.3em] mt-2">Solarpunk Intelligence Engine</p>
             </div>
 
-            <div className="flex items-center gap-4">
-              {/* Navigation Icons */}
-              <div className="flex items-center gap-2 border-r border-white/10 pr-4">
-                <button
-                  onClick={handleHomeClick}
-                  className="p-2.5 rounded-xl hover:bg-white/5 text-white/60 hover:text-neon-emerald transition-all tooltip"
-                  title="Home"
-                >
-                  <HomeIcon className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => setShowSimultaneousView(!showSimultaneousView)}
-                  className={`p-2.5 rounded-xl transition-all ${showSimultaneousView ? 'bg-neon-emerald/20 text-neon-emerald' : 'hover:bg-white/5 text-white/60 hover:text-neon-emerald'}`}
-                  title="Simultaneous Global View"
-                >
-                  <Globe className="w-5 h-5" />
-                </button>
-              </div>
-
+            <div className="flex items-center gap-6">
               <div className="hidden lg:flex items-center gap-4 text-[11px] font-bold uppercase tracking-tight text-emerald-500/40">
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-neon-emerald shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
@@ -252,9 +234,20 @@ export default function Home() {
             <section className="md:col-span-9 flex flex-col gap-8 h-full">
               <div className="glass-panel p-2 overflow-hidden h-full min-h-[600px] flex flex-col">
                 <div className="p-6 flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-bold text-white uppercase tracking-widest">{compareMode ? 'Global CO2 Explorer' : 'Spatial Concentration Map'}</h3>
-                    <p className="text-[11px] text-emerald-500/40 font-medium tracking-tight">Real-time topographic CO2 distribution</p>
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <h3 className="text-sm font-bold text-white uppercase tracking-widest">{compareMode ? 'Global CO2 Explorer' : 'Spatial Concentration Map'}</h3>
+                      <p className="text-[11px] text-emerald-500/40 font-medium tracking-tight">Real-time topographic CO2 distribution</p>
+                    </div>
+                    {compareMode && (
+                      <button
+                        onClick={() => setShowSimultaneousView(!showSimultaneousView)}
+                        className={`p-2 rounded-lg border transition-all flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest ${showSimultaneousView ? 'bg-neon-emerald/20 border-neon-emerald text-neon-emerald shadow-[0_0_10px_rgba(16,185,129,0.2)]' : 'bg-white/5 border-white/10 text-white/40 hover:text-neon-emerald hover:border-neon-emerald/50'}`}
+                      >
+                        <Globe className="w-3.5 h-3.5" />
+                        <span>{showSimultaneousView ? 'Disable Dual Mode' : 'Enable Dual Mode'}</span>
+                      </button>
+                    )}
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <div className="flex items-center gap-3 text-[11px] font-bold bg-neon-emerald/10 text-neon-emerald px-4 py-1.5 rounded-lg border border-neon-emerald/20">

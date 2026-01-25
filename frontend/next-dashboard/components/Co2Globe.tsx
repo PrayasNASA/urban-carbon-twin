@@ -178,55 +178,66 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
                 <div className="absolute top-24 right-6 z-50 bg-black/60 backdrop-blur-xl p-4 rounded-xl border border-white/10 flex flex-col gap-4 min-w-[200px]">
                     <h4 className="text-[10px] font-extrabold text-white/40 uppercase tracking-[0.2em] border-b border-white/5 pb-2">Visualization Layers</h4>
 
-                    {/* Temperature Legend (Identifying colors) */}
-                    {(viewMode === 'temp' || viewMode === 'both') && (
-                        <div className="flex flex-col gap-2 p-2 rounded-lg bg-orange-500/5 border border-orange-500/10">
-                            <span className="text-[9px] font-bold text-orange-500/60 uppercase tracking-widest">Temp Scale</span>
-                            <div className="flex items-center gap-1.5 h-1.5 w-full rounded-full bg-gradient-to-r from-deepskyblue via-white to-orangered" />
-                            <div className="flex justify-between text-[8px] font-mono text-white/30 uppercase">
-                                <span>Cool</span>
-                                <span>Warm</span>
-                                <span>Hot</span>
-                            </div>
-                        </div>
-                    )}
-
                     <div className="flex flex-col gap-3">
-                        <button
-                            onClick={(e) => { e.stopPropagation(); setViewMode('aqi'); }}
-                            className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'aqi' ? 'bg-neon-emerald/20 border border-neon-emerald/30' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
-                        >
-                            <div className="flex items-center gap-2">
-                                <div className="w-2.5 h-2.5 rounded-full bg-lime-500 shadow-[0_0_8px_rgba(132,204,22,0.4)]" />
-                                <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'aqi' ? 'text-neon-emerald' : 'text-white/60'}`}>AQI</span>
-                            </div>
-                            {viewMode === 'aqi' && <div className="w-1.5 h-1.5 rounded-full bg-neon-emerald" />}
-                        </button>
-
-                        <button
-                            onClick={(e) => { e.stopPropagation(); setViewMode('temp'); }}
-                            className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'temp' ? 'bg-orange-500/20 border border-orange-500/30' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
-                        >
-                            <div className="flex items-center gap-2">
-                                <div className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
-                                <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'temp' ? 'text-orange-500' : 'text-white/60'}`}>Temp</span>
-                            </div>
-                            {viewMode === 'temp' && <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />}
-                        </button>
-
-                        <button
-                            onClick={(e) => { e.stopPropagation(); setViewMode('both'); }}
-                            className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'both' ? 'bg-white/10 border border-white/20' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
-                        >
-                            <div className="flex items-center gap-2">
-                                <div className="flex -space-x-1">
-                                    <div className="w-2 h-2 rounded-full bg-lime-500 border border-black/50" />
-                                    <div className="w-2 h-2 rounded-full bg-orange-500 border border-black/50" />
+                        {/* AQI Toggle & Legend */}
+                        <div className="flex flex-col gap-2">
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setViewMode(viewMode === 'aqi' ? 'temp' : (viewMode === 'both' ? 'temp' : 'both')); }}
+                                className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'aqi' || viewMode === 'both' ? 'bg-neon-emerald/20 border border-neon-emerald/30' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-lime-500 shadow-[0_0_8px_rgba(132,204,22,0.4)]" />
+                                    <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'aqi' || viewMode === 'both' ? 'text-neon-emerald' : 'text-white/60'}`}>AQI ACTIVE</span>
                                 </div>
-                                <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'both' ? 'text-white' : 'text-white/60'}`}>Dual View</span>
-                            </div>
-                            {viewMode === 'both' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                        </button>
+                                {(viewMode === 'aqi' || viewMode === 'both') && <div className="w-1.5 h-1.5 rounded-full bg-neon-emerald" />}
+                            </button>
+                            {(viewMode === 'aqi' || viewMode === 'both') && (
+                                <div className="grid grid-cols-2 gap-1 px-1">
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-lime-500" />
+                                        <span className="text-[8px] text-white/40 font-bold uppercase">Optimal</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                                        <span className="text-[8px] text-white/40 font-bold uppercase">Moderate</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                        <span className="text-[8px] text-white/40 font-bold uppercase">Severe</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Temp Toggle & Legend */}
+                        <div className="flex flex-col gap-2">
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setViewMode(viewMode === 'temp' ? 'aqi' : (viewMode === 'both' ? 'aqi' : 'both')); }}
+                                className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'temp' || viewMode === 'both' ? 'bg-orange-500/20 border border-orange-500/30' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
+                                    <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'temp' || viewMode === 'both' ? 'text-orange-500' : 'text-white/60'}`}>TEMP ACTIVE</span>
+                                </div>
+                                {(viewMode === 'temp' || viewMode === 'both') && <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />}
+                            </button>
+                            {(viewMode === 'temp' || viewMode === 'both') && (
+                                <div className="grid grid-cols-2 gap-1 px-1">
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-deepskyblue" />
+                                        <span className="text-[8px] text-white/40 font-bold uppercase">Cool</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                                        <span className="text-[8px] text-white/40 font-bold uppercase">Warm</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-orangered" />
+                                        <span className="text-[8px] text-white/40 font-bold uppercase">Hot</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
