@@ -26,7 +26,59 @@ interface Co2Data {
 
 interface Co2GlobeProps {
     data: Co2Data | null;
+    simultaneousView?: boolean;
 }
+
+const GlobalDataPoints = ({ show }: { show: boolean }) => {
+    const [points, setPoints] = useState<{ lat: number, lon: number, aqi: number, temp: number }[]>([]);
+
+    useEffect(() => {
+        if (show && points.length === 0) {
+            // Generate some mock global points
+            const newPoints = [];
+            for (let i = 0; i < 200; i++) {
+                newPoints.push({
+                    lat: (Math.random() - 0.5) * 160,
+                    lon: (Math.random() - 0.5) * 360,
+                    aqi: Math.floor(Math.random() * 300),
+                    temp: Math.floor(Math.random() * 40) + 5
+                });
+            }
+            setPoints(newPoints);
+        }
+    }, [show, points.length]);
+
+    if (!show) return null;
+
+    return (
+        <>
+            {points.map((p, i) => (
+                <React.Fragment key={i}>
+                    {/* AQI Point (Small) */}
+                    <Entity
+                        position={Cartesian3.fromDegrees(p.lon, p.lat)}
+                        point={{
+                            pixelSize: 6,
+                            color: p.aqi > 200 ? Color.RED : p.aqi > 100 ? Color.YELLOW : Color.LIME,
+                            outlineColor: Color.BLACK,
+                            outlineWidth: 1
+                        }}
+                    />
+                    {/* Temperature Point (Offset slightly or showing together) */}
+                    <Entity
+                        position={Cartesian3.fromDegrees(p.lon + 0.5, p.lat + 0.5)}
+                        point={{
+                            pixelSize: 8,
+                            color: p.temp > 30 ? Color.ORANGERED : p.temp > 20 ? Color.WHITE : Color.DEEPSKYBLUE,
+                            outlineColor: Color.WHITE.withAlpha(0.2),
+                            outlineWidth: 2
+                        }}
+                    />
+                </React.Fragment>
+            ))}
+        </>
+    );
+};
 
 const Helper = ({ onSelect }: { onSelect?: (lat: number, lon: number) => void }) => {
     const { viewer } = useCesium();
@@ -57,7 +109,7 @@ const Helper = ({ onSelect }: { onSelect?: (lat: number, lon: number) => void })
 
 const EnvironmentalPanel = dynamic(() => import("./EnvironmentalPanel"), { ssr: false });
 
-const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon: number) => void; onSimulate?: () => void; budget?: number }> = ({ data, onSelectLocation, onSimulate, budget }) => {
+const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon: number) => void; onSimulate?: () => void; budget?: number }> = ({ data, onSelectLocation, onSimulate, budget, simultaneousView }) => {
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
@@ -84,6 +136,7 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
             >
                 <CameraFlyTo destination={targetPos} duration={2} />
                 <Helper onSelect={onSelectLocation} />
+                <GlobalDataPoints show={!!simultaneousView} />
 
                 {data && data.location && (
                     <Entity
@@ -95,12 +148,16 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
 
             {/* Static overlay */}
             <div className="absolute top-6 left-6 z-50 bg-black/40 backdrop-blur-xl p-5 rounded-2xl border border-white/10 shadow-2xl pointer-events-none">
-                <h3 className="text-white font-medium text-sm tracking-wide">Global Sensor Network</h3>
-                <p className="text-xs text-white/50 mt-1">Powered by Open-Meteo & Sentinel-5P</p>
+                <h3 className="text-white font-medium text-sm tracking-wide">
+                    {simultaneousView ? 'Simultaneous Global Analysis' : 'Global Sensor Network'}
+                </h3>
+                <p className="text-xs text-white/50 mt-1">
+                    {simultaneousView ? 'AQI (Solid) • Temperature (Glow)' : 'Powered by Open-Meteo & Sentinel-5P'}
+                </p>
                 <div className="mt-4 flex items-center gap-3">
                     <p className="text-[10px] text-teal-400 font-medium uppercase tracking-widest flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
-                        System Active
+                        {simultaneousView ? 'DUAL_MODE_ACTIVE' : 'System Active'}
                     </p>
                     <div className="h-4 w-px bg-white/10"></div>
                     <p className="text-[10px] text-white/60 uppercase tracking-widest flex items-center gap-2 animate-pulse">
@@ -109,6 +166,20 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
                     </p>
                 </div>
             </div>
+
+            {/* Legend for Simultaneous View */}
+            {simultaneousView && (
+                <div className="absolute top-6 right-6 z-50 bg-black/60 backdrop-blur-xl p-4 rounded-xl border border-white/10 flex flex-col gap-3">
+                    <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full bg-lime-500 border border-black shadow-[0_0_10px_rgba(132,204,22,0.4)]" />
+                        <span className="text-[10px] text-white/80 font-bold uppercase tracking-wider">AQI: Optimal</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="w-4 h-4 rounded-full bg-white border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.4)]" />
+                        <span className="text-[10px] text-white/80 font-bold uppercase tracking-wider">Temp: Moderate</span>
+                    </div>
+                </div>
+            )}
 
             {/* Active Data Overlay - Replaced with EnvironmentalPanel */}
             {data && (

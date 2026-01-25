@@ -9,9 +9,10 @@ import ScenarioPanel from "@/components/ScenarioPanel";
 import ResultsPanel from "@/components/ResultsPanel";
 import LandingPage from "@/components/LandingPage";
 import HeatmapBackground from "@/components/HeatmapBackground";
-import Co2Globe from "@/components/Co2Globe";
+import { Search, Home as HomeIcon, Globe, LayoutDashboard, Database } from "lucide-react";
 
-// Dynamic import for Leaflet map to avoid window is not defined during SSR
+// Dynamic imports
+const Co2Globe = dynamic(() => import("@/components/Co2Globe"), { ssr: false });
 const CityMap = dynamic(() => import("@/components/CityMap"), {
   ssr: false,
   loading: () => <div className="w-full h-full flex items-center justify-center text-white/40 text-xs tracking-widest uppercase">Initializing Map Engine...</div>
@@ -27,18 +28,30 @@ export default function Home() {
   const [comparisonData, setComparisonData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [compareMode, setCompareMode] = useState(true);
+  const [showSimultaneousView, setShowSimultaneousView] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
   });
 
-  const [compareMode, setCompareMode] = useState(true);
-
-  // Transform values for cinematic transition - mapped to the first 40% of the total container
+  // Transform values for cinematic transition
   const landingOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
   const landingScale = useTransform(scrollYProgress, [0, 0.25], [1, 0.98]);
   const dashboardOpacity = useTransform(scrollYProgress, [0.15, 0.35], [0, 1]);
   const dashboardY = useTransform(scrollYProgress, [0.15, 0.35], [40, 0]);
+
+  const handleHomeClick = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Implementation for search can be added here
+    console.log("Searching for:", searchQuery);
+  };
 
   async function handleRun(budget: number) {
     setLoading(true);
@@ -149,32 +162,53 @@ export default function Home() {
       >
         {/* 🏛️ Solarpunk Header */}
         <header className="glass-panel border-b border-white/10 sticky top-4 z-50 mx-4 md:mx-8 mb-8 backdrop-blur-xl">
-          <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <div className="flex flex-col">
+          <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between gap-6">
+            <div className="flex flex-col shrink-0">
               <h1 className="text-2xl font-bold text-white tracking-tight leading-none flex items-center gap-3">
                 <span className="w-4 h-4 rounded-full bg-neon-emerald shadow-[0_0_15px_#10B981]" />
                 Urban Carbon <span className="text-neon-emerald">Twin</span>
               </h1>
               <p className="text-[11px] text-neon-emerald/60 font-bold uppercase tracking-[0.3em] mt-2">Solarpunk Intelligence Engine</p>
-              {/* Visual Context Indicator */}
-              {!compareMode && globalData && (
-                <div className="absolute top-16 left-0 mt-4 flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
-                  <div className="h-px w-8 bg-neon-emerald/50"></div>
-                  <span className="text-[10px] text-neon-emerald font-bold uppercase tracking-widest bg-neon-emerald/10 px-2 py-1 rounded border border-neon-emerald/20">
-                    Simulating: {globalData.location.lat.toFixed(2)}, {globalData.location.lon.toFixed(2)}
-                  </span>
-                </div>
-              )}
             </div>
 
-            <div className="flex items-center gap-6">
-              <div className="hidden md:flex items-center gap-4 text-[11px] font-bold uppercase tracking-tight text-emerald-500/40">
+            {/* Search Bar - Center */}
+            <form onSubmit={handleSearch} className="flex-1 max-w-md relative group hidden md:block">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500/40 group-focus-within:text-neon-emerald transition-colors" />
+              <input
+                type="text"
+                placeholder="Search global coordinates or cities..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-neon-emerald/50 focus:bg-white/10 transition-all"
+              />
+            </form>
+
+            <div className="flex items-center gap-4">
+              {/* Navigation Icons */}
+              <div className="flex items-center gap-2 border-r border-white/10 pr-4">
+                <button
+                  onClick={handleHomeClick}
+                  className="p-2.5 rounded-xl hover:bg-white/5 text-white/60 hover:text-neon-emerald transition-all tooltip"
+                  title="Home"
+                >
+                  <HomeIcon className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setShowSimultaneousView(!showSimultaneousView)}
+                  className={`p-2.5 rounded-xl transition-all ${showSimultaneousView ? 'bg-neon-emerald/20 text-neon-emerald' : 'hover:bg-white/5 text-white/60 hover:text-neon-emerald'}`}
+                  title="Simultaneous Global View"
+                >
+                  <Globe className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="hidden lg:flex items-center gap-4 text-[11px] font-bold uppercase tracking-tight text-emerald-500/40">
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-neon-emerald shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
                   <span>Network Online</span>
                 </div>
                 <span className="h-3 w-px bg-white/10" />
-                <span className="text-emerald-500/60 font-mono tracking-widest">v4.0_NATURE_TECH</span>
+                <span className="text-emerald-500/60 font-mono tracking-widest">v4.1</span>
               </div>
             </div>
           </div>
@@ -250,7 +284,12 @@ export default function Home() {
                 </div>
                 <div className="flex-1 bg-black/40 rounded-xl m-2 border border-white/5 overflow-hidden relative">
                   {compareMode ? (
-                    <Co2Globe data={globalData} onSelectLocation={handleGlobalSelect} onSimulate={handleSimulate} />
+                    <Co2Globe
+                      data={globalData}
+                      onSelectLocation={handleGlobalSelect}
+                      onSimulate={handleSimulate}
+                      simultaneousView={showSimultaneousView}
+                    />
                   ) : (
                     // Using CityMap instead of CityGrid for Real Map visualization
                     <CityMap
