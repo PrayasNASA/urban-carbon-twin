@@ -22,11 +22,11 @@ export default function ScenarioPanel({
     <div className="flex flex-col gap-8 w-full">
 
       {/* 🎚️ Connected Capital Control */}
-      <div className="flex flex-col gap-6">
-        <div className="flex items-end justify-between">
-          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Global Capital Allocation</label>
-          <div className="text-4xl font-light text-white tabular-nums tracking-tighter">
-            ${budget.toLocaleString()}
+      <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-2">
+          <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.25em]">Global Capital Allocation</label>
+          <div className="text-5xl font-light text-white tabular-nums tracking-tighter leading-none">
+            <span className="text-neon-emerald/40 mr-1">$</span>{budget.toLocaleString()}
           </div>
         </div>
 
