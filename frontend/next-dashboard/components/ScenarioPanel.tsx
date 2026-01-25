@@ -19,7 +19,6 @@ export default function ScenarioPanel({
   setBudget: (b: number) => void;
   idealBudget?: number;
   onSimulate?: () => void;
-  onSimulate?: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<'capital' | 'policy'>('capital');
   const [policyImpact, setPolicyImpact] = useState(0);
@@ -147,25 +146,19 @@ export default function ScenarioPanel({
                 </div>
               </>
             )}
-          </>
-        )}
-        </button>
-    </>
-  ) : (
-    <PolicySandbox onUpdateImpact={setPolicyImpact} />
-  )
-}
+          </button>
+        </>
+      ) : (
+        <PolicySandbox onUpdateImpact={setPolicyImpact} />
+      )}
 
-{/* Global Impact Summary (Always Visible if Policy Active) */ }
-{
-  policyImpact > 0 && (
-    <div className="mt-[-10px] p-3 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-between">
-      <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">BigQuery Projection</span>
-      <span className="text-sm font-bold text-white">-{policyImpact.toFixed(1)}% CO₂</span>
+      {/* Global Impact Summary (Always Visible if Policy Active) */}
+      {policyImpact > 0 && (
+        <div className="mt-[-10px] p-3 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-between">
+          <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">BigQuery Projection</span>
+          <span className="text-sm font-bold text-white">-{policyImpact.toFixed(1)}% CO₂</span>
+        </div>
+      )}
     </div>
-  )
-}
-
-    </div >
   );
 }

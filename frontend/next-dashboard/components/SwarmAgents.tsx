@@ -18,7 +18,7 @@ export default function SwarmAgents({ target }: { target: { lat: number, lon: nu
     const { viewer } = useCesium();
     const [agents, setAgents] = useState<Agent[]>([]);
     const lastUpdateTime = useRef(Date.now());
-    const animationFrameRef = useRef<number>();
+    const animationFrameRef = useRef<number | null>(null);
 
     // Initialize Swarm
     useEffect(() => {
