@@ -7,13 +7,15 @@ export default function ScenarioPanel({
   loading,
   budget,
   setBudget,
-  idealBudget
+  idealBudget,
+  onSimulate
 }: {
   onRun: (budget: number) => void;
   loading: boolean;
   budget: number;
   setBudget: (b: number) => void;
   idealBudget?: number;
+  onSimulate?: () => void;
 }) {
 
   return (
@@ -22,17 +24,17 @@ export default function ScenarioPanel({
       {/* 🎚️ Connected Capital Control */}
       <div className="flex flex-col gap-6">
         <div className="flex items-end justify-between">
-          <label className="text-xs font-medium text-white/50 tracking-wider uppercase">Global Capital Allocation</label>
-          <div className="text-3xl font-light text-white tabular-nums tracking-tight">
+          <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Global Capital Allocation</label>
+          <div className="text-4xl font-light text-white tabular-nums tracking-tighter">
             ${budget.toLocaleString()}
           </div>
         </div>
 
         {/* Dynamic Status Indicator */}
         {idealBudget && (
-          <div className="flex items-center gap-2 -mt-2 justify-end">
-            <span className="text-[10px] uppercase font-medium tracking-wider text-white/30">Target Required</span>
-            <span className={`text-xs font-bold tabular-nums ${budget >= idealBudget ? 'text-teal-400' : 'text-rose-400'}`}>
+          <div className="flex items-center gap-2 -mt-3 justify-end">
+            <span className="text-[9px] uppercase font-black tracking-[0.15em] text-white/20">Target Required</span>
+            <span className={`text-[11px] font-black tabular-nums transition-colors duration-500 ${budget >= idealBudget ? 'text-neon-emerald' : 'text-rose-500'}`}>
               ${idealBudget.toLocaleString()}
             </span>
           </div>
@@ -40,13 +42,13 @@ export default function ScenarioPanel({
 
         <div className="relative h-12 flex items-center">
           {/* Track Background */}
-          <div className="absolute w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-            <div className="absolute left-0 top-0 bottom-0 bg-white/20 transition-all duration-300" style={{ width: `${(budget / 500000) * 100}%` }} />
+          <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
+            <div className="absolute left-0 top-0 bottom-0 bg-neon-emerald/40 transition-all duration-500 ease-out shadow-[0_0_15px_rgba(16,185,129,0.3)]" style={{ width: `${(budget / 500000) * 100}%` }} />
 
             {/* Required Budget Marker on Track */}
             {idealBudget && (
               <div
-                className="absolute top-0 bottom-0 bg-rose-500/50 w-0.5 z-10"
+                className="absolute top-0 bottom-0 bg-rose-500/30 w-0.5 z-10"
                 style={{ left: `${Math.min(100, (idealBudget / 500000) * 100)}%` }}
               />
             )}
@@ -64,10 +66,10 @@ export default function ScenarioPanel({
 
           {/* Custom Thumb */}
           <div
-            className="absolute h-5 w-5 bg-white rounded-full shadow-[0_0_15px_rgba(255,255,255,0.3)] pointer-events-none transition-all duration-75 ease-out border-2 border-white/50"
-            style={{ left: `calc(${(budget / 500000) * 100}% - 10px)` }}
+            className="absolute h-6 w-6 bg-white rounded-full shadow-[0_0_20px_rgba(255,255,255,0.4)] pointer-events-none transition-all duration-150 ease-out border-[3px] border-white/50"
+            style={{ left: `calc(${(budget / 500000) * 100}% - 12px)` }}
           >
-            <div className="absolute inset-0 m-auto w-1.5 h-1.5 bg-black rounded-full" />
+            <div className="absolute inset-0 m-auto w-2 h-2 bg-black rounded-full shadow-inner" />
           </div>
 
           {/* Required Marker Warning Icon */}
@@ -81,20 +83,20 @@ export default function ScenarioPanel({
           )}
         </div>
 
-        <div className="flex justify-between -mt-2 text-[10px] font-medium text-white/20 uppercase tracking-widest">
+        <div className="flex justify-between -mt-2 text-[9px] font-black text-white/10 uppercase tracking-[0.25em]">
           <span>$5K</span>
-          {idealBudget && budget < idealBudget && <span className="text-rose-400 font-bold tracking-widest animate-pulse">Insufficient Capital</span>}
-          {idealBudget && budget >= idealBudget && <span className="text-teal-400 font-bold tracking-widest">Optimized</span>}
+          {idealBudget && budget < idealBudget && <span className="text-rose-500/60 animate-pulse">Insufficient Capital</span>}
+          {idealBudget && budget >= idealBudget && <span className="text-neon-emerald/60">Optimized</span>}
           <span>$500K</span>
         </div>
       </div>
 
       {/* 💡 Intelligence Context Box */}
-      <div className="p-5 bg-white/5 border border-white/10 rounded-2xl relative overflow-hidden group hover:bg-white/10 transition-colors">
-        <div className="absolute top-0 left-0 w-1 h-full bg-teal-500/50" />
-        <p className="text-xs text-white/70 leading-relaxed font-normal">
-          <span className="text-teal-400 font-bold uppercase mr-2 tracking-wider text-[10px]">Insight</span>
-          Deployments exceeding <span className="text-white font-medium">$50K</span> activate regional swarm agents, increasing capture efficiency by <span className="text-teal-400 font-bold">24.3%</span>.
+      <div className="p-6 premium-blur border border-white/5 rounded-2xl relative overflow-hidden group hover:border-neon-emerald/20 transition-all duration-500">
+        <div className="absolute top-0 left-0 w-1 h-full bg-neon-emerald/50 shadow-[0_0_15px_#10B981]" />
+        <p className="text-[12px] text-white/60 leading-relaxed font-medium">
+          <span className="text-neon-emerald font-black uppercase mr-3 tracking-[0.2em] text-[10px] bg-neon-emerald/10 px-2 py-0.5 rounded">Insight</span>
+          Deployments exceeding <span className="text-white font-bold">$50K</span> activate regional swarm agents, increasing capture efficiency by <span className="text-neon-emerald font-black">24.3%</span>.
         </p>
       </div>
 
@@ -102,21 +104,21 @@ export default function ScenarioPanel({
       <button
         onClick={() => onRun(budget)}
         disabled={loading}
-        className={`w-fit py-4 px-10 rounded-xl font-bold text-xs uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-4 active:scale-[0.98] shadow-xl ${loading
-          ? "bg-white/10 text-white/20 cursor-not-allowed"
-          : "bg-white text-black hover:bg-gray-100 hover:shadow-2xl hover:scale-[1.02]"
+        className={`w-full py-5 px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-5 active:scale-[0.97] shadow-2xl group ${loading
+          ? "bg-white/5 text-white/20 cursor-not-allowed border border-white/5"
+          : "bg-white text-black hover:shadow-[0_20px_40px_rgba(255,255,255,0.15)] hover:scale-[1.01] relative overflow-hidden"
           }`}
       >
         {loading ? (
           <>
-            <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-            <span className="italic normal-case tracking-normal opacity-70">Processing...</span>
+            <div className="w-5 h-5 border-2 border-black/10 border-t-black rounded-full animate-spin" />
+            <span className="font-bold tracking-widest">Processing Entity...</span>
           </>
         ) : (
           <>
-            <span>Initialize Simulation</span>
-            <div className="w-5 h-5 rounded-full bg-black flex items-center justify-center text-white">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4">
+            <span className="relative z-10 transition-transform group-hover:translate-x-[-4px]">Begin Simulation</span>
+            <div className="w-6 h-6 rounded-full bg-black flex items-center justify-center text-white transition-transform group-hover:translate-x-4 relative z-10">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4">
                 <path d="M5 12h14m-7-7l7 7-7 7" />
               </svg>
             </div>

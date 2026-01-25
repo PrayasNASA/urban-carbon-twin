@@ -162,7 +162,7 @@ export default function Home() {
                 <span className="w-4 h-4 rounded-full bg-neon-emerald shadow-[0_0_15px_#10B981]" />
                 Urban Carbon <span className="text-neon-emerald">Twin</span>
               </h1>
-              <p className="text-[11px] text-neon-emerald/60 font-bold uppercase tracking-[0.3em] mt-2">Solarpunk Intelligence Engine</p>
+              <p className="text-[10px] text-neon-emerald/60 font-black uppercase tracking-[0.4em] mt-2.5">Solarpunk Intelligence Engine</p>
             </div>
 
             <div className="flex items-center gap-6">
@@ -183,7 +183,7 @@ export default function Home() {
           {/* Page Title Row */}
           <div className="flex items-baseline justify-between mt-8">
             <h2 className="text-3xl font-bold text-white tracking-tight">Environmental Sequestration Metrics</h2>
-            <div className="text-[11px] font-extrabold text-neon-emerald uppercase tracking-[0.2em] bg-neon-emerald/10 border border-neon-emerald/20 px-4 py-1.5 rounded-lg backdrop-blur-md">
+            <div className="text-[10px] font-black text-neon-emerald uppercase tracking-[0.3em] bg-neon-emerald/5 border border-neon-emerald/10 px-5 py-2 rounded-xl backdrop-blur-xl">
               Region: {globalData?.place_name ? globalData.place_name : 'South Asia Core'}
             </div>
           </div>
@@ -236,8 +236,8 @@ export default function Home() {
                 <div className="p-6 flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div>
-                      <h3 className="text-sm font-bold text-white uppercase tracking-widest">{compareMode ? 'Global CO2 Explorer' : 'Spatial Concentration Map'}</h3>
-                      <p className="text-[11px] text-emerald-500/40 font-medium tracking-tight">Real-time topographic CO2 distribution</p>
+                      <h3 className="text-sm font-bold text-white uppercase tracking-widest">{compareMode ? 'Global AQI Explorer' : 'Spatial Concentration Map'}</h3>
+                      <p className="text-[11px] text-emerald-500/40 font-medium tracking-tight">Real-time topographic AQI distribution</p>
                     </div>
                     {compareMode && (
                       <button
@@ -310,8 +310,8 @@ export default function Home() {
                 <span className="text-[11px] font-bold text-neon-emerald">0.0042_LOW</span>
               </div>
               <div className="flex flex-col items-end border-l border-white/10 pl-12">
-                <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.3em]">Block_Hash</span>
-                <span className="text-[11px] font-bold text-white/50">0XNATURE_TECH_26</span>
+                <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.3em]">GCP</span>
+                <span className="text-[11px] font-bold text-white/50">PRAYAS</span>
               </div>
             </div>
           </div>

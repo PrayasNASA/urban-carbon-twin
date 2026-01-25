@@ -1,0 +1,9 @@
+{
+	"servers": {
+		"Knowledge Base": {
+			"url": "https://docs.supademo.com/~gitbook/mcp",
+			"type": "http"
+		}
+	},
+	"inputs": []
+}

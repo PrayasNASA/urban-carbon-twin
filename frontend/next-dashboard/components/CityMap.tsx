@@ -7,7 +7,7 @@ import L from 'leaflet';
 
 // Fix for default marker icons in Next.js
 const iconRetinaUrl = 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png';
-const iconUrl = 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png';
+const iconUrl = 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png';
 const shadowUrl = 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png';
 
 // Component to handle map view updates
