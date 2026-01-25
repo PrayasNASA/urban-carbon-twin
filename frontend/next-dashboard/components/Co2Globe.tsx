@@ -26,10 +26,11 @@ interface Co2Data {
 
 interface Co2GlobeProps {
     data: Co2Data | null;
+    onCloseData?: () => void;
     simultaneousView?: boolean;
 }
 
-const GlobalDataPoints = ({ show }: { show: boolean }) => {
+const GlobalDataPoints = ({ show, viewMode }: { show: boolean; viewMode: 'aqi' | 'temp' | 'both' }) => {
     const [points, setPoints] = useState<{ lat: number, lon: number, aqi: number, temp: number }[]>([]);
 
     useEffect(() => {
@@ -55,25 +56,29 @@ const GlobalDataPoints = ({ show }: { show: boolean }) => {
             {points.map((p, i) => (
                 <React.Fragment key={i}>
                     {/* AQI Point (Small) */}
-                    <Entity
-                        position={Cartesian3.fromDegrees(p.lon, p.lat)}
-                        point={{
-                            pixelSize: 6,
-                            color: p.aqi > 200 ? Color.RED : p.aqi > 100 ? Color.YELLOW : Color.LIME,
-                            outlineColor: Color.BLACK,
-                            outlineWidth: 1
-                        }}
-                    />
+                    {(viewMode === 'aqi' || viewMode === 'both') && (
+                        <Entity
+                            position={Cartesian3.fromDegrees(p.lon, p.lat)}
+                            point={{
+                                pixelSize: 6,
+                                color: p.aqi > 200 ? Color.RED : p.aqi > 100 ? Color.YELLOW : Color.LIME,
+                                outlineColor: Color.BLACK,
+                                outlineWidth: 1
+                            }}
+                        />
+                    )}
                     {/* Temperature Point (Offset slightly or showing together) */}
-                    <Entity
-                        position={Cartesian3.fromDegrees(p.lon + 0.5, p.lat + 0.5)}
-                        point={{
-                            pixelSize: 8,
-                            color: p.temp > 30 ? Color.ORANGERED : p.temp > 20 ? Color.WHITE : Color.DEEPSKYBLUE,
-                            outlineColor: Color.WHITE.withAlpha(0.2),
-                            outlineWidth: 2
-                        }}
-                    />
+                    {(viewMode === 'temp' || viewMode === 'both') && (
+                        <Entity
+                            position={Cartesian3.fromDegrees(p.lon + 0.5, p.lat + 0.5)}
+                            point={{
+                                pixelSize: 8,
+                                color: p.temp > 30 ? Color.ORANGERED : p.temp > 20 ? Color.WHITE : Color.DEEPSKYBLUE,
+                                outlineColor: Color.WHITE.withAlpha(0.2),
+                                outlineWidth: 2
+                            }}
+                        />
+                    )}
                 </React.Fragment>
             ))}
         </>
@@ -109,8 +114,9 @@ const Helper = ({ onSelect }: { onSelect?: (lat: number, lon: number) => void })
 
 const EnvironmentalPanel = dynamic(() => import("./EnvironmentalPanel"), { ssr: false });
 
-const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon: number) => void; onSimulate?: () => void; budget?: number }> = ({ data, onSelectLocation, onSimulate, budget, simultaneousView }) => {
+const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon: number) => void; onSimulate?: () => void; budget?: number }> = ({ data, onCloseData, onSelectLocation, onSimulate, budget, simultaneousView }) => {
     const [isMounted, setIsMounted] = useState(false);
+    const [viewMode, setViewMode] = useState<'aqi' | 'temp' | 'both'>('both');
 
     useEffect(() => {
         setIsMounted(true);
@@ -136,7 +142,7 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
             >
                 <CameraFlyTo destination={targetPos} duration={2} />
                 <Helper onSelect={onSelectLocation} />
-                <GlobalDataPoints show={!!simultaneousView} />
+                <GlobalDataPoints show={!!simultaneousView} viewMode={viewMode} />
 
                 {data && data.location && (
                     <Entity
@@ -167,23 +173,60 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
                 </div>
             </div>
 
-            {/* Legend for Simultaneous View */}
+            {/* Legend for Simultaneous View with Toggles */}
             {simultaneousView && (
-                <div className="absolute top-6 right-6 z-50 bg-black/60 backdrop-blur-xl p-4 rounded-xl border border-white/10 flex flex-col gap-3">
-                    <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 rounded-full bg-lime-500 border border-black shadow-[0_0_10px_rgba(132,204,22,0.4)]" />
-                        <span className="text-[10px] text-white/80 font-bold uppercase tracking-wider">AQI: Optimal</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <div className="w-4 h-4 rounded-full bg-white border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.4)]" />
-                        <span className="text-[10px] text-white/80 font-bold uppercase tracking-wider">Temp: Moderate</span>
+                <div className="absolute top-6 right-6 z-50 bg-black/60 backdrop-blur-xl p-4 rounded-xl border border-white/10 flex flex-col gap-4 min-w-[160px]">
+                    <h4 className="text-[10px] font-extrabold text-white/40 uppercase tracking-[0.2em] border-b border-white/5 pb-2">Visualization Layers</h4>
+                    <div
+                        onClick={() => setViewMode(viewMode === 'aqi' ? 'both' : (viewMode === 'both' ? 'temp' : 'aqi'))} // Simple cycling or individual buttons
+                        className="flex flex-col gap-3"
+                    >
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setViewMode('aqi'); }}
+                            className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'aqi' ? 'bg-neon-emerald/20 border border-neon-emerald/30' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
+                        >
+                            <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full bg-lime-500 shadow-[0_0_8px_rgba(132,204,22,0.4)]" />
+                                <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'aqi' ? 'text-neon-emerald' : 'text-white/60'}`}>AQI</span>
+                            </div>
+                            {viewMode === 'aqi' && <div className="w-1.5 h-1.5 rounded-full bg-neon-emerald" />}
+                        </button>
+
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setViewMode('temp'); }}
+                            className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'temp' ? 'bg-orange-500/20 border border-orange-500/30' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
+                        >
+                            <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
+                                <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'temp' ? 'text-orange-500' : 'text-white/60'}`}>Temp</span>
+                            </div>
+                            {viewMode === 'temp' && <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />}
+                        </button>
+
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setViewMode('both'); }}
+                            className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === 'both' ? 'bg-white/10 border border-white/20' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
+                        >
+                            <div className="flex items-center gap-2">
+                                <div className="flex -space-x-1">
+                                    <div className="w-2 h-2 rounded-full bg-lime-500 border border-black/50" />
+                                    <div className="w-2 h-2 rounded-full bg-orange-500 border border-black/50" />
+                                </div>
+                                <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === 'both' ? 'text-white' : 'text-white/60'}`}>Dual View</span>
+                            </div>
+                            {viewMode === 'both' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                        </button>
                     </div>
                 </div>
             )}
 
             {/* Active Data Overlay - Replaced with EnvironmentalPanel */}
             {data && (
-                <EnvironmentalPanel data={data} onSimulate={onSimulate || (() => { })} />
+                <EnvironmentalPanel
+                    data={data}
+                    onSimulate={onSimulate || (() => { })}
+                    onClose={onCloseData || (() => { })}
+                />
             )}
         </div>
     );

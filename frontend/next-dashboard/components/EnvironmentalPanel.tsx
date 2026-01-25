@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 interface EnvironmentalPanelProps {
     data: any;
     onSimulate: () => void;
+    onClose: () => void;
 }
 
 const PollutantItem = ({ label, value, unit, max = 200 }: any) => {
@@ -36,7 +37,7 @@ const WeatherItem = ({ icon, label, value, unit }: any) => (
     </div>
 );
 
-export default function EnvironmentalPanel({ data, onSimulate }: EnvironmentalPanelProps) {
+export default function EnvironmentalPanel({ data, onSimulate, onClose }: EnvironmentalPanelProps) {
     if (!data || !data.full_details) return null;
 
     const { pollutants, weather, aqi } = data.full_details;
@@ -58,6 +59,17 @@ export default function EnvironmentalPanel({ data, onSimulate }: EnvironmentalPa
             animate={{ opacity: 1, scale: 1, y: 0 }}
             className="absolute top-24 right-4 z-50 w-[380px] bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[calc(100%-6rem)]"
         >
+            {/* Close Button */}
+            <button
+                onClick={onClose}
+                className="absolute top-4 right-4 z-[60] p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-all border border-white/5"
+            >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
             {/* Header / AQI Main */}
             <div className={`p-6 bg-gradient-to-br ${aqiBg} border-b border-white/5 relative`}>
                 <div className="flex justify-between items-start">

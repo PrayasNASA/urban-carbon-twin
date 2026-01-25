@@ -47,12 +47,6 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Implementation for search can be added here
-    console.log("Searching for:", searchQuery);
-  };
-
   async function handleRun(budget: number) {
     setLoading(true);
     setError(null);
@@ -171,18 +165,6 @@ export default function Home() {
               <p className="text-[11px] text-neon-emerald/60 font-bold uppercase tracking-[0.3em] mt-2">Solarpunk Intelligence Engine</p>
             </div>
 
-            {/* Search Bar - Center */}
-            <form onSubmit={handleSearch} className="flex-1 max-w-md relative group hidden md:block">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500/40 group-focus-within:text-neon-emerald transition-colors" />
-              <input
-                type="text"
-                placeholder="Search global coordinates or cities..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-neon-emerald/50 focus:bg-white/10 transition-all"
-              />
-            </form>
-
             <div className="flex items-center gap-4">
               {/* Navigation Icons */}
               <div className="flex items-center gap-2 border-r border-white/10 pr-4">
@@ -288,6 +270,7 @@ export default function Home() {
                       data={globalData}
                       onSelectLocation={handleGlobalSelect}
                       onSimulate={handleSimulate}
+                      onCloseData={() => setGlobalData(null)}
                       simultaneousView={showSimultaneousView}
                     />
                   ) : (
