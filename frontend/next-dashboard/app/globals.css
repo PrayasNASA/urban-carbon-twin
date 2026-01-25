@@ -74,7 +74,10 @@
 
 
   .card {
-    @apply glass-panel p-8;
+    @apply backdrop-blur-2xl bg-glass border border-white/5 rounded-2xl p-8;
+    box-shadow:
+      0 4px 24px -1px rgba(0, 0, 0, 0.2),
+      inset 0 0 40px rgba(16, 185, 129, 0.03);
   }
 
   .page-title {

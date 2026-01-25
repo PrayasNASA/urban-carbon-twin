@@ -1,0 +1,209 @@
+﻿
+> next-dashboard@0.1.0 build
+> node scripts/copy-cesium-assets.js && next build
+
+Copying Cesium assets...
+Copying Workers...
+Copying ThirdParty...
+Copying Assets...
+Copying Widgets...
+Cesium assets copied successfully.
+Γû▓ Next.js 16.1.3 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+npm : Error: Cannot 
+apply unknown 
+utility class 
+`glass-panel`
+At line:1 char:1
++ npm run build > 
+build_output.txt 
+2>&1
++ ~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo  
+            : NotS  
+  pecified: (Erro   
+ r: Cannot a...s    
+ `glass-panel`:    
+String) [], Rem    
+oteException
+    + FullyQualifie 
+   dErrorId : Nati  
+  veCommandError
+ 
+    [2m[at 
+onInvalidCandidate (
+D:\Projects\urban-ca
+rbon-twin\frontend\n
+ext-dashboard\node_m
+odules\tailwindcss\d
+ist\lib.js:21:1511)]
+[0m
+    [2m[at Te (D:\P
+rojects\urban-carbon
+-twin\frontend\next-
+dashboard\node_modul
+es\tailwindcss\dist\
+lib.js:16:36326)][0
+m
+    [2m[at D:\Proje
+cts\urban-carbon-twi
+n\frontend\next-dash
+board\node_modules\t
+ailwindcss\dist\lib.
+js:21:355][0m
+    [2m[at Rr (D:\P
+rojects\urban-carbon
+-twin\frontend\next-
+dashboard\node_modul
+es\tailwindcss\dist\
+lib.js:3:1718)][0m
+    [2m[at _ (D:\Pr
+ojects\urban-carbon-
+twin\frontend\next-d
+ashboard\node_module
+s\tailwindcss\dist\l
+ib.js:3:1377)][0m
+    [2m[at $e (D:\P
+rojects\urban-carbon
+-twin\frontend\next-
+dashboard\node_modul
+es\tailwindcss\dist\
+lib.js:21:172)][0m
+    [2m[at un (D:\P
+rojects\urban-carbon
+-twin\frontend\next-
+dashboard\node_modul
+es\tailwindcss\dist\
+lib.js:38:294)][0m
+    [2m[at async 
+cn (D:\Projects\urba
+n-carbon-twin\fronte
+nd\next-dashboard\no
+de_modules\tailwindc
+ss\dist\lib.js:38:63
+1)][0m
+    [2m[at async 
+Xr (D:\Projects\urba
+n-carbon-twin\fronte
+nd\next-dashboard\no
+de_modules\@tailwind
+css\node\dist\index.
+js:10:3417)][0m
+    [2m[at async I 
+(D:\Projects\urban-c
+arbon-twin\frontend\
+next-dashboard\node_
+modules\@tailwindcss
+\postcss\dist\index.
+js:10:3977)][0m
+
+> Build error 
+occurred
+Error: Turbopack 
+build failed with 1 
+errors:
+./app/globals.css
+Error evaluating 
+Node.js code
+CssSyntaxError: 
+tailwindcss: D:\Proj
+ects\urban-carbon-tw
+in\frontend\next-das
+hboard\app\globals.c
+ss:1:1: Cannot 
+apply unknown 
+utility class 
+`glass-panel`
+    at Input.error (
+node_modules/postcss
+/lib/input.js:135:16
+) [D:\Projects\urban
+-carbon-twin\fronten
+d\next-dashboard\.ne
+xt\build\chunks\node
+_modules_fe693df6._.
+js:4651:22]
+    at Root.error (n
+ode_modules/postcss/
+lib/node.js:146:32) 
+[D:\Projects\urban-c
+arbon-twin\frontend\
+next-dashboard\.next
+\build\chunks\node_m
+odules_fe693df6._.js
+:928:38]
+    [at Object.Once 
+(D:\Projects\urban-c
+arbon-twin\frontend\
+next-dashboard\node_
+modules\@tailwindcss
+\postcss\dist\index.
+js:10:6911)]
+    at async 
+LazyResult.runAsync 
+(node_modules/postcs
+s/lib/lazy-result.js
+:293:11) [D:\Project
+s\urban-carbon-twin\
+frontend\next-dashbo
+ard\.next\build\chun
+ks\node_modules_fe69
+3df6._.js:6206:21]
+    at async 
+transform (turbopack
+:///[turbopack-node]
+/transforms/postcss.
+ts:70:34) [D:\Projec
+ts\urban-carbon-twin
+\frontend\next-dashb
+oard\.next\build\chu
+nks\[root-of-the-ser
+ver]__51225daf._.js:
+145:36]
+    at async run (tu
+rbopack:///[turbopac
+k-node]/ipc/evaluate
+.ts:92:23) [D:\Proje
+cts\urban-carbon-twi
+n\frontend\next-dash
+board\.next\build\ch
+unks\[root-of-the-se
+rver]__974941ed._.js
+:443:31]
+
+Import trace:
+  Client Component 
+Browser:
+    
+./app/globals.css 
+[Client Component 
+Browser]
+    
+./app/layout.tsx 
+[Server Component]
+
+
+    at async 
+transform (turbopack
+:///[turbopack-node]
+/transforms/postcss.
+ts:70:34) [D:\Projec
+ts\urban-carbon-twin
+\frontend\next-dashb
+oard\.next\build\chu
+nks\[root-of-the-ser
+ver]__51225daf._.js:
+145:36])
+    at async run (tu
+rbopack:///[turbopac
+k-node]/ipc/evaluate
+.ts:92:23) [D:\Proje
+cts\urban-carbon-twi
+n\frontend\next-dash
+board\.next\build\ch
+unks\[root-of-the-se
+rver]__974941ed._.js
+:443:31])
