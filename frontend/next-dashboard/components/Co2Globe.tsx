@@ -193,11 +193,15 @@ const ImmersiveVisuals = () => {
     return null;
 };
 
+const ProposalOverlay = dynamic(() => import("./ProposalOverlay"), { ssr: false });
+const SwarmAgents = dynamic(() => import("./SwarmAgents"), { ssr: false });
 const EnvironmentalPanel = dynamic(() => import("./EnvironmentalPanel"), { ssr: false });
 
 const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon: number) => void; onSimulate?: () => void; budget?: number }> = ({ data, onCloseData, onSelectLocation, onSimulate, budget, simultaneousView }) => {
     const [isMounted, setIsMounted] = useState(false);
     const [viewMode, setViewMode] = useState<'aqi' | 'temp' | 'no2' | 'pm25' | 'methane'>('aqi');
+    const [showProposals, setShowProposals] = useState(false);
+    const [showSwarm, setShowSwarm] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
@@ -226,6 +230,14 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
                 <Helper onSelect={onSelectLocation} />
                 <GlobalDataPoints show={!!simultaneousView} viewMode={viewMode} />
 
+                {data && data.location && showSwarm && (
+                    <SwarmAgents target={data.location} />
+                )}
+
+                {data && data.location && (
+                    <ProposalOverlay center={data.location} show={showProposals} />
+                )}
+
                 {data && data.location && (
                     <Entity
                         position={Cartesian3.fromDegrees(data.location.lon, data.location.lat)}
@@ -253,40 +265,74 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
                         Click Map to Analyze
                     </p>
                 </div>
+
+                {data && !simultaneousView && (
+                    <div className="mt-4 flex flex-col gap-2">
+                        <button
+                            onClick={() => setShowProposals(!showProposals)}
+                            className={`w-full py-2 px-3 rounded-lg border flex items-center justify-center gap-2 text-[10px] uppercase font-bold tracking-widest transition-all ${showProposals ? 'bg-neon-emerald text-black border-neon-emerald' : 'bg-white/5 border-white/10 text-white/50 hover:bg-white/10 hover:text-white'}`}
+                        >
+                            {showProposals ? (
+                                <>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                                    <span>Clear Vertex AI Plan</span>
+                                </>
+                            ) : (
+                                <>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" /></svg>
+                                    <span>Generate Vertex AI Plan</span>
+                                </>
+                            )}
+                        </button>
+
+                        <button
+                            onClick={() => setShowSwarm(!showSwarm)}
+                            className={`w-full py-2 px-3 rounded-lg border flex items-center justify-center gap-2 text-[10px] uppercase font-bold tracking-widest transition-all ${showSwarm ? 'bg-cyan-500 text-black border-cyan-500' : 'bg-white/5 border-white/10 text-white/50 hover:bg-white/10 hover:text-white'}`}
+                        >
+                            <div className={`w-2 h-2 rounded-full ${showSwarm ? 'bg-black animate-pulse' : 'bg-cyan-500'}`} />
+                            <span>{showSwarm ? 'Deactivate Cloud Swarm' : 'Deploy Cloud Run Swarm'}</span>
+                        </button>
+                    </div>
+                )}
             </div>
 
-            {/* Legend for Simultaneous View with Toggles */}
-            {simultaneousView && (
-                <div className="absolute top-24 right-6 z-50 bg-black/60 backdrop-blur-xl p-4 rounded-xl border border-white/10 flex flex-col gap-4 min-w-[200px]">
-                    <h4 className="text-[10px] font-extrabold text-white/40 uppercase tracking-[0.2em] border-b border-white/5 pb-2">Visualization Layers</h4>
 
-                    <div className="flex flex-col gap-3">
-                        {/* Layer Toggles */}
-                        {['aqi', 'temp', 'no2', 'pm25', 'methane'].map((mode) => (
-                            <button
-                                key={mode}
-                                onClick={(e) => { e.stopPropagation(); setViewMode(mode as any); }}
-                                className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === mode ? 'bg-neon-emerald/20 border border-neon-emerald/30' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
-                            >
-                                <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === mode ? 'text-neon-emerald' : 'text-white/60'}`}>
-                                    {mode.replace('no2', 'NO₂').replace('pm25', 'PM2.5').toUpperCase()} ACTIVE
-                                </span>
-                                {viewMode === mode && <div className="w-1.5 h-1.5 rounded-full bg-neon-emerald" />}
-                            </button>
-                        ))}
+            {/* Legend for Simultaneous View with Toggles */}
+            {
+                simultaneousView && (
+                    <div className="absolute top-24 right-6 z-50 bg-black/60 backdrop-blur-xl p-4 rounded-xl border border-white/10 flex flex-col gap-4 min-w-[200px]">
+                        <h4 className="text-[10px] font-extrabold text-white/40 uppercase tracking-[0.2em] border-b border-white/5 pb-2">Visualization Layers</h4>
+
+                        <div className="flex flex-col gap-3">
+                            {/* Layer Toggles */}
+                            {['aqi', 'temp', 'no2', 'pm25', 'methane'].map((mode) => (
+                                <button
+                                    key={mode}
+                                    onClick={(e) => { e.stopPropagation(); setViewMode(mode as any); }}
+                                    className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-all ${viewMode === mode ? 'bg-neon-emerald/20 border border-neon-emerald/30' : 'bg-white/5 border border-transparent hover:bg-white/10'}`}
+                                >
+                                    <span className={`text-[10px] font-bold uppercase tracking-wider ${viewMode === mode ? 'text-neon-emerald' : 'text-white/60'}`}>
+                                        {mode.replace('no2', 'NO₂').replace('pm25', 'PM2.5').toUpperCase()} ACTIVE
+                                    </span>
+                                    {viewMode === mode && <div className="w-1.5 h-1.5 rounded-full bg-neon-emerald" />}
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Active Data Overlay - Replaced with EnvironmentalPanel */}
-            {data && (
-                <EnvironmentalPanel
-                    data={data}
-                    onSimulate={onSimulate || (() => { })}
-                    onClose={onCloseData || (() => { })}
-                />
-            )}
-        </div>
+            {
+                data && (
+                    <EnvironmentalPanel
+                        data={data}
+                        onSimulate={onSimulate || (() => { })}
+                        onClose={onCloseData || (() => { })}
+                    />
+                )
+            }
+        </div >
     );
 };
 
