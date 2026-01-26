@@ -11,7 +11,6 @@ import { useCesium } from "resium";
 const Viewer = dynamic(() => import("resium").then((mod) => mod.Viewer), { ssr: false });
 const Entity = dynamic(() => import("resium").then((mod) => mod.Entity), { ssr: false });
 const CameraFlyTo = dynamic(() => import("resium").then((mod) => mod.CameraFlyTo), { ssr: false });
-const PostProcessStageComponent = dynamic(() => import("resium").then((mod) => mod.PostProcessStage), { ssr: false });
 
 interface Co2Data {
     value: number;
@@ -166,11 +165,16 @@ const ImmersiveVisuals = () => {
         scene.globe.enableLighting = true;
 
         // 2. Configure Atmospheric Fog
-        scene.fog.enabled = true;
         scene.fog.density = 0.00015; // Slightly denser for "Solarpunk" vibe
         scene.fog.screenSpaceErrorFactor = 2.0;
 
-        // 3. Load 3D Assets (Terrain & Buildings)
+        // 3. Enable Built-in Bloom for Solarpunk glow
+        scene.postProcessStages.bloom.enabled = true;
+        scene.postProcessStages.bloom.uniforms.contrast = 110.0;
+        scene.postProcessStages.bloom.uniforms.brightness = -0.1;
+        scene.postProcessStages.bloom.uniforms.glowOnly = false;
+
+        // 4. Load 3D Assets (Terrain & Buildings)
         const loadAssets = async () => {
             try {
                 // World Terrain
@@ -270,21 +274,6 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
             >
                 <CameraFlyTo destination={targetPos} duration={2} />
                 <ImmersiveVisuals />
-                <PostProcessStageComponent
-                    fragmentShader={`
-                        uniform sampler2D colorTexture;
-                        varying vec2 v_textureCoordinates;
-                        void main() {
-                            vec4 color = texture2D(colorTexture, v_textureCoordinates);
-                            // Simple Bloom-like boost for emerald colors
-                            if (color.g > color.r * 1.5 && color.g > color.b * 1.5) {
-                                color.rgb *= 1.5;
-                            }
-                            gl_FragColor = color;
-                        }
-                    `}
-                    enabled={true}
-                />
                 <Helper onSelect={onSelectLocation} />
                 <GlobalDataPoints show={!!simultaneousView} viewMode={viewMode} />
 
