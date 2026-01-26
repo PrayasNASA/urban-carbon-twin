@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { Cartesian3, Color, ScreenSpaceEventType, Cartographic, Math as CesiumMath, ScreenSpaceEventHandler, createOsmBuildingsAsync, createWorldTerrainAsync, Fog } from "cesium";
+import { Cartesian3, Color, ScreenSpaceEventType, Cartographic, Math as CesiumMath, ScreenSpaceEventHandler, createOsmBuildingsAsync, createWorldTerrainAsync, Fog, CallbackProperty } from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import { useCesium } from "resium";
 
@@ -195,6 +195,33 @@ const ImmersiveVisuals = () => {
     return null;
 };
 
+const AIScanner = ({ active, center }: { active: boolean, center: { lat: number, lon: number } }) => {
+    const { viewer } = useCesium();
+    if (!active || !viewer) return null;
+
+    return (
+        <Entity
+            position={Cartesian3.fromDegrees(center.lon, center.lat)}
+            ellipse={{
+                semiMinorAxis: new CallbackProperty(() => {
+                    const start = viewer.clock.startTime.secondsOfDay || 0;
+                    const now = viewer.clock.currentTime.secondsOfDay || 0;
+                    return 1000 + (Math.sin((now - start) * 5) + 1) * 2000;
+                }, false),
+                semiMajorAxis: new CallbackProperty(() => {
+                    const start = viewer.clock.startTime.secondsOfDay || 0;
+                    const now = viewer.clock.currentTime.secondsOfDay || 0;
+                    return 1000 + (Math.sin((now - start) * 5) + 1) * 2000;
+                }, false),
+                material: Color.fromCssColorString('#10B981').withAlpha(0.2),
+                outline: true,
+                outlineColor: Color.fromCssColorString('#10B981'),
+                outlineWidth: 2
+            }}
+        />
+    );
+};
+
 const ProposalOverlay = dynamic(() => import("./ProposalOverlay"), { ssr: false });
 const SwarmAgents = dynamic(() => import("./SwarmAgents"), { ssr: false });
 const EnvironmentalPanel = dynamic(() => import("./EnvironmentalPanel"), { ssr: false });
@@ -204,6 +231,7 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
     const [viewMode, setViewMode] = useState<'aqi' | 'temp' | 'no2' | 'pm25' | 'methane'>('aqi');
     const [showProposals, setShowProposals] = useState(false);
     const [showSwarm, setShowSwarm] = useState(false);
+    const [isScanning, setIsScanning] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
@@ -240,6 +268,8 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
                     <ProposalOverlay center={data.location} show={showProposals} />
                 )}
 
+                <AIScanner active={isScanning} center={data?.location || { lat: 0, lon: 0 }} />
+
                 {data && data.location && (
                     <Entity
                         position={Cartesian3.fromDegrees(data.location.lon, data.location.lat)}
@@ -248,8 +278,11 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
                 )}
             </Viewer>
 
-            {/* Static overlay */}
-            <div className="absolute top-6 left-6 z-50 bg-black/40 backdrop-blur-xl p-5 rounded-2xl border border-white/10 shadow-2xl">
+            {/* Static overlay - Added onClick stopPropagation to prevent map moving */}
+            <div
+                onClick={(e) => e.stopPropagation()}
+                className="absolute top-6 left-6 z-50 bg-black/40 backdrop-blur-xl p-5 rounded-2xl border border-white/10 shadow-2xl"
+            >
                 <h3 className="text-white font-medium text-sm tracking-wide">
                     {simultaneousView ? 'Multi-Pollutant Analysis' : 'Global Sensor Network'}
                 </h3>
@@ -271,13 +304,27 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
                 {data && !simultaneousView && (
                     <div className="mt-4 flex flex-col gap-2">
                         <button
-                            onClick={() => setShowProposals(!showProposals)}
-                            className={`w-full py-2 px-3 rounded-lg border flex items-center justify-center gap-2 text-[10px] uppercase font-bold tracking-widest transition-all ${showProposals ? 'bg-neon-emerald text-black border-neon-emerald' : 'bg-white/5 border-white/10 text-white/50 hover:bg-white/10 hover:text-white'}`}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (!showProposals) {
+                                    setIsScanning(true);
+                                    // Hide scanning after a delay to show "results"
+                                    setTimeout(() => {
+                                        setIsScanning(false);
+                                        setShowProposals(true);
+                                    }, 2000);
+                                } else {
+                                    setShowProposals(false);
+                                }
+                            }}
+                            className={`w-full py-2 px-3 rounded-lg border flex items-center justify-center gap-2 text-[10px] uppercase font-bold tracking-widest transition-all ${showProposals || isScanning ? 'bg-neon-emerald text-black border-neon-emerald' : 'bg-white/5 border-white/10 text-white/50 hover:bg-white/10 hover:text-white'}`}
                         >
-                            {showProposals ? (
+                            {showProposals || isScanning ? (
                                 <>
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12" /></svg>
-                                    <span>Clear Vertex AI Plan</span>
+                                    <div className={isScanning ? "animate-spin" : ""}>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                                    </div>
+                                    <span>{isScanning ? 'AI ANALYZING...' : 'Clear Vertex AI Plan'}</span>
                                 </>
                             ) : (
                                 <>

@@ -50,12 +50,15 @@ export default function ProposalOverlay({ center, show }: { center: { lat: numbe
                         outlineColor: Color.WHITE,
                         outlineWidth: 2
                     }}
-                    // Simple Cylinder to represent the "Zone" volume
+                    // Cinematic Cylinder to represent the "Zone" volume
                     cylinder={{
-                        length: 200,
-                        topRadius: 40,
-                        bottomRadius: 40,
-                        material: new ColorMaterialProperty(Color.fromCssColorString('#10B981').withAlpha(0.3)),
+                        length: 1500, // 1.5km tall
+                        topRadius: 300, // 300m wide
+                        bottomRadius: 300,
+                        material: new ColorMaterialProperty(Color.fromCssColorString('#10B981').withAlpha(0.4)),
+                        outline: true,
+                        outlineColor: Color.fromCssColorString('#10B981').withAlpha(0.8),
+                        outlineWidth: 2
                     }}
                     description={p.description}
                     onClick={() => setSelectedProposal(p)}
