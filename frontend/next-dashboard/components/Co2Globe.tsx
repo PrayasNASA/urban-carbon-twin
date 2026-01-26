@@ -202,9 +202,9 @@ const ImmersiveVisuals = () => {
                         tileset.style = new Cesium.Cesium3DTileStyle({
                             color: {
                                 conditions: [
-                                    ["${height} === undefined || ${height} === null", "color('rgba(255, 255, 255, 0.1)')"],
-                                    ["Number(${height}) > 100", "color('rgba(16, 185, 129, 0.5)')"],
-                                    ["Number(${height}) > 50", "color('rgba(16, 185, 129, 0.3)')"],
+                                    // Use regex test which is safer for strings/numbers than direct > operator in some Cesium versions
+                                    ["regExp('^[0-9]{3,}$').test(String(${height}))", "color('rgba(16, 185, 129, 0.5)')"],
+                                    ["regExp('^[0-9]{2,}$').test(String(${height}))", "color('rgba(16, 185, 129, 0.3)')"],
                                     ["true", "color('rgba(255, 255, 255, 0.1)')"]
                                 ]
                             }
