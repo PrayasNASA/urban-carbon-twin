@@ -24,13 +24,41 @@ def run_emissions():
     return r.json()
 
 
+def fetch_grid_geometries():
+    """
+    Fetches the full grid geometries from GIS Service.
+    """
+    try:
+        r = requests.get(f"{GIS_BASE_URL}/city/grids")
+        r.raise_for_status()
+        grids = r.json()
+        # Map of grid_id -> polygon coords
+        return {g["grid_id"]: g["polygon"] for g in grids}
+    except Exception as e:
+        print(f"Error fetching grid geometries: {e}")
+        return {}
+
+
 def run_dispersion(wind_speed: float = 0, wind_deg: float = 0):
     r = requests.get(
         f"{DISPERSION_ENGINE_URL}/dispersion",
         params={"wind_speed": wind_speed, "wind_deg": wind_deg}
     )
     r.raise_for_status()
-    return r.json()
+    data = r.json()
+    
+    # Enrich with geometries if available
+    geoms = fetch_grid_geometries()
+    if geoms:
+        for res in data.get("results", []):
+            gid = res.get("grid_id")
+            if gid in geoms:
+                res["geometry"] = {
+                    "type": "Polygon",
+                    "coordinates": [geoms[gid]]
+                }
+    
+    return data
 
 
 def get_live_weather(lat: float, lon: float):
@@ -102,6 +130,11 @@ def run_full_simulation(lat, lon, budget, initial_aqi=None):
     # 5. Calculate Social Sentiment
     sentiment = calculate_sentiment(optimization_resp)
     
+    # 6. Fallback: If dispersion is empty (e.g. out of city bounds), use emissions response
+    # This ensures that spot simulations (Voronoi) still show up
+    if not dispersion_resp.get("results") and emissions_resp.get("dispersion", {}).get("results"):
+        dispersion_resp = emissions_resp["dispersion"]
+
     return {
         "weather": weather,
         "emissions": emissions_resp,
