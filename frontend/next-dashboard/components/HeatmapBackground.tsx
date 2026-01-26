@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useMemo } from 'react';
-import { motion, useTransform, MotionValue } from 'framer-motion';
+import { motion, useTransform, MotionValue, useMotionValue } from 'framer-motion';
 
 interface Hotspot {
     x: number;
@@ -11,13 +11,17 @@ interface Hotspot {
     velocity: { x: number; y: number };
 }
 
-export default function HeatmapBackground({ scrollProgress }: { scrollProgress: MotionValue<number> }) {
+export default function HeatmapBackground({ scrollProgress }: { scrollProgress?: MotionValue<number> | null }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
+    // Default stable value if no scroll progress provided
+    const fallback = useMotionValue(0);
+    const scroll = scrollProgress || fallback;
+
     // Dynamic opacities linked to scroll
-    const canvasOpacity = useTransform(scrollProgress, [0, 0.4, 0.6, 1], [0.15, 0.25, 0.35, 0.45]);
-    const gridOpacity = useTransform(scrollProgress, [0, 0.5, 1], [0.01, 0.04, 0.08]);
-    const mapOpacity = useTransform(scrollProgress, [0, 0.5, 1], [0.02, 0.04, 0.06]);
+    const canvasOpacity = useTransform(scroll, [0, 0.4, 0.6, 1], [0.15, 0.25, 0.35, 0.45]);
+    const gridOpacity = useTransform(scroll, [0, 0.5, 1], [0.01, 0.04, 0.08]);
+    const mapOpacity = useTransform(scroll, [0, 0.5, 1], [0.02, 0.04, 0.06]);
 
     // Generate stable hotspots
     const hotspots = useMemo(() => {
