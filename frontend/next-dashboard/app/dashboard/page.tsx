@@ -196,12 +196,12 @@ export default function Dashboard() {
                                         {compareMode ? 'LOCAL_GRID' : 'GLOBAL_VIEW'}
                                     </button>
                                 </div>
-                                {/* 4. Left Panel (Scenario Controls) - Pushed down to avoid Hero text overlap */}
-                                <div className="absolute top-[320px] left-6 z-40 w-[360px]">
+                                {/* Scenario Panel Logic moved to grid, fixed layout */}
+                                <div className="mt-4">
                                     <DynamicScenarioPanel
                                         onRun={handleRunSimulation}
                                         loading={loading}
-                                        budget={balance} // Pass the dynamic balance
+                                        budget={balance}
                                         setBudget={setBalance}
                                         idealBudget={idealBudget}
                                         onSimulate={handleDeploy}
@@ -352,17 +352,8 @@ export default function Dashboard() {
                 onSellCredits={handleSellCredits}
             />
 
-            {/* 3. Scenario Controls (Left Panel) */}
-            <div className="absolute top-24 left-6 z-40 w-[360px]">
-                <DynamicScenarioPanel
-                    onRun={handleRunSimulation}
-                    loading={loading}
-                    budget={balance}
-                    setBudget={setBalance}
-                    idealBudget={idealBudget}
-                    onSimulate={handleDeploy}
-                />
-            </div>
+            {/* 3. Scenario Controls (Left Panel) - Removed Redundant Absolute Panel */}
+            {/* The active panel is now embedded in the grid layout for better UX */}
         </main>
     );
 }
