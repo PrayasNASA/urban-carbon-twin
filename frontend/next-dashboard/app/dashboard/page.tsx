@@ -52,50 +52,53 @@ export default function Dashboard() {
         }
     };
 
+    function handleSimulationSuccess(result: any) {
+        console.log("Simulation Result Received:", result);
+
+        // Unified Schema Check
+        const finalData = {
+            optimization_plan: result.optimization_plan || (result.scenario_b ? result.scenario_b.plan : null),
+            dispersion: result.dispersion || (result.scenario_b ? { results: result.scenario_b.plan.post_mitigation || [] } : null),
+            weather: result.weather || data?.weather
+        };
+
+        if (finalData.optimization_plan) {
+            setData(finalData);
+            setCompareMode(false);
+            handleGetAiAnalysis(finalData);
+        } else {
+            console.error("Malformed Simulation Result: Missing Optimization Plan", result);
+            setError("Simulation succeeded but the optimization plan was empty.");
+        }
+    }
+
     async function handleRunSimulation(budget: number) {
         setLoading(true);
         setError(null);
         setComparisonData(null);
         try {
             if (globalData) {
+                // Scenario A: Dynamic Global Point
                 const initialAqi = globalData?.full_details?.aqi || 50;
                 const result = await initializeSimulation(globalData.location.lat, globalData.location.lon, budget, initialAqi);
-                setData(result);
-                setCompareMode(false);
-                handleGetAiAnalysis(result);
+                handleSimulationSuccess(result);
             }
             else if (compareMode) {
+                // Scenario B: Global Comparison Search
                 const result = await compareScenarios(budget, budget * 2);
                 if (result.error) {
                     setError(`Comparison Error: ${result.error}`);
-                    setComparisonData(null);
                 } else {
-                    console.log("Comparison Successful:", result);
                     setComparisonData(result);
-
-                    // Wire up Scenario B to the main dashboard data so ResultsPanel & Matrix light up
-                    setData({
-                        optimization_plan: result.scenario_b.plan,
-                        dispersion: { results: result.scenario_b.plan.post_mitigation || [] }
-                    });
-
-                    // Switch to Map View automatically
-                    setCompareMode(false);
-
-                    // Kick off AI Analysis for the primary scenario
-                    handleGetAiAnalysis({
-                        optimization_plan: result.scenario_b.plan,
-                        dispersion: { results: result.scenario_b.plan.post_mitigation || [] }
-                    });
+                    handleSimulationSuccess(result);
                 }
             } else {
+                // Scenario C: Local City Simulation
                 const result = await runScenario(budget);
                 if (result.optimization_plan?.error) {
                     setError(`Backend Error: ${result.optimization_plan.error}`);
-                    setData(null);
                 } else {
-                    setData(result);
-                    handleGetAiAnalysis(result);
+                    handleSimulationSuccess(result);
                 }
             }
         } catch (err) {
@@ -152,9 +155,7 @@ export default function Dashboard() {
             try {
                 const initialAqi = globalData?.full_details?.aqi || 50;
                 const result = await initializeSimulation(globalData.location.lat, globalData.location.lon, balance, initialAqi);
-                setData(result);
-                setCompareMode(false);
-                handleGetAiAnalysis(result);
+                handleSimulationSuccess(result);
             } catch (err) {
                 console.error(err);
                 setError("Failed to initialize simulation via backend.");
