@@ -143,33 +143,37 @@ def run_full_simulation(lat, lon, budget, initial_aqi=None):
     # 3. Run Dispersion with Live Wind
     dispersion_resp = run_dispersion(weather["wind_speed"], weather["wind_deg"])
     
-    # 4. Run Optimization
-    optimization_resp = run_optimization(budget)
+    # 6. Result Consolidation Logic
+    # ----------------------------
+    # Priority: Dynamic (Voronoi) > Static (Rectangular)
     
-    # 6. Result Merging Logic
-    # -----------------------
-    # Dynamic Simulation (User Clicked Map) -> Voronoi Cells (from emissions_resp)
-    # Static City Mode (New Delhi) -> Rectangular Grids (from dispersion_resp)
+    # Check if emissions engine produced a full optimized simulation (Voronoi)
+    emissions_disp = emissions_resp.get("dispersion", {})
+    voronoi_results = emissions_disp.get("results", [])
     
-    # Check if we have Voronoi results (Dynamic Simulation)
-    voronoi_results = emissions_resp.get("dispersion", {}).get("results", [])
+    # We define it as dynamic if it has results with explicit geometries (Voronoi)
+    is_dynamic = len(voronoi_results) > 0 and voronoi_results[0].get("geometry")
     
-    # If explicit geometries exist in emissions response (Voronoi), prioritize them
-    # This restores the "Desc-001" style visualization for random locations
-    if voronoi_results and len(voronoi_results) > 0 and voronoi_results[0].get("geometry"):
-        final_dispersion = emissions_resp["dispersion"]
-        
-        # EXPERIMENTAL: Try to bias the Voronoi values with the wind factor from the dispersion engine?
-        # For now, just returning the working Voronoi map is critical.
+    if is_dynamic:
+        # For Dynamic: Use the self-contained dispersion and plan from emissions engine
+        final_dispersion = emissions_disp
+        final_optimization = emissions_resp.get("optimization_plan", optimization_resp)
     else:
-        # Fallback to Static Grids (dispersion_resp)
+        # For Static: Use the dispersion engine results (enriched with GIS geoms)
         final_dispersion = dispersion_resp
+        final_optimization = optimization_resp
+        
+        # SCHEMA UNIFICATION: ResultsPanel expects 'expected_reduction'
+        if final_optimization and "plan" in final_optimization:
+            for item in final_optimization["plan"]:
+                if "gain" in item and "expected_reduction" not in item:
+                    item["expected_reduction"] = item["gain"]
 
     return {
         "weather": weather,
         "emissions": emissions_resp,
         "dispersion": final_dispersion,
-        "optimization_plan": optimization_resp,
+        "optimization_plan": final_optimization,
         "sentiment": sentiment
     }
 
