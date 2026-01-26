@@ -84,12 +84,31 @@ def run_optimization(budget: float):
 
 
 def run_interventions(interventions: list):
-    r = requests.post(
-        f"{INTERVENTION_ENGINE_URL}/interventions",
-        json={"interventions": interventions}
-    )
-    r.raise_for_status()
-    return r.json()
+    try:
+        r = requests.post(
+            f"{INTERVENTION_ENGINE_URL}/interventions",
+            json={"interventions": interventions}
+        )
+        r.raise_for_status()
+        data = r.json()
+        
+        # Enrich with geometries for map rendering
+        geoms = fetch_grid_geometries()
+        if geoms:
+            # Result usually has a 'grids' or list structure. Adjust based on intervention service.
+            # Assuming data is list of grids or data['results']
+            results = data if isinstance(data, list) else data.get("results", [])
+            for res in results:
+                gid = res.get("grid_id")
+                if gid in geoms:
+                    res["geometry"] = {
+                        "type": "Polygon",
+                        "coordinates": [geoms[gid]]
+                    }
+        return data
+    except Exception as e:
+        print(f"Intervention Run Failed: {e}")
+        return []
 
 
 def get_gee_co2(lat: float, lon: float):

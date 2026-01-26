@@ -10,8 +10,37 @@ from app.services.orchestrator import (
     analyze_scenario,
     get_market_pulse
 )
+from app.services.orchestrator import (
+    run_emissions,
+    run_dispersion,
+    run_optimization,
+    run_interventions,
+    get_gee_co2,
+    init_simulation,
+    analyze_scenario,
+    get_market_pulse
+)
 import os
 from fastapi import Query
+
+def _get_mitigation_map(plan_data):
+    """Helper to run interventions and get the visual map data"""
+    if not plan_data or "plan" not in plan_data:
+        return []
+    
+    interventions = [
+        {
+            "grid_id": item["grid_id"],
+            "type": item["intervention"],
+            "units": item["units"]
+        }
+        for item in plan_data["plan"]
+    ]
+    
+    if not interventions:
+        return []
+        
+    return run_interventions(interventions)
 
 router = APIRouter(prefix="/scenario", tags=["Scenario"])
 
@@ -80,12 +109,18 @@ def compare_scenarios(payload: ComparisonRequest):
             "scenario_a": {
                 "budget": payload.scenario_a_budget,
                 "impact": plan_a.get("total_reduction", 0) if plan_a else 0,
-                "plan": plan_a
+                "plan": {
+                    **plan_a,
+                    "post_mitigation": _get_mitigation_map(plan_a)
+                }
             },
             "scenario_b": {
                 "budget": payload.scenario_b_budget,
                 "impact": plan_b.get("total_reduction", 0) if plan_b else 0,
-                "plan": plan_b
+                "plan": {
+                    **plan_b,
+                    "post_mitigation": _get_mitigation_map(plan_b)
+                }
             },
             "insight": f"Scenario B reduces {(plan_b.get('total_reduction', 0) - plan_a.get('total_reduction', 0)):.2f} more units of AQI."
         }
