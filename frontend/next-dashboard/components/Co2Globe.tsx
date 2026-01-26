@@ -177,31 +177,44 @@ const ImmersiveVisuals = () => {
         // 4. Load 3D Assets (Terrain & Buildings)
         const loadAssets = async () => {
             try {
-                // Dynamically import the creators to avoid SSR/build issues
-                const { createWorldTerrainAsync, createOsmBuildingsAsync } = await import("cesium");
+                // Dynamically import the entire Cesium module to inspect available exports
+                const Cesium = await import("cesium");
 
-                // World Terrain
-                const terrainProvider = await createWorldTerrainAsync();
-                viewer.terrainProvider = terrainProvider;
+                // Fallback to older sync method or skip if async creator is missing
+                let terrainProvider;
+                if (Cesium.createWorldTerrainAsync) {
+                    terrainProvider = await Cesium.createWorldTerrainAsync();
+                } else {
+                    console.warn("createWorldTerrainAsync not found, skipping terrain.");
+                    // Optional: terrainProvider = Cesium.createWorldTerrain(); // logic for older versions if needed
+                }
 
-                // 3D OSM Buildings
-                const tileset = await createOsmBuildingsAsync();
+                if (terrainProvider) {
+                    viewer.terrainProvider = terrainProvider;
+                }
 
-                // Solarpunk Styling: Dark base with neon highlights
-                tileset.style = new Cesium3DTileStyle({
-                    color: {
-                        conditions: [
-                            ["defined(${height}) === false", "color('rgba(255, 255, 255, 0.1)')"],
-                            ["${height} > 100", "color('rgba(16, 185, 129, 0.5)')"],
-                            ["${height} > 50", "color('rgba(16, 185, 129, 0.3)')"],
-                            ["true", "color('rgba(255, 255, 255, 0.1)')"]
-                        ]
-                    }
-                });
+                if (Cesium.createOsmBuildingsAsync) {
+                    const tileset = await Cesium.createOsmBuildingsAsync();
 
-                viewer.scene.primitives.add(tileset);
-            } catch (error) {
-                console.error("Failed to load immersive assets:", error);
+                    // Solarpunk Styling: Dark base with neon highlights
+                    tileset.style = new Cesium.Cesium3DTileStyle({
+                        color: {
+                            conditions: [
+                                ["defined(${height}) === false", "color('rgba(255, 255, 255, 0.1)')"],
+                                ["${height} > 100", "color('rgba(16, 185, 129, 0.5)')"],
+                                ["${height} > 50", "color('rgba(16, 185, 129, 0.3)')"],
+                                ["true", "color('rgba(255, 255, 255, 0.1)')"]
+                            ]
+                        }
+                    });
+
+                    viewer.scene.primitives.add(tileset);
+                } else {
+                    console.warn("createOsmBuildingsAsync not found, skipping 3D buildings.");
+                }
+
+            } catch (error: any) {
+                console.error("Failed to load immersive assets (detailed):", error, error.message, error.stack);
             }
         };
 
