@@ -130,8 +130,24 @@ def run_full_simulation(lat, lon, budget, initial_aqi=None):
     # 5. Calculate Social Sentiment
     sentiment = calculate_sentiment(optimization_resp)
     
-    # 6. Fallback: If dispersion is empty (e.g. out of city bounds), use emissions response
-    # This ensures that spot simulations (Voronoi) still show up
+    # 6. Fallback: Geometry and Data Merge
+    # Scenario A: Local Map (GIS Rectangles) - dispersion_resp usually has grid_ids
+    # Scenario B: Spot Simulation (Voronoi) - emissions_resp has the polygons
+    
+    # Map geometries from emissions_resp for easy lookup
+    fallback_geoms = {}
+    if emissions_resp.get("dispersion", {}).get("results"):
+        for r in emissions_resp["dispersion"]["results"]:
+            if r.get("geometry"):
+                fallback_geoms[r["grid_id"]] = r["geometry"]
+
+    # Ensure every dispersion result has a geometry if we have it
+    for res in dispersion_resp.get("results", []):
+        gid = res.get("grid_id")
+        if not res.get("geometry") and gid in fallback_geoms:
+            res["geometry"] = fallback_geoms[gid]
+
+    # If dispersion is empty (out of city bounds), use emissions response entirely
     if not dispersion_resp.get("results") and emissions_resp.get("dispersion", {}).get("results"):
         dispersion_resp = emissions_resp["dispersion"]
 
