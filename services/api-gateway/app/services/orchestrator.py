@@ -127,34 +127,29 @@ def run_full_simulation(lat, lon, budget, initial_aqi=None):
     # 4. Run Optimization
     optimization_resp = run_optimization(budget)
     
-    # 5. Calculate Social Sentiment
-    sentiment = calculate_sentiment(optimization_resp)
+    # 6. Result Merging Logic
+    # -----------------------
+    # Dynamic Simulation (User Clicked Map) -> Voronoi Cells (from emissions_resp)
+    # Static City Mode (New Delhi) -> Rectangular Grids (from dispersion_resp)
     
-    # 6. Fallback: Geometry and Data Merge
-    # Scenario A: Local Map (GIS Rectangles) - dispersion_resp usually has grid_ids
-    # Scenario B: Spot Simulation (Voronoi) - emissions_resp has the polygons
+    # Check if we have Voronoi results (Dynamic Simulation)
+    voronoi_results = emissions_resp.get("dispersion", {}).get("results", [])
     
-    # Map geometries from emissions_resp for easy lookup
-    fallback_geoms = {}
-    if emissions_resp.get("dispersion", {}).get("results"):
-        for r in emissions_resp["dispersion"]["results"]:
-            if r.get("geometry"):
-                fallback_geoms[r["grid_id"]] = r["geometry"]
-
-    # Ensure every dispersion result has a geometry if we have it
-    for res in dispersion_resp.get("results", []):
-        gid = res.get("grid_id")
-        if not res.get("geometry") and gid in fallback_geoms:
-            res["geometry"] = fallback_geoms[gid]
-
-    # If dispersion is empty (out of city bounds), use emissions response entirely
-    if not dispersion_resp.get("results") and emissions_resp.get("dispersion", {}).get("results"):
-        dispersion_resp = emissions_resp["dispersion"]
+    # If explicit geometries exist in emissions response (Voronoi), prioritize them
+    # This restores the "Desc-001" style visualization for random locations
+    if voronoi_results and len(voronoi_results) > 0 and voronoi_results[0].get("geometry"):
+        final_dispersion = emissions_resp["dispersion"]
+        
+        # EXPERIMENTAL: Try to bias the Voronoi values with the wind factor from the dispersion engine?
+        # For now, just returning the working Voronoi map is critical.
+    else:
+        # Fallback to Static Grids (dispersion_resp)
+        final_dispersion = dispersion_resp
 
     return {
         "weather": weather,
         "emissions": emissions_resp,
-        "dispersion": dispersion_resp,
+        "dispersion": final_dispersion,
         "optimization_plan": optimization_resp,
         "sentiment": sentiment
     }
