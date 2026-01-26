@@ -7,7 +7,8 @@ from app.services.orchestrator import (
     run_interventions,
     get_gee_co2,
     init_simulation,
-    analyze_scenario
+    analyze_scenario,
+    get_market_pulse
 )
 import os
 from fastapi import Query
@@ -121,5 +122,16 @@ def analyze_results(payload: dict):
     """
     try:
         return analyze_scenario(payload)
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.get("/economy/market-pulse")
+def market_pulse():
+    """
+    Get current carbon market prices and trends.
+    """
+    try:
+        return get_market_pulse()
     except Exception as e:
         return {"error": str(e)}

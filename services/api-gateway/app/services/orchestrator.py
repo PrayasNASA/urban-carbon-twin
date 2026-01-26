@@ -99,11 +99,15 @@ def run_full_simulation(lat, lon, budget, initial_aqi=None):
     # 4. Run Optimization
     optimization_resp = run_optimization(budget)
     
+    # 5. Calculate Social Sentiment
+    sentiment = calculate_sentiment(optimization_resp)
+    
     return {
         "weather": weather,
         "emissions": emissions_resp,
         "dispersion": dispersion_resp,
-        "optimization_plan": optimization_resp
+        "optimization_plan": optimization_resp,
+        "sentiment": sentiment
     }
 
 
@@ -142,10 +146,92 @@ def analyze_scenario(results: dict):
         return json.loads(text)
     except Exception as e:
         print(f"Error parsing Gemini response: {e}")
-        return {{
+        return {
             "summary": "AI analysis completed but format was unexpected.",
             "justification": "Analysis suggests the current plan is viable for the defined budget.",
             "insight": "Focus on high-density traffic zones for maximum ROI.",
             "confidence": 0.85,
             "raw_text": response.text
-        }}
+        }
+
+
+def get_market_pulse():
+    """
+    Simulates a dynamic carbon market with price fluctuations and history.
+    """
+    import random
+    import time
+    
+    # Current base price $42.50
+    current_price = 42.50 + random.uniform(-2, 2)
+    
+    # Generate mock history for the last 24 hours
+    history = []
+    now = time.time()
+    for i in range(24):
+        t = now - (24 - i) * 3600
+        # Random walk for history
+        if i == 0:
+            p = 40.0
+        else:
+            p = history[-1]["price"] + random.uniform(-1.5, 1.5)
+        
+        history.append({
+            "timestamp": time.strftime('%H:%M', time.gmtime(t)),
+            "price": round(p, 2)
+        })
+    
+    return {
+        "current_price": round(current_price, 2),
+        "history": history,
+        "market_status": "VOLATILE" if abs(current_price - 42.5) > 1 else "STABLE",
+        "trend": "UP" if current_price > history[-1]["price"] else "DOWN"
+    }
+
+
+def calculate_sentiment(optimization_plan: dict):
+    """
+    Calculates public sentiment based on the chosen interventions.
+    """
+    if "error" in optimization_plan or not optimization_plan.get("plan"):
+        return {"approval": 0.5, "tag": "NEUTRAL", "reason": "No data available."}
+    
+    score = 0.6  # Base approval
+    
+    # Interventions that increase sentiment
+    green_boost = ["Urban Reforestation", "Green Rooftops", "Algae Panels"]
+    # Interventions that might be neutral or slightly intrusive
+    industrial_penalty = ["Carbon Scrubbers", "DAC Modules", "Roadside Capture"]
+    
+    plan = optimization_plan.get("plan", [])
+    for item in plan:
+        iv = item.get("intervention")
+        if any(g in iv for g in green_boost):
+            score += 0.05
+        elif any(i in iv for i in industrial_penalty):
+            score -= 0.02
+            
+    score = max(0.1, min(0.95, score))
+    
+    tags = {
+        (0.8, 1.0): "ENTHUSIASTIC",
+        (0.6, 0.8): "FAVORABLE",
+        (0.4, 0.6): "NEUTRAL",
+        (0.2, 0.4): "SKEPTICAL",
+        (0.0, 0.2): "HOSTILE"
+    }
+    
+    tag = "NEUTRAL"
+    for (low, high), t in tags.items():
+        if low <= score < high:
+            tag = t
+            break
+            
+    return {
+        "approval": round(score, 2),
+        "tag": tag,
+        "metrics": {
+            "eco_index": round(score * 1.2, 2),
+            "disruption_index": round((1-score) * 0.5, 2)
+        }
+    }

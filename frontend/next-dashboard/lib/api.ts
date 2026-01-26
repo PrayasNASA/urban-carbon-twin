@@ -73,3 +73,13 @@ export async function analyzeSimulation(results: any) {
 
   return res.json();
 }
+
+export async function getMarketPulse() {
+  const res = await fetch(`${API_GATEWAY}/scenario/economy/market-pulse`);
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch market pulse");
+  }
+
+  return res.json();
+}

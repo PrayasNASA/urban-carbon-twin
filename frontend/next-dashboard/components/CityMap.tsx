@@ -19,7 +19,7 @@ function MapUpdater({ center }: { center: [number, number] }) {
     return null;
 }
 
-export default function CityMap({ dispersion, optimizationPlan, initialCenter }: { dispersion: any; optimizationPlan?: any; initialCenter?: [number, number] }) {
+export default function CityMap({ dispersion, optimizationPlan, comparisonData, initialCenter }: { dispersion: any; optimizationPlan?: any; comparisonData?: any; initialCenter?: [number, number] }) {
     const grids = dispersion?.results || [];
     const [center, setCenter] = useState<[number, number] | null>(initialCenter || null);
     const [selectedFeature, setSelectedFeature] = useState<any>(null);
@@ -57,6 +57,23 @@ export default function CityMap({ dispersion, optimizationPlan, initialCenter }:
             }))
         };
     }, [grids]);
+
+    const compareGeoJsonData = useMemo(() => {
+        const compareGrids = comparisonData?.scenario_b?.plan?.post_mitigation || [];
+        if (!compareGrids.length) return null;
+        return {
+            type: "FeatureCollection",
+            features: compareGrids.filter((g: any) => g.geometry).map((g: any) => ({
+                type: "Feature",
+                properties: {
+                    id: g.grid_id,
+                    concentration: g.concentration,
+                    ...g
+                },
+                geometry: g.geometry
+            }))
+        };
+    }, [comparisonData]);
 
     const getColor = (val: number) => {
         // AQI Standard Color Scale
@@ -139,16 +156,22 @@ export default function CityMap({ dispersion, optimizationPlan, initialCenter }:
 
                 <MapUpdater center={center} />
 
-                {geoJsonData && (
+                {geoJsonData && !comparisonData && (
                     <GeoJSON
-                        // Force re-render on data change or theme change
                         key={`${optimizationPlan?.simulation_id || grids.length}-${theme}`}
                         data={geoJsonData as any}
                         style={style}
                         onEachFeature={onEachFeature}
-                    >
-                        {/* We use standard popups for now, simple content */}
-                    </GeoJSON>
+                    />
+                )}
+
+                {compareGeoJsonData && comparisonData && (
+                    <GeoJSON
+                        key={`compare-${comparisonData.scenario_b.budget}-${theme}`}
+                        data={compareGeoJsonData as any}
+                        style={style}
+                        onEachFeature={onEachFeature}
+                    />
                 )}
             </MapContainer>
 

@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
+import SentimentGauge from './SentimentGauge';
 
 interface ImpactStatsProps {
     data: any;
@@ -86,6 +87,19 @@ export default function ImpactDashboard({ data, budget }: ImpactStatsProps) {
                     <div className="text-[10px] text-white/30 mt-1 font-bold">GDP Correlation</div>
                 </div>
             </div>
+
+            {/* 5. Social Sentiment Section (NEW) */}
+            {(data?.sentiment) && (
+                <div className="mt-8 pt-6 border-t border-white/5 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h4 className="text-[11px] font-bold text-white uppercase tracking-widest mb-1">Human Acceptance Matrix</h4>
+                        <p className="text-[10px] text-white/30 leading-relaxed max-w-sm">
+                            Real-time analysis of public reaction to intervention density. High industrial concentration may lower approval.
+                        </p>
+                    </div>
+                    <SentimentGauge data={data.sentiment} />
+                </div>
+            )}
         </div>
     );
 }

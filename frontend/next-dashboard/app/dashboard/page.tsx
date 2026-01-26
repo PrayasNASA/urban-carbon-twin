@@ -268,6 +268,7 @@ export default function Dashboard() {
                                         <CityMap
                                             dispersion={data?.dispersion}
                                             optimizationPlan={data?.optimization_plan}
+                                            comparisonData={comparisonData}
                                             initialCenter={globalData?.location ? [globalData.location.lat, globalData.location.lon] : undefined}
                                         />
                                     )}

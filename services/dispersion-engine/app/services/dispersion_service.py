@@ -13,7 +13,7 @@ def fetch_adjacency():
     r = requests.get(f"{GIS_BASE_URL}/city/adjacency")
     r.raise_for_status()
     data = r.json()
-    return data["adjacency"], data.get("centroids", {})
+    return data["adjacency"], data.get("centroids", {}), data.get("obstructions", {})
 
 
 def fetch_emissions():
@@ -25,8 +25,9 @@ def fetch_emissions():
 
 import math
 
-def simulate_dispersion(adjacency, emissions, centroids=None, wind_speed=0, wind_deg=0):
+def simulate_dispersion(adjacency, emissions, centroids=None, wind_speed=0, wind_deg=0, obstructions=None):
     state = emissions.copy()
+    obstructions = obstructions or {}
     
     # Pre-calculate wind vector if wind_speed > 0
     # wind_deg is direction FROM which wind blows. 0=North, 90=East.
@@ -45,6 +46,13 @@ def simulate_dispersion(adjacency, emissions, centroids=None, wind_speed=0, wind
 
             # Base spread
             spread_amount = value * DIFFUSION_FACTOR
+            
+            # 🏙️ Urban Canyon Effect: Buildings obstruct air flow
+            # Higher buildings = higher roughness = lower dispersion rate
+            h_base = obstructions.get(grid_id, 0)
+            # Reduce spread by up to 40% based on building height (capped at 50m)
+            obstruction_multiplier = 1.0 - (min(h_base, 50) / 50) * 0.4
+            spread_amount *= obstruction_multiplier
             
             # Wind influence
             # Neighbor scores based on alignment with wind vector

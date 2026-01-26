@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { getMarketPulse } from '@/lib/api';
 
 interface MarketplacePanelProps {
     credits: number;
@@ -13,16 +14,24 @@ export default function MarketplacePanel({ credits, balance, onSellCredits }: Ma
     const [trend, setTrend] = useState<'up' | 'down'>('up');
     const [history, setHistory] = useState<number[]>(Array(20).fill(45));
 
+
+    const [marketData, setMarketData] = useState<any>(null);
+
     useEffect(() => {
-        const interval = setInterval(() => {
-            setPrice(prev => {
-                const change = (Math.random() - 0.45) * 2;
-                const newPrice = Math.max(20, Object.is(NaN, prev + change) ? 45 : prev + change);
-                setTrend(change > 0 ? 'up' : 'down');
-                setHistory(prevHist => [...prevHist.slice(1), newPrice]);
-                return newPrice;
-            });
-        }, 2000);
+        const fetchMarket = async () => {
+            try {
+                const data = await getMarketPulse();
+                setMarketData(data);
+                setPrice(data.current_price);
+                setTrend(data.trend.toLowerCase() as 'up' | 'down');
+                setHistory(data.history.map((h: any) => h.price));
+            } catch (e) {
+                console.error("Market Sync Error:", e);
+            }
+        };
+
+        fetchMarket(); // Initial
+        const interval = setInterval(fetchMarket, 5000);
         return () => clearInterval(interval);
     }, []);
 
@@ -45,22 +54,25 @@ export default function MarketplacePanel({ credits, balance, onSellCredits }: Ma
             </div>
 
             {/* 2. Live Market Chart */}
-            <div className="relative h-32 w-full bg-black/40 rounded-lg border border-white/5 p-2 flex items-end justify-between gap-1 overflow-hidden">
+            <div className="relative h-32 w-full bg-black/40 rounded-lg border border-white/5 p-2 flex items-end justify-between gap-0.5 overflow-hidden">
                 <div className="absolute inset-0 border-t border-white/5 top-1/2 left-0 right-0 pointer-events-none" />
                 {history.map((h, i) => {
-                    const height = ((h - 20) / 60) * 100;
+                    const min = Math.min(...history);
+                    const max = Math.max(...history);
+                    const range = max - min || 10;
+                    const height = ((h - min) / range) * 80 + 10;
                     return (
                         <div
                             key={i}
-                            className={`w-full rounded-sm transition-all duration-500 ${i === history.length - 1 ? 'bg-amber-400' : 'bg-white/10'}`}
-                            style={{ height: `${Math.max(5, height)}%` }}
+                            className={`w-full rounded-t-sm transition-all duration-700 ${i === history.length - 1 ? 'bg-amber-400' : 'bg-emerald-500/20 group-hover:bg-emerald-500/40'}`}
+                            style={{ height: `${height}%` }}
                         />
                     );
                 })}
-                <div className="absolute top-2 right-2 flex flex-col items-end">
-                    <span className="text-[9px] text-white/40 uppercase tracking-widest font-bold">Spot Price</span>
-                    <div className={`text-lg font-mono font-bold flex items-center gap-1 ${trend === 'up' ? 'text-amber-400' : 'text-rose-400'}`}>
-                        ${price.toFixed(2)}
+                <div className="absolute top-2 right-2 flex flex-col items-end backdrop-blur-md bg-black/20 p-1.5 rounded-md">
+                    <span className="text-[8px] text-white/40 uppercase tracking-widest font-black">Pulse Index</span>
+                    <div className={`text-sm font-mono font-bold flex items-center gap-1 ${trend === 'up' ? 'text-amber-400' : 'text-rose-400'}`}>
+                        {trend === 'up' ? '▲' : '▼'} ${price.toFixed(2)}
                     </div>
                 </div>
             </div>

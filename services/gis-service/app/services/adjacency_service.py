@@ -9,6 +9,7 @@ def build_adjacency(grids: list[Grid]) -> dict[str, list[str]]:
     """
     adjacency: dict[str, list[str]] = {}
     centroids: dict[str, tuple[float, float]] = {g.grid_id: (g.polygon.centroid.x, g.polygon.centroid.y) for g in grids}
+    obstructions: dict[str, float] = {g.grid_id: getattr(g, 'avg_building_height', 0) for g in grids}
 
     # Prepare geometries for faster spatial predicates
     prepared = {g.grid_id: prep(g.polygon) for g in grids}
@@ -29,5 +30,6 @@ def build_adjacency(grids: list[Grid]) -> dict[str, list[str]]:
 
     return {
         "adjacency": adjacency,
-        "centroids": centroids
+        "centroids": centroids,
+        "obstructions": obstructions
     }
