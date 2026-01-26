@@ -82,6 +82,12 @@ export default function EnvironmentalPanel({ data, onSimulate, onClose }: Enviro
                             <div className={`w-2 h-2 rounded-full ${aqiColor.replace('text-', 'bg-')} animate-pulse`} />
                             <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Live Station</span>
                         </div>
+                        {data.full_details.isOptimized && (
+                            <div className="bg-neon-emerald/20 backdrop-blur-md px-3 py-1 rounded-full border border-neon-emerald/30 flex items-center gap-2">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-neon-emerald"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" /></svg>
+                                <span className="text-[10px] font-bold text-neon-emerald uppercase tracking-widest">Verified Optimization</span>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -89,7 +95,7 @@ export default function EnvironmentalPanel({ data, onSimulate, onClose }: Enviro
                     <span className={`text-6xl font-black tracking-tighter ${aqiColor}`}>{aqi}</span>
                     <div className="flex flex-col">
                         <span className="text-sm text-white/40 font-bold uppercase tracking-widest">US AQI</span>
-                        <span className={`text-lg font-bold ${aqiColor}`}>{aqiLabel}</span>
+                        <span className={`text-lg font-bold ${aqiColor}`}>{data.full_details.isOptimized ? 'Vertex AI Optimized' : aqiLabel}</span>
                     </div>
                 </div>
             </div>

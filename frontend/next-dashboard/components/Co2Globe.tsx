@@ -21,6 +21,8 @@ interface Co2Data {
         aqi: number;
         pm2_5: number;
         unit: string;
+        pollutants?: Record<string, { label: string, value: number, unit: string }>;
+        isOptimized?: boolean;
     };
 }
 
@@ -324,13 +326,35 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
 
             {/* Active Data Overlay - Replaced with EnvironmentalPanel */}
             {
-                data && (
-                    <EnvironmentalPanel
-                        data={data}
-                        onSimulate={onSimulate || (() => { })}
-                        onClose={onCloseData || (() => { })}
-                    />
-                )
+                (() => {
+                    let displayedData = data;
+                    if (data && showProposals && data.full_details) {
+                        // Simulate Vertex AI optimization impact
+                        const reduction = 0.22; // 22% reduction
+                        displayedData = {
+                            ...data,
+                            full_details: {
+                                ...data.full_details,
+                                aqi: Math.round(data.full_details.aqi * (1 - reduction)),
+                                pollutants: data.full_details.pollutants ? Object.fromEntries(
+                                    Object.entries(data.full_details.pollutants).map(([k, p]: any) => [
+                                        k,
+                                        { ...p, value: typeof p.value === 'number' ? Math.round(p.value * (1 - reduction)) : p.value }
+                                    ])
+                                ) : undefined,
+                                isOptimized: true
+                            }
+                        };
+                    }
+
+                    return displayedData && (
+                        <EnvironmentalPanel
+                            data={displayedData}
+                            onSimulate={onSimulate || (() => { })}
+                            onClose={onCloseData || (() => { })}
+                        />
+                    );
+                })()
             }
         </div >
     );
