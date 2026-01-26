@@ -249,7 +249,7 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
             </Viewer>
 
             {/* Static overlay */}
-            <div className="absolute top-6 left-6 z-50 bg-black/40 backdrop-blur-xl p-5 rounded-2xl border border-white/10 shadow-2xl pointer-events-none">
+            <div className="absolute top-6 left-6 z-50 bg-black/40 backdrop-blur-xl p-5 rounded-2xl border border-white/10 shadow-2xl">
                 <h3 className="text-white font-medium text-sm tracking-wide">
                     {simultaneousView ? 'Multi-Pollutant Analysis' : 'Global Sensor Network'}
                 </h3>
