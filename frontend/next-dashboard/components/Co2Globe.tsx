@@ -194,21 +194,26 @@ const ImmersiveVisuals = () => {
                 }
 
                 if (Cesium.createOsmBuildingsAsync) {
-                    const tileset = await Cesium.createOsmBuildingsAsync();
+                    try {
+                        const tileset = await Cesium.createOsmBuildingsAsync();
 
-                    // Solarpunk Styling: Dark base with neon highlights
-                    tileset.style = new Cesium.Cesium3DTileStyle({
-                        color: {
-                            conditions: [
-                                ["defined(${height}) === false", "color('rgba(255, 255, 255, 0.1)')"],
-                                ["${height} > 100", "color('rgba(16, 185, 129, 0.5)')"],
-                                ["${height} > 50", "color('rgba(16, 185, 129, 0.3)')"],
-                                ["true", "color('rgba(255, 255, 255, 0.1)')"]
-                            ]
-                        }
-                    });
+                        // Solarpunk Styling: Dark base with neon highlights
+                        // Using simpler compatibility-first expressions
+                        tileset.style = new Cesium.Cesium3DTileStyle({
+                            color: {
+                                conditions: [
+                                    ["${height} === undefined || ${height} === null", "color('rgba(255, 255, 255, 0.1)')"],
+                                    ["${height} > 100", "color('rgba(16, 185, 129, 0.5)')"],
+                                    ["${height} > 50", "color('rgba(16, 185, 129, 0.3)')"],
+                                    ["true", "color('rgba(255, 255, 255, 0.1)')"]
+                                ]
+                            }
+                        });
 
-                    viewer.scene.primitives.add(tileset);
+                        viewer.scene.primitives.add(tileset);
+                    } catch (tilesetError) {
+                        console.warn("Failed to apply 3D building tileset:", tilesetError);
+                    }
                 } else {
                     console.warn("createOsmBuildingsAsync not found, skipping 3D buildings.");
                 }
