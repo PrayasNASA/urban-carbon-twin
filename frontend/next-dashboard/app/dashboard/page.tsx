@@ -18,6 +18,7 @@ const MarketplacePanel = dynamic(() => import("@/components/MarketplacePanel"), 
 const DynamicScenarioPanel = dynamic(() => import("@/components/ScenarioPanel"), { ssr: false });
 const ImpactDashboard = dynamic(() => import("@/components/ImpactDashboard"), { ssr: false });
 const GlobalLeaderboard = dynamic(() => import("@/components/GlobalLeaderboard"), { ssr: false });
+const PolicySandbox = dynamic(() => import("@/components/PolicySandbox"), { ssr: false });
 
 
 if (typeof window !== "undefined") {
@@ -36,6 +37,7 @@ export default function Dashboard() {
     const [showMarketplace, setShowMarketplace] = useState(false);
     const [credits, setCredits] = useState(1250); // Initial seed credits
     const [balance, setBalance] = useState(50000); // Initial budget
+    const [policyImpact, setPolicyImpact] = useState(0);
 
     const handleSellCredits = (amount: number, price: number) => {
         if (credits >= amount) {
@@ -204,7 +206,6 @@ export default function Dashboard() {
                                         budget={balance}
                                         setBudget={setBalance}
                                         idealBudget={idealBudget}
-                                        onSimulate={handleDeploy}
                                     />
                                 </div>
                             </div>
@@ -280,9 +281,10 @@ export default function Dashboard() {
                         </section>
                     </div>
 
-                    {/* 📽️ Tier 2: Deployment Matrix (Full-Width) */}
-                    <div className="w-full">
-                        <div className="glass-panel p-8 flex flex-col gap-8">
+                    {/* 📽️ Tier 2: Deployment Matrix & Policy Sandbox */}
+                    <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-10">
+                        {/* Deployment Matrix */}
+                        <div className="lg:col-span-8 glass-panel p-8 flex flex-col gap-8">
                             <div className="flex items-center justify-between border-b border-white/5 pb-6">
                                 <div>
                                     <h3 className="text-lg font-bold text-white uppercase tracking-widest">Deployment Matrix</h3>
@@ -290,13 +292,33 @@ export default function Dashboard() {
                                 </div>
                                 <div className="flex items-center gap-4 text-[10px] font-mono font-bold text-neon-emerald">
                                     <span className="bg-neon-emerald/10 px-3 py-1.5 rounded-md border border-neon-emerald/20">SOLVER_V4.2</span>
-                                    <span className="bg-white/5 px-3 py-1.5 rounded-md border border-white/10 text-white/40 uppercase">Target: Carbon Neutral 2040</span>
+                                    {policyImpact > 0 && (
+                                        <div className="flex items-center gap-2 bg-blue-500/10 px-3 py-1.5 rounded-md border border-blue-500/20 text-blue-400 uppercase">
+                                            <span>Policy: -{policyImpact.toFixed(1)}%</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             <ResultsPanel optimization={data?.optimization_plan} />
 
                             {/* ROI & Impact Analytics */}
                             <ImpactDashboard data={data} budget={balance} />
+                        </div>
+
+                        {/* Policy Sandbox - Moved here for better logical flow */}
+                        <div className="lg:col-span-4 glass-panel p-8">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-lg font-bold text-white uppercase tracking-widest">Policy Sandbox</h3>
+                                <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                            </div>
+                            <PolicySandbox onUpdateImpact={setPolicyImpact} />
+
+                            {policyImpact > 0 && (
+                                <div className="mt-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/30">
+                                    <div className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">BigQuery ML Projection</div>
+                                    <div className="text-2xl font-black text-white">-{policyImpact.toFixed(1)}% <span className="text-sm font-normal text-white/40 italic ml-1">CO₂ Reduction</span></div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
