@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { Cartesian3, Color, ScreenSpaceEventType, Cartographic, Math as CesiumMath, ScreenSpaceEventHandler, createOsmBuildingsAsync, createWorldTerrainAsync, Fog, CallbackProperty, PostProcessStage, Cesium3DTileStyle } from "cesium";
+import { Cartesian3, Color, ScreenSpaceEventType, Cartographic, Math as CesiumMath, ScreenSpaceEventHandler, Fog, CallbackProperty, PostProcessStage, Cesium3DTileStyle } from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import { useCesium } from "resium";
 
@@ -177,6 +177,9 @@ const ImmersiveVisuals = () => {
         // 4. Load 3D Assets (Terrain & Buildings)
         const loadAssets = async () => {
             try {
+                // Dynamically import the creators to avoid SSR/build issues
+                const { createWorldTerrainAsync, createOsmBuildingsAsync } = await import("cesium");
+
                 // World Terrain
                 const terrainProvider = await createWorldTerrainAsync();
                 viewer.terrainProvider = terrainProvider;
