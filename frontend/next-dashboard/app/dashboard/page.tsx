@@ -51,14 +51,12 @@ export default function Dashboard() {
         setError(null);
         setComparisonData(null);
         try {
-            // If we are in Global View mode (or have global data loaded), assume we want to re-run the LIVE simulation
             if (globalData) {
                 const initialAqi = globalData?.full_details?.aqi || 50;
                 const result = await initializeSimulation(globalData.location.lat, globalData.location.lon, budget, initialAqi);
                 setData(result);
-                setCompareMode(false); // Switch to map view
+                setCompareMode(false);
             }
-            // Fallback for "Local Grid" mode (Legacy/Mock)
             else if (compareMode) {
                 const result = await compareScenarios(budget, budget * 2);
                 if (result.error) {
@@ -68,7 +66,6 @@ export default function Dashboard() {
                     setComparisonData(result);
                 }
             } else {
-                // Fallback if no global data is present (should rarely happen in non-compare mode now)
                 const result = await runScenario(budget);
                 if (result.optimization_plan?.error) {
                     setError(`Backend Error: ${result.optimization_plan.error}`);
@@ -85,27 +82,16 @@ export default function Dashboard() {
         }
     }
 
-    // Placeholder for handleDeploy, if it's meant to be used by ScenarioPanel
-    const handleDeploy = () => {
-        console.log("Deploy action triggered (placeholder)");
-    };
-
-    // New handler for Global View interactions
     const [globalData, setGlobalData] = useState<any>(null);
 
     async function handleGlobalSelect(lat: number, lon: number) {
-        setLoading(true); // Reuse loading or create specific one
+        setLoading(true);
         try {
-            // Using API Gateway instead of hardcoded localhost
             const res = await fetch(`${API_GATEWAY}/scenario/gee/co2?lat=${lat}&lon=${lon}`);
             if (!res.ok) throw new Error("GEE Fetch Failed");
             const json = await res.json();
-            if (json.error) {
-                throw new Error(json.error);
-            }
+            if (json.error) throw new Error(json.error);
 
-            // MOCK ENRICHMENT FOR PHASE 1
-            // Adding simulated multi-pollutant data until backend supports it
             if (json.full_details && !json.full_details.pollutants) {
                 json.full_details.pollutants = {
                     co2: { label: 'CO2', value: 420 + Math.floor(Math.random() * 50), unit: 'ppm' },
@@ -114,12 +100,9 @@ export default function Dashboard() {
                     methane: { label: 'CH₄', value: (1.8 + Math.random()).toFixed(2), unit: 'ppm' }
                 };
             }
-
             setGlobalData(json);
         } catch (e: any) {
             console.error(e);
-            // Show non-blocking toast or alert? reuse error state for now
-            // setError(`GEE Error: ${e.message}`); // Maybe too intrusive if just browsing
         } finally {
             setLoading(false);
         }
@@ -131,7 +114,7 @@ export default function Dashboard() {
             setError(null);
             try {
                 const initialAqi = globalData?.full_details?.aqi || 50;
-                const result = await initializeSimulation(globalData.location.lat, globalData.location.lon, balance, initialAqi); // Use balance as budget
+                const result = await initializeSimulation(globalData.location.lat, globalData.location.lon, balance, initialAqi);
                 setData(result);
                 setCompareMode(false);
             } catch (err) {
@@ -186,7 +169,6 @@ export default function Dashboard() {
 
                     {/* 🏗️ Tier 1: Core Simulation Workspace */}
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-stretch">
-                        {/* Parameters Sidebar */}
                         <aside className="md:col-span-3 flex flex-col gap-8">
                             <div className="glass-panel p-8 space-y-6 flex-1">
                                 <div className="flex items-center justify-between">
@@ -198,7 +180,6 @@ export default function Dashboard() {
                                         {compareMode ? 'LOCAL_GRID' : 'GLOBAL_VIEW'}
                                     </button>
                                 </div>
-                                {/* Scenario Panel Logic moved to grid, fixed layout */}
                                 <div className="mt-4">
                                     <DynamicScenarioPanel
                                         onRun={handleRunSimulation}
@@ -209,30 +190,18 @@ export default function Dashboard() {
                                     />
                                 </div>
                             </div>
-
-                            {/* 5. Global Leaderboard */}
                             <GlobalLeaderboard />
-
                             {error && (
-                                <motion.div
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    className="bg-soft-amber/10 border border-soft-amber/30 rounded-2xl p-6 flex gap-4"
-                                >
-                                    <div className="text-soft-amber shrink-0 mt-0.5">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                                            <circle cx="12" cy="12" r="10" /><path d="M12 8v4" /><path d="M12 16h.01" />
-                                        </svg>
-                                    </div>
+                                <div className="bg-soft-amber/10 border border-soft-amber/30 rounded-2xl p-6 flex gap-4">
+                                    <div className="text-soft-amber shrink-0 mt-0.5 font-bold">!</div>
                                     <div>
                                         <p className="text-[11px] font-bold text-soft-amber uppercase tracking-tight">System Alert</p>
                                         <p className="text-[12px] text-soft-amber/80 mt-2 leading-relaxed font-medium">{error}</p>
                                     </div>
-                                </motion.div>
+                                </div>
                             )}
                         </aside>
 
-                        {/* Spatial Grid (Expanded Map) */}
                         <section className="md:col-span-9 flex flex-col gap-8 h-full">
                             <div className="glass-panel p-2 overflow-hidden h-full min-h-[600px] flex flex-col">
                                 <div className="p-6 flex items-center justify-between">
@@ -269,7 +238,6 @@ export default function Dashboard() {
                                             simultaneousView={showSimultaneousView}
                                         />
                                     ) : (
-                                        // Using CityMap instead of CityGrid for Real Map visualization
                                         <CityMap
                                             dispersion={data?.dispersion}
                                             optimizationPlan={data?.optimization_plan}
@@ -281,9 +249,8 @@ export default function Dashboard() {
                         </section>
                     </div>
 
-                    {/* 📽️ Tier 2: Deployment Matrix & Policy Sandbox */}
+                    {/* 📽️ Tier 2: Deployment Matrix & Strategic Hub */}
                     <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-10">
-                        {/* Deployment Matrix */}
                         <div className="lg:col-span-8 glass-panel p-8 flex flex-col gap-8">
                             <div className="flex items-center justify-between border-b border-white/5 pb-6">
                                 <div>
@@ -294,78 +261,76 @@ export default function Dashboard() {
                                     <span className="bg-neon-emerald/10 px-3 py-1.5 rounded-md border border-neon-emerald/20">SOLVER_V4.2</span>
                                     {policyImpact > 0 && (
                                         <div className="flex items-center gap-2 bg-blue-500/10 px-3 py-1.5 rounded-md border border-blue-500/20 text-blue-400 uppercase">
-                                            <span>Policy: -{policyImpact.toFixed(1)}%</span>
+                                            <span>Policy Impact: -{policyImpact.toFixed(1)}%</span>
                                         </div>
                                     )}
                                 </div>
                             </div>
                             <ResultsPanel optimization={data?.optimization_plan} />
-
-                            {/* ROI & Impact Analytics */}
                             <ImpactDashboard data={data} budget={balance} />
                         </div>
 
-                        {/* Policy Sandbox - Moved here for better logical flow */}
-                        <div className="lg:col-span-4 glass-panel p-8">
-                            <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-lg font-bold text-white uppercase tracking-widest">Policy Sandbox</h3>
+                        {/* Strategic Hub (Economics + Policies) */}
+                        <div className="lg:col-span-4 glass-panel p-8 flex flex-col gap-8">
+                            <div className="flex items-center justify-between mb-2">
+                                <h3 className="text-lg font-bold text-white uppercase tracking-widest">Strategic Hub</h3>
                                 <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
                             </div>
-                            <PolicySandbox onUpdateImpact={setPolicyImpact} />
 
-                            {policyImpact > 0 && (
-                                <div className="mt-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/30">
-                                    <div className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">BigQuery ML Projection</div>
-                                    <div className="text-2xl font-black text-white">-{policyImpact.toFixed(1)}% <span className="text-sm font-normal text-white/40 italic ml-1">CO₂ Reduction</span></div>
+                            {/* Consolidated Financials */}
+                            <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5">
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Total Capital</span>
+                                    <span className="text-2xl font-light text-white tabular-nums">${balance.toLocaleString()}</span>
                                 </div>
-                            )}
+                                <button
+                                    onClick={() => setShowMarketplace(!showMarketplace)}
+                                    className={`flex items-center gap-2 px-4 py-3 rounded-lg border transition-all ${showMarketplace
+                                        ? 'bg-amber-400 text-black border-amber-400 font-bold'
+                                        : 'bg-black/40 text-white/60 border-white/10 hover:text-white hover:bg-white/10'
+                                        }`}
+                                >
+                                    <div className={`w-1.5 h-1.5 rounded-full ${showMarketplace ? 'bg-black' : 'bg-amber-400'} animate-pulse`} />
+                                    <span className="text-[10px] font-bold uppercase tracking-widest">Carbon Market</span>
+                                </button>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-2 border-b border-white/5 pb-2">
+                                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">Policy Simulation</span>
+                                </div>
+                                <PolicySandbox onUpdateImpact={setPolicyImpact} />
+                                {policyImpact > 0 && (
+                                    <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/30">
+                                        <div className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">BigQuery ML Projection</div>
+                                        <div className="text-2xl font-black text-white">-{policyImpact.toFixed(1)}% <span className="text-sm font-normal text-white/40 italic ml-1">CO₂</span></div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Solarpunk Footer */}
                 <footer className="mt-12 border-t border-white/5 py-12 bg-black/20 backdrop-blur-md">
                     <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-8">
                         <div className="flex flex-col gap-2">
                             <p className="text-[12px] text-neon-emerald font-bold tracking-[0.2em] uppercase">© 2026 Urban Carbon Twin • Earth-First Simulation</p>
                             <p className="text-[10px] text-white/40 font-medium max-w-md">Bridging the gap between terrestrial environmental science and high-frequency urban planning tech.</p>
                         </div>
-                        <div className="flex items-center gap-12 font-mono">
+                        <div className="flex items-center gap-12 font-mono text-[11px] font-bold uppercase">
                             <div className="flex flex-col items-end">
-                                <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.3em]">System Entropy</span>
-                                <span className="text-[11px] font-bold text-neon-emerald">0.0042_LOW</span>
+                                <span className="text-white/30">System Entropy</span>
+                                <span className="text-neon-emerald">0.0042_LOW</span>
                             </div>
-                            <div className="flex flex-col items-end border-l border-white/10 pl-12">
-                                <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.3em]">GCP</span>
-                                <span className="text-[11px] font-bold text-white/50">PRAYAS</span>
+                            <div className="flex flex-col items-end border-l border-white/10 pl-12 text-white/50">
+                                <span>GCP</span>
+                                <span>PRAYAS</span>
                             </div>
                         </div>
                     </div>
                 </footer>
             </section>
 
-            {/* OVERLAYS & CONTROLS (Rendered Outside Footer/Section flow) */}
-
-            {/* 1. Marketplace Toggle (Top Right) */}
-            <div className="absolute top-12 right-6 z-50 flex items-center gap-4">
-                <button
-                    onClick={() => setShowMarketplace(!showMarketplace)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${showMarketplace
-                        ? 'bg-amber-400 text-black border-amber-400 font-bold'
-                        : 'bg-black/40 text-white/60 border-white/10 hover:text-white hover:bg-white/10'
-                        }`}
-                >
-                    <div className={`w-2 h-2 rounded-full ${showMarketplace ? 'bg-black' : 'bg-amber-400'} animate-pulse`} />
-                    <span className="text-xs font-bold uppercase tracking-widest">Carbon Market</span>
-                </button>
-
-                <div className="flex flex-col items-end bg-black/40 px-3 py-1 rounded-lg border border-white/5">
-                    <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Total Capital</span>
-                    <span className="text-xl font-light text-white tabular-nums">${balance.toLocaleString()}</span>
-                </div>
-            </div>
-
-            {/* 2. Marketplace Panel */}
             <MarketplacePanel
                 show={showMarketplace}
                 onClose={() => setShowMarketplace(false)}
@@ -373,9 +338,6 @@ export default function Dashboard() {
                 balance={balance}
                 onSellCredits={handleSellCredits}
             />
-
-            {/* 3. Scenario Controls (Left Panel) - Removed Redundant Absolute Panel */}
-            {/* The active panel is now embedded in the grid layout for better UX */}
         </main>
     );
 }
