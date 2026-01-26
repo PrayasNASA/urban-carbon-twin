@@ -8,6 +8,7 @@ def build_adjacency(grids: list[Grid]) -> dict[str, list[str]]:
     if their polygons touch (edge or corner).
     """
     adjacency: dict[str, list[str]] = {}
+    centroids: dict[str, tuple[float, float]] = {g.grid_id: (g.polygon.centroid.x, g.polygon.centroid.y) for g in grids}
 
     # Prepare geometries for faster spatial predicates
     prepared = {g.grid_id: prep(g.polygon) for g in grids}
@@ -26,4 +27,7 @@ def build_adjacency(grids: list[Grid]) -> dict[str, list[str]]:
 
         adjacency[g1.grid_id] = neighbors
 
-    return adjacency
+    return {
+        "adjacency": adjacency,
+        "centroids": centroids
+    }

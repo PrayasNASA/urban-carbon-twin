@@ -58,3 +58,18 @@ export async function initializeSimulation(lat: number, lon: number, budget: num
   return res.json();
 }
 
+export async function analyzeSimulation(results: any) {
+  const res = await fetch(`${API_GATEWAY}/scenario/analyze`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(results),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to analyze simulation");
+  }
+
+  return res.json();
+}

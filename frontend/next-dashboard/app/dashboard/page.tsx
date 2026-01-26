@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from "framer-motion";
-import { runScenario, compareScenarios, initializeSimulation, API_GATEWAY } from "@/lib/api";
+import { runScenario, compareScenarios, initializeSimulation, API_GATEWAY, analyzeSimulation } from "@/lib/api";
 import ResultsPanel from "@/components/ResultsPanel";
 import HeatmapBackground from "@/components/HeatmapBackground";
 import { Globe } from "lucide-react";
@@ -19,6 +19,8 @@ const DynamicScenarioPanel = dynamic(() => import("@/components/ScenarioPanel"),
 const ImpactDashboard = dynamic(() => import("@/components/ImpactDashboard"), { ssr: false });
 const GlobalLeaderboard = dynamic(() => import("@/components/GlobalLeaderboard"), { ssr: false });
 const PolicySandbox = dynamic(() => import("@/components/PolicySandbox"), { ssr: false });
+const AiStrategyNarrative = dynamic(() => import("@/components/AiStrategyNarrative"), { ssr: false });
+const WeatherWidget = dynamic(() => import("@/components/WeatherWidget"), { ssr: false });
 
 
 if (typeof window !== "undefined") {
@@ -39,6 +41,10 @@ export default function Dashboard() {
     const [balance, setBalance] = useState(50000); // Initial budget
     const [policyImpact, setPolicyImpact] = useState(0);
 
+    // AI State
+    const [aiAnalysis, setAiAnalysis] = useState<any>(null);
+    const [aiLoading, setAiLoading] = useState(false);
+
     const handleSellCredits = (amount: number, price: number) => {
         if (credits >= amount) {
             setCredits(prev => prev - amount);
@@ -56,6 +62,7 @@ export default function Dashboard() {
                 const result = await initializeSimulation(globalData.location.lat, globalData.location.lon, budget, initialAqi);
                 setData(result);
                 setCompareMode(false);
+                handleGetAiAnalysis(result);
             }
             else if (compareMode) {
                 const result = await compareScenarios(budget, budget * 2);
@@ -72,6 +79,7 @@ export default function Dashboard() {
                     setData(null);
                 } else {
                     setData(result);
+                    handleGetAiAnalysis(result);
                 }
             }
         } catch (err) {
@@ -79,6 +87,19 @@ export default function Dashboard() {
             setError("Failed to connect to the Digital Twin API.");
         } finally {
             setLoading(false);
+        }
+    }
+
+    async function handleGetAiAnalysis(simResults: any) {
+        setAiLoading(true);
+        try {
+            const analysis = await analyzeSimulation(simResults);
+            setAiAnalysis(analysis);
+        } catch (err) {
+            console.error("AI Analysis Error:", err);
+            // Don't set error state to avoid blocking main UI
+        } finally {
+            setAiLoading(false);
         }
     }
 
@@ -117,6 +138,7 @@ export default function Dashboard() {
                 const result = await initializeSimulation(globalData.location.lat, globalData.location.lon, balance, initialAqi);
                 setData(result);
                 setCompareMode(false);
+                handleGetAiAnalysis(result);
             } catch (err) {
                 console.error(err);
                 setError("Failed to initialize simulation via backend.");
@@ -145,6 +167,11 @@ export default function Dashboard() {
                         </div>
 
                         <div className="flex items-center gap-6">
+                            {(data?.weather) && (
+                                <div className="hidden xl:block">
+                                    <WeatherWidget data={data.weather} />
+                                </div>
+                            )}
                             <div className="hidden lg:flex items-center gap-4 text-[11px] font-bold uppercase tracking-tight text-emerald-500/40">
                                 <div className="flex items-center gap-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-neon-emerald shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
@@ -248,6 +275,13 @@ export default function Dashboard() {
                             </div>
                         </section>
                     </div>
+
+                    {/* AI Strategy Insights Section */}
+                    {(aiAnalysis || aiLoading) && (
+                        <div className="w-full">
+                            <AiStrategyNarrative analysis={aiAnalysis} loading={aiLoading} />
+                        </div>
+                    )}
 
                     {/* 📽️ Tier 2: Deployment Matrix & Strategic Hub */}
                     <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-10">

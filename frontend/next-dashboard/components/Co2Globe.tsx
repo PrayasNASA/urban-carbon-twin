@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { Cartesian3, Color, ScreenSpaceEventType, Cartographic, Math as CesiumMath, ScreenSpaceEventHandler, createOsmBuildingsAsync, createWorldTerrainAsync, Fog, CallbackProperty } from "cesium";
+import { Cartesian3, Color, ScreenSpaceEventType, Cartographic, Math as CesiumMath, ScreenSpaceEventHandler, createOsmBuildingsAsync, createWorldTerrainAsync, Fog, CallbackProperty, PostProcessStage, Cesium3DTileStyle } from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import { useCesium } from "resium";
 
@@ -11,6 +11,7 @@ import { useCesium } from "resium";
 const Viewer = dynamic(() => import("resium").then((mod) => mod.Viewer), { ssr: false });
 const Entity = dynamic(() => import("resium").then((mod) => mod.Entity), { ssr: false });
 const CameraFlyTo = dynamic(() => import("resium").then((mod) => mod.CameraFlyTo), { ssr: false });
+const PostProcessStageComponent = dynamic(() => import("resium").then((mod) => mod.PostProcessStage), { ssr: false });
 
 interface Co2Data {
     value: number;
@@ -178,6 +179,18 @@ const ImmersiveVisuals = () => {
 
                 // 3D OSM Buildings
                 const tileset = await createOsmBuildingsAsync();
+
+                // Solarpunk Styling: Dark base with neon highlights
+                tileset.style = new Cesium3DTileStyle({
+                    color: {
+                        conditions: [
+                            ["${height} > 100", "color('rgba(16, 185, 129, 0.5)')"],
+                            ["${height} > 50", "color('rgba(16, 185, 129, 0.3)')"],
+                            ["true", "color('rgba(255, 255, 255, 0.1)')"]
+                        ]
+                    }
+                });
+
                 viewer.scene.primitives.add(tileset);
             } catch (error) {
                 console.error("Failed to load immersive assets:", error);
@@ -257,6 +270,21 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
             >
                 <CameraFlyTo destination={targetPos} duration={2} />
                 <ImmersiveVisuals />
+                <PostProcessStageComponent
+                    fragmentShader={`
+                        uniform sampler2D colorTexture;
+                        varying vec2 v_textureCoordinates;
+                        void main() {
+                            vec4 color = texture2D(colorTexture, v_textureCoordinates);
+                            // Simple Bloom-like boost for emerald colors
+                            if (color.g > color.r * 1.5 && color.g > color.b * 1.5) {
+                                color.rgb *= 1.5;
+                            }
+                            gl_FragColor = color;
+                        }
+                    `}
+                    enabled={true}
+                />
                 <Helper onSelect={onSelectLocation} />
                 <GlobalDataPoints show={!!simultaneousView} viewMode={viewMode} />
 

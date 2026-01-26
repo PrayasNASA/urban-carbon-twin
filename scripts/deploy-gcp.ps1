@@ -36,7 +36,7 @@ foreach ($service in $services) {
             --region $REGION `
             --allow-unauthenticated `
             --project $PROJECT_ID `
-            --set-env-vars "GIS_BASE_URL=https://gis-service-owkex2u2ca-uc.a.run.app,EMISSION_ENGINE_URL=https://emission-engine-owkex2u2ca-uc.a.run.app,DISPERSION_ENGINE_URL=https://dispersion-engine-owkex2u2ca-uc.a.run.app,INTERVENTION_ENGINE_URL=https://intervention-engine-owkex2u2ca-uc.a.run.app,OPTIMIZER_ENGINE_URL=https://optimizer-service-owkex2u2ca-uc.a.run.app"
+            --set-env-vars "GIS_BASE_URL=https://gis-service-owkex2u2ca-uc.a.run.app,EMISSION_ENGINE_URL=https://emission-engine-owkex2u2ca-uc.a.run.app,DISPERSION_ENGINE_URL=https://dispersion-engine-owkex2u2ca-uc.a.run.app,INTERVENTION_ENGINE_URL=https://intervention-engine-owkex2u2ca-uc.a.run.app,OPTIMIZER_ENGINE_URL=https://optimizer-service-owkex2u2ca-uc.a.run.app,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=$REGION"
     }
     else {
         gcloud run deploy $service `

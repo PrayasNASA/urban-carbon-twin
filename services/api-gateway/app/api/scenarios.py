@@ -6,7 +6,8 @@ from app.services.orchestrator import (
     run_optimization,
     run_interventions,
     get_gee_co2,
-    init_simulation
+    init_simulation,
+    analyze_scenario
 )
 import os
 from fastapi import Query
@@ -102,11 +103,23 @@ def get_gee_data(lat: float = Query(...), lon: float = Query(...)):
 @router.post("/simulation/initialize")
 def initialize_simulation(payload: dict):
     try:
-        return init_simulation(
+        from app.services.orchestrator import run_full_simulation
+        return run_full_simulation(
             payload.get("lat"), 
             payload.get("lon"), 
             payload.get("budget"),
             payload.get("initial_aqi")
         )
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.post("/analyze")
+def analyze_results(payload: dict):
+    """
+    Get AI-driven insights for a set of simulation results.
+    """
+    try:
+        return analyze_scenario(payload)
     except Exception as e:
         return {"error": str(e)}

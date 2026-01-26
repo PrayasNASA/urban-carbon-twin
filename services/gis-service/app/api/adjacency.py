@@ -9,8 +9,4 @@ router = APIRouter(prefix="/city", tags=["Adjacency"])
 @router.get("/adjacency", response_model=AdjacencySchema)
 def get_grid_adjacency():
     grids = generate_grids()
-    adjacency = build_adjacency(grids)
-
-    return {
-        "adjacency": adjacency
-    }
+    return build_adjacency(grids)
