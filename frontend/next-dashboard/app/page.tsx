@@ -13,9 +13,9 @@ export default function Home() {
     offset: ["start start", "end end"]
   });
 
-  // Transform values for cinematic transition
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
+  // Removed scroll-linked animations to ensure visibility
+  // const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  // const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
 
   return (
     <main
@@ -25,7 +25,7 @@ export default function Home() {
       <HeatmapBackground scrollProgress={scrollYProgress} />
 
       <motion.section
-        style={{ opacity, scale }}
+        style={{ opacity: 1 }}
         className="h-screen w-full flex flex-col items-center justify-center relative z-20"
       >
         <div className="text-center space-y-8 max-w-4xl px-6">
