@@ -295,23 +295,36 @@ export default function Dashboard() {
                                 </button>
                             </div>
 
-                            <div className="space-y-6 relative min-h-[400px]">
+                            <div className="space-y-6 relative min-h-[450px]">
+                                {/* 📑 Strategic Tab Switcher */}
+                                <div className="flex p-1 bg-white/5 rounded-lg border border-white/5">
+                                    <button
+                                        onClick={() => setShowMarketplace(false)}
+                                        className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${!showMarketplace ? 'bg-white text-black shadow-lg' : 'text-white/40 hover:text-white'}`}
+                                    >
+                                        Strategic Policies
+                                    </button>
+                                    <button
+                                        onClick={() => setShowMarketplace(true)}
+                                        className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${showMarketplace ? 'bg-amber-400 text-black shadow-[0_0_15px_rgba(251,191,36,0.3)] font-black' : 'text-white/40 hover:text-white'}`}
+                                    >
+                                        Carbon Exchange
+                                    </button>
+                                </div>
+
                                 <AnimatePresence mode="wait">
                                     {!showMarketplace ? (
                                         <motion.div
                                             key="policy"
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -10 }}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: 10 }}
                                             className="space-y-6"
                                         >
-                                            <div className="flex items-center gap-2 border-b border-white/5 pb-2">
-                                                <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">Policy Simulation</span>
-                                            </div>
                                             <PolicySandbox onUpdateImpact={setPolicyImpact} />
                                             {policyImpact > 0 && (
                                                 <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/30">
-                                                    <div className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">BigQuery ML Projection</div>
+                                                    <div className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">BigQuery Projection</div>
                                                     <div className="text-2xl font-black text-white">-{policyImpact.toFixed(1)}% <span className="text-sm font-normal text-white/40 italic ml-1">CO₂</span></div>
                                                 </div>
                                             )}
@@ -319,13 +332,11 @@ export default function Dashboard() {
                                     ) : (
                                         <motion.div
                                             key="market"
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -10 }}
+                                            initial={{ opacity: 0, x: 10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -10 }}
                                         >
                                             <MarketplacePanel
-                                                show={showMarketplace}
-                                                onClose={() => setShowMarketplace(false)}
                                                 credits={credits}
                                                 balance={balance}
                                                 onSellCredits={handleSellCredits}
