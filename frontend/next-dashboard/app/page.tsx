@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { runScenario, compareScenarios, initializeSimulation, API_GATEWAY } from "@/lib/api";
 import CityGrid from "@/components/CityGrid"; // Keeping for fallback/reference if needed, or we can remove usage
-import ScenarioPanel from "@/components/ScenarioPanel";
+import ScenarioPanel from "@/components/ScenarioPanel"; // This will be replaced by dynamic import later
 import ResultsPanel from "@/components/ResultsPanel";
 import LandingPage from "@/components/LandingPage";
 import HeatmapBackground from "@/components/HeatmapBackground";
@@ -17,6 +17,12 @@ const CityMap = dynamic(() => import("@/components/CityMap"), {
   ssr: false,
   loading: () => <div className="w-full h-full flex items-center justify-center text-white/40 text-xs tracking-widest uppercase">Initializing Map Engine...</div>
 });
+const MarketplacePanel = dynamic(() => import("@/components/MarketplacePanel"), { ssr: false });
+// ScenarioPanel is now dynamically imported to allow for absolute positioning
+const DynamicScenarioPanel = dynamic(() => import("@/components/ScenarioPanel"), { ssr: false });
+const ImpactDashboard = dynamic(() => import("@/components/ImpactDashboard"), { ssr: false });
+const GlobalLeaderboard = dynamic(() => import("@/components/GlobalLeaderboard"), { ssr: false });
+
 
 if (typeof window !== "undefined") {
   (window as any).CESIUM_BASE_URL = "/cesium";
@@ -31,6 +37,11 @@ export default function Home() {
   const [compareMode, setCompareMode] = useState(true);
   const [showSimultaneousView, setShowSimultaneousView] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Marketplace State
+  const [showMarketplace, setShowMarketplace] = useState(false);
+  const [credits, setCredits] = useState(1250); // Initial seed credits
+  const [balance, setBalance] = useState(50000); // Initial budget
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -47,7 +58,14 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  async function handleRun(budget: number) {
+  const handleSellCredits = (amount: number, price: number) => {
+    if (credits >= amount) {
+      setCredits(prev => prev - amount);
+      setBalance(prev => prev + (amount * price));
+    }
+  };
+
+  async function handleRunSimulation(budget: number) {
     setLoading(true);
     setError(null);
     setComparisonData(null);
@@ -86,9 +104,12 @@ export default function Home() {
     }
   }
 
+  // Placeholder for handleDeploy, if it's meant to be used by ScenarioPanel
+  const handleDeploy = () => {
+    console.log("Deploy action triggered (placeholder)");
+  };
 
-
-  const [budget, setBudget] = useState(25000);
+  // const [budget, setBudget] = useState(25000); // Removed local budget state in favor of global balance
 
   // New handler for Global View interactions
   const [globalData, setGlobalData] = useState<any>(null);
@@ -131,7 +152,7 @@ export default function Home() {
       setError(null);
       try {
         const initialAqi = globalData?.full_details?.aqi || 50;
-        const result = await initializeSimulation(globalData.location.lat, globalData.location.lon, budget, initialAqi);
+        const result = await initializeSimulation(globalData.location.lat, globalData.location.lon, balance, initialAqi); // Use balance as budget
         setData(result);
         setCompareMode(false);
       } catch (err) {
@@ -142,6 +163,8 @@ export default function Home() {
       }
     }
   }
+
+  const idealBudget = data?.optimization_plan?.ideal_budget_required;
 
   return (
     <main
@@ -214,14 +237,19 @@ export default function Home() {
                     {compareMode ? 'LOCAL_GRID' : 'GLOBAL_VIEW'}
                   </button>
                 </div>
-                <ScenarioPanel
-                  onRun={handleRun}
+                {/* ScenarioPanel is now rendered as an absolute positioned component */}
+                <DynamicScenarioPanel
+                  onRun={handleRunSimulation}
                   loading={loading}
-                  budget={budget}
-                  setBudget={setBudget}
-                  idealBudget={data?.optimization_plan?.ideal_budget_required}
+                  budget={balance} // Pass the dynamic balance
+                  setBudget={setBalance}
+                  idealBudget={idealBudget}
+                  onSimulate={handleDeploy}
                 />
               </div>
+
+              {/* 5. Global Leaderboard */}
+              <GlobalLeaderboard />
 
               {error && (
                 <motion.div
@@ -305,6 +333,9 @@ export default function Home() {
                 </div>
               </div>
               <ResultsPanel optimization={data?.optimization_plan} />
+
+              {/* ROI & Impact Analytics */}
+              <ImpactDashboard data={data} budget={balance} />
             </div>
           </div>
         </div>
@@ -329,6 +360,48 @@ export default function Home() {
           </div>
         </footer>
       </motion.section>
-    </main>
+
+      {/* OVERLAYS & CONTROLS (Rendered Outside Footer/Section flow) */}
+
+      {/* 1. Marketplace Toggle (Top Right) */}
+      <div className="absolute top-12 right-6 z-50 flex items-center gap-4">
+        <button
+          onClick={() => setShowMarketplace(!showMarketplace)}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${showMarketplace
+            ? 'bg-amber-400 text-black border-amber-400 font-bold'
+            : 'bg-black/40 text-white/60 border-white/10 hover:text-white hover:bg-white/10'
+            }`}
+        >
+          <div className={`w-2 h-2 rounded-full ${showMarketplace ? 'bg-black' : 'bg-amber-400'} animate-pulse`} />
+          <span className="text-xs font-bold uppercase tracking-widest">Carbon Market</span>
+        </button>
+
+        <div className="flex flex-col items-end bg-black/40 px-3 py-1 rounded-lg border border-white/5">
+          <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Total Capital</span>
+          <span className="text-xl font-light text-white tabular-nums">${balance.toLocaleString()}</span>
+        </div>
+      </div>
+
+      {/* 2. Marketplace Panel */}
+      <MarketplacePanel
+        show={showMarketplace}
+        onClose={() => setShowMarketplace(false)}
+        credits={credits}
+        balance={balance}
+        onSellCredits={handleSellCredits}
+      />
+
+      {/* 3. Scenario Controls (Left Panel) */}
+      <div className="absolute top-24 left-6 z-40 w-[360px]">
+        <DynamicScenarioPanel
+          onRun={handleRunSimulation}
+          loading={loading}
+          budget={balance}
+          setBudget={setBalance}
+          idealBudget={idealBudget}
+          onSimulate={handleDeploy}
+        />
+      </div>
+    </main >
   );
 }

@@ -37,3 +37,25 @@ This is the Total Environmental ROI.
 
 Calculation: It is the sum of every Impact_Delta from all 15 nodes.
 In your image: The 459 is the combined total of points removed from the air across all active deployment zones.
+
+
+Judges' Pitch Summary for the Blue Dots:
+"When we toggle the Cloud Run Swarm, you see these blue agents appearing and converging on the hotspot. These aren't just decorative; they represent individual autonomous sensor nodes that scale dynamically using Google Cloud's serverless infrastructure. They provide the 'Hyper-Local' data needed to verify if our Vertex AI plan is actually working on the ground in real-time."
+
+
+Judges' Pitch Summary for the Policy Sandbox:
+"The Policy Sandbox is our 'Strategic Decision Engine' powered by simulated BigQuery ML. It allows city officials to test city-wide mandates—like EV-Only Zones or Carbon Taxes—before they are enforced. By clicking a policy, the system runs a mock BigQuery projection against historical urban data to show the immediate percentage reduction in the city's total Carbon Footprint."
+
+Detailed Breakdown:
+• EV-Only Zone: High-impact mobility restriction.
+• Green Roof Mandate: Urban cooling and sequestration strategy.
+• Carbon Tax: Financial leverage to reduce industrial emissions.
+• BigQuery Projection: The 'Future Score' predicting long-term city ROI.
+
+
+Judges' Pitch Summary for the Green Dots (Vertex AI):
+"While the red dot represents the Problem, the green dots represent the Solution. These are precision-targeted intervention points calculated by Vertex AI. Instead of general advice, we provide actionable coordinates for Carbon Scrubbers and Green Corridors, optimized for the city's 3D topography to ensure maximum sequestration with minimum cost."
+
+
+Judges' Pitch Summary for the Blue Dots (Cloud Run Swarm):
+"The blue swarm represents our 'Active Response Layer.' Each dot is a serverless Cloud Run agent triggered by real-time Pub/Sub events. They provide hyper-local intelligence, moving to the pollution source to verify our AI's impact and monitor micro-spikes that fixed sensors might miss."
