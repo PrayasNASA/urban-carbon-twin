@@ -70,7 +70,23 @@ export default function Dashboard() {
                     setError(`Comparison Error: ${result.error}`);
                     setComparisonData(null);
                 } else {
+                    console.log("Comparison Successful:", result);
                     setComparisonData(result);
+
+                    // Wire up Scenario B to the main dashboard data so ResultsPanel & Matrix light up
+                    setData({
+                        optimization_plan: result.scenario_b.plan,
+                        dispersion: { results: result.scenario_b.plan.post_mitigation || [] }
+                    });
+
+                    // Switch to Map View automatically
+                    setCompareMode(false);
+
+                    // Kick off AI Analysis for the primary scenario
+                    handleGetAiAnalysis({
+                        optimization_plan: result.scenario_b.plan,
+                        dispersion: { results: result.scenario_b.plan.post_mitigation || [] }
+                    });
                 }
             } else {
                 const result = await runScenario(budget);

@@ -50,7 +50,7 @@ export default function CityMap({ dispersion, optimizationPlan, comparisonData, 
                 type: "Feature",
                 properties: {
                     id: g.grid_id,
-                    concentration: g.concentration,
+                    concentration: typeof g.concentration === 'number' ? g.concentration : (g.aqi || 50),
                     ...g
                 },
                 geometry: g.geometry
@@ -67,7 +67,7 @@ export default function CityMap({ dispersion, optimizationPlan, comparisonData, 
                 type: "Feature",
                 properties: {
                     id: g.grid_id,
-                    concentration: g.concentration,
+                    concentration: typeof g.concentration === 'number' ? g.concentration : (g.aqi || 50),
                     ...g
                 },
                 geometry: g.geometry
@@ -158,7 +158,7 @@ export default function CityMap({ dispersion, optimizationPlan, comparisonData, 
 
                 {geoJsonData && !comparisonData && (
                     <GeoJSON
-                        key={`${optimizationPlan?.simulation_id || grids.length}-${theme}`}
+                        key={`main-${optimizationPlan?.simulation_id || Date.now()}-${theme}`}
                         data={geoJsonData as any}
                         style={style}
                         onEachFeature={onEachFeature}
@@ -167,7 +167,7 @@ export default function CityMap({ dispersion, optimizationPlan, comparisonData, 
 
                 {compareGeoJsonData && comparisonData && (
                     <GeoJSON
-                        key={`compare-${comparisonData.scenario_b.budget}-${theme}`}
+                        key={`compare-${comparisonData.scenario_b.budget || Date.now()}-${theme}`}
                         data={compareGeoJsonData as any}
                         style={style}
                         onEachFeature={onEachFeature}
