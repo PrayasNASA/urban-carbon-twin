@@ -295,17 +295,44 @@ export default function Dashboard() {
                                 </button>
                             </div>
 
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-2 border-b border-white/5 pb-2">
-                                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">Policy Simulation</span>
-                                </div>
-                                <PolicySandbox onUpdateImpact={setPolicyImpact} />
-                                {policyImpact > 0 && (
-                                    <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/30">
-                                        <div className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">BigQuery ML Projection</div>
-                                        <div className="text-2xl font-black text-white">-{policyImpact.toFixed(1)}% <span className="text-sm font-normal text-white/40 italic ml-1">CO₂</span></div>
-                                    </div>
-                                )}
+                            <div className="space-y-6 relative min-h-[400px]">
+                                <AnimatePresence mode="wait">
+                                    {!showMarketplace ? (
+                                        <motion.div
+                                            key="policy"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            className="space-y-6"
+                                        >
+                                            <div className="flex items-center gap-2 border-b border-white/5 pb-2">
+                                                <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">Policy Simulation</span>
+                                            </div>
+                                            <PolicySandbox onUpdateImpact={setPolicyImpact} />
+                                            {policyImpact > 0 && (
+                                                <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/30">
+                                                    <div className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">BigQuery ML Projection</div>
+                                                    <div className="text-2xl font-black text-white">-{policyImpact.toFixed(1)}% <span className="text-sm font-normal text-white/40 italic ml-1">CO₂</span></div>
+                                                </div>
+                                            )}
+                                        </motion.div>
+                                    ) : (
+                                        <motion.div
+                                            key="market"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                        >
+                                            <MarketplacePanel
+                                                show={showMarketplace}
+                                                onClose={() => setShowMarketplace(false)}
+                                                credits={credits}
+                                                balance={balance}
+                                                onSellCredits={handleSellCredits}
+                                            />
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </div>
                         </div>
                     </div>
@@ -331,13 +358,6 @@ export default function Dashboard() {
                 </footer>
             </section>
 
-            <MarketplacePanel
-                show={showMarketplace}
-                onClose={() => setShowMarketplace(false)}
-                credits={credits}
-                balance={balance}
-                onSellCredits={handleSellCredits}
-            />
         </main>
     );
 }

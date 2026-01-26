@@ -37,10 +37,10 @@ export default function MarketplacePanel({ credits, balance, onSellCredits, show
 
     return (
         <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            className="absolute top-24 right-6 z-50 w-[320px] bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="w-full bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl"
         >
             {/* Header */}
             <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/5">
@@ -103,8 +103,8 @@ export default function MarketplacePanel({ credits, balance, onSellCredits, show
                         onClick={() => onSellCredits(100, price)}
                         disabled={credits < 100}
                         className={`w-full py-3 rounded-xl font-bold text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all ${credits >= 100
-                                ? 'bg-white text-black hover:scale-[1.02] shadow-lg'
-                                : 'bg-white/5 text-white/20 cursor-not-allowed border border-white/5'
+                            ? 'bg-white text-black hover:scale-[1.02] shadow-lg'
+                            : 'bg-white/5 text-white/20 cursor-not-allowed border border-white/5'
                             }`}
                     >
                         <span>Sell 100 Credits</span>
@@ -117,8 +117,8 @@ export default function MarketplacePanel({ credits, balance, onSellCredits, show
                         onClick={() => onSellCredits(credits, price)}
                         disabled={credits <= 0}
                         className={`w-full py-2 rounded-lg font-bold text-[10px] uppercase tracking-[0.2em] transition-colors ${credits > 0
-                                ? 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
-                                : 'text-white/20 cursor-not-allowed'
+                            ? 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
+                            : 'text-white/20 cursor-not-allowed'
                             }`}
                     >
                         Liquidate All Assets
