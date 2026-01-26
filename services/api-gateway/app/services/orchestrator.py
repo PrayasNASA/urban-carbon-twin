@@ -143,6 +143,12 @@ def run_full_simulation(lat, lon, budget, initial_aqi=None):
     # 3. Run Dispersion with Live Wind
     dispersion_resp = run_dispersion(weather["wind_speed"], weather["wind_deg"])
     
+    # 4. Run Optimization
+    optimization_resp = run_optimization(budget)
+    
+    # 5. Calculate Social Sentiment
+    sentiment = calculate_sentiment(optimization_resp)
+    
     # 6. Result Consolidation Logic
     # ----------------------------
     # Priority: Dynamic (Voronoi) > Static (Rectangular)
