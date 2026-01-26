@@ -237,15 +237,17 @@ export default function Home() {
                     {compareMode ? 'LOCAL_GRID' : 'GLOBAL_VIEW'}
                   </button>
                 </div>
-                {/* ScenarioPanel is now rendered as an absolute positioned component */}
-                <DynamicScenarioPanel
-                  onRun={handleRunSimulation}
-                  loading={loading}
-                  budget={balance} // Pass the dynamic balance
-                  setBudget={setBalance}
-                  idealBudget={idealBudget}
-                  onSimulate={handleDeploy}
-                />
+                {/* 4. Left Panel (Scenario Controls) - Pushed down to avoid Hero text overlap */}
+                <div className="absolute top-[320px] left-6 z-40 w-[360px]">
+                  <DynamicScenarioPanel
+                    onRun={handleRunSimulation}
+                    loading={loading}
+                    budget={balance} // Pass the dynamic balance
+                    setBudget={setBalance}
+                    idealBudget={idealBudget}
+                    onSimulate={handleDeploy}
+                  />
+                </div>
               </div>
 
               {/* 5. Global Leaderboard */}
