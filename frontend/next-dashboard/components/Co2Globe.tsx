@@ -203,8 +203,8 @@ const ImmersiveVisuals = () => {
                             color: {
                                 conditions: [
                                     ["${height} === undefined || ${height} === null", "color('rgba(255, 255, 255, 0.1)')"],
-                                    ["${height} > 100", "color('rgba(16, 185, 129, 0.5)')"],
-                                    ["${height} > 50", "color('rgba(16, 185, 129, 0.3)')"],
+                                    ["Number(${height}) > 100", "color('rgba(16, 185, 129, 0.5)')"],
+                                    ["Number(${height}) > 50", "color('rgba(16, 185, 129, 0.3)')"],
                                     ["true", "color('rgba(255, 255, 255, 0.1)')"]
                                 ]
                             }
