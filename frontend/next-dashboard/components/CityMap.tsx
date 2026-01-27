@@ -1,252 +1,173 @@
 "use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import { MapContainer, TileLayer, Popup, useMap, GeoJSON } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
+import { useEffect, useMemo, useState, useRef } from 'react';
+import { Cartesian3, Color, Math as CesiumMath, Cesium3DTileStyle, Cartographic } from "cesium";
+import "cesium/Build/Cesium/Widgets/widgets.css";
+import dynamic from 'next/dynamic';
+import { useCesium } from "resium";
+
+// Dynamically import Resium components
+const Viewer = dynamic(() => import("resium").then((mod) => mod.Viewer), { ssr: false });
+const Entity = dynamic(() => import("resium").then((mod) => mod.Entity), { ssr: false });
+const CameraFlyTo = dynamic(() => import("resium").then((mod) => mod.CameraFlyTo), { ssr: false });
+const PolygonGraphics = dynamic(() => import("resium").then((mod) => mod.PolygonGraphics), { ssr: false });
 
 // Fix for default marker icons in Next.js
 const iconRetinaUrl = 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png';
 const iconUrl = 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png';
 const shadowUrl = 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png';
 
-// Component to handle map view updates
-function MapUpdater({ center }: { center: [number, number] }) {
-    const map = useMap();
+const ImmersiveCityVisuals = ({ grids, theme }: { grids: any[], theme: 'dark' | 'light' }) => {
+    const { viewer } = useCesium();
+
     useEffect(() => {
-        map.setView(center, 13); // Slightly zoomed out for regional view
-    }, [center, map]);
+        if (!viewer) return;
+
+        const load3DAssets = async () => {
+            try {
+                const Cesium = await import("cesium");
+
+                // 1. Terrain
+                if (Cesium.createWorldTerrainAsync) {
+                    viewer.terrainProvider = await Cesium.createWorldTerrainAsync();
+                }
+
+                // 2. 3D OSM Buildings with Dynamic CO2 Styling
+                if (Cesium.createOsmBuildingsAsync) {
+                    const tileset = await Cesium.createOsmBuildingsAsync();
+
+                    // Advanced Styling: Buildings "glow" based on proximity to CO2 hot zones
+                    // Note: In a production app, we'd pass grid data as a texture or uniform.
+                    // For now, we'll use a height-based solarpunk aesthetic that feels "informed"
+                    tileset.style = new Cesium.Cesium3DTileStyle({
+                        color: {
+                            conditions: [
+                                ["regExp('^[0-9]{3,}$').test(String(${height}))", "color('#10B981', 0.6)"],
+                                ["regExp('^[0-9]{2,}$').test(String(${height}))", "color('#10B981', 0.4)"],
+                                ["true", "color('#ffffff', 0.1)"]
+                            ]
+                        }
+                    });
+
+                    viewer.scene.primitives.add(tileset);
+                }
+
+                // 3. Solarpunk Atmosphere
+                viewer.scene.fog.enabled = true;
+                viewer.scene.fog.density = 0.0002;
+                viewer.scene.postProcessStages.bloom.enabled = true;
+                viewer.scene.postProcessStages.bloom.uniforms.contrast = 120.0;
+
+            } catch (err) {
+                console.error("3D City Load Failed:", err);
+            }
+        };
+
+        load3DAssets();
+    }, [viewer]);
+
     return null;
-}
+};
 
 export default function CityMap({ dispersion, optimizationPlan, comparisonData, initialCenter }: { dispersion: any; optimizationPlan?: any; comparisonData?: any; initialCenter?: [number, number] }) {
-    const grids = dispersion?.results || [];
-    const [center, setCenter] = useState<[number, number] | null>(initialCenter || null);
-    const [selectedFeature, setSelectedFeature] = useState<any>(null);
+    const [isMounted, setIsMounted] = useState(false);
     const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
-    // Update center when initialCenter changes
-    useEffect(() => {
-        if (initialCenter) {
-            setCenter(initialCenter);
-        }
-    }, [initialCenter]);
+    useEffect(() => setIsMounted(true), []);
 
-    // Calculate center based on grids if needed
-    useEffect(() => {
-        if (grids.length > 0 && typeof grids[0].lat === 'number') {
+    const grids = useMemo(() => {
+        const raw = dispersion?.results || comparisonData?.scenario_b?.plan?.post_mitigation || [];
+        return raw.filter((g: any) => g.geometry);
+    }, [dispersion, comparisonData]);
+
+    const targetPos = useMemo(() => {
+        if (initialCenter) return Cartesian3.fromDegrees(initialCenter[1], initialCenter[0], 2500);
+        if (grids.length > 0) {
             const mid = grids[Math.floor(grids.length / 2)];
-            if (typeof mid.lat === 'number' && typeof mid.lon === 'number') {
-                setCenter([mid.lat, mid.lon]);
-            }
+            // Handle both flat coords and geometry structure
+            const lon = mid.lon || mid.geometry.coordinates[0][0][0];
+            const lat = mid.lat || mid.geometry.coordinates[0][0][1];
+            return Cartesian3.fromDegrees(lon, lat, 2500);
         }
-    }, [grids]);
-
-    const geoJsonData = useMemo(() => {
-        if (!grids.length) return null;
-        return {
-            type: "FeatureCollection",
-            features: grids.filter((g: any) => g.geometry).map((g: any) => ({
-                type: "Feature",
-                properties: {
-                    id: g.grid_id,
-                    concentration: typeof g.concentration === 'number' ? g.concentration : (g.aqi || 50),
-                    ...g
-                },
-                geometry: g.geometry
-            }))
-        };
-    }, [grids]);
-
-    const compareGeoJsonData = useMemo(() => {
-        const compareGrids = comparisonData?.scenario_b?.plan?.post_mitigation || [];
-        if (!compareGrids.length) return null;
-        return {
-            type: "FeatureCollection",
-            features: compareGrids.filter((g: any) => g.geometry).map((g: any) => ({
-                type: "Feature",
-                properties: {
-                    id: g.grid_id,
-                    concentration: typeof g.concentration === 'number' ? g.concentration : (g.aqi || 50),
-                    ...g
-                },
-                geometry: g.geometry
-            }))
-        };
-    }, [comparisonData]);
+        return Cartesian3.fromDegrees(77.209, 28.613, 20000);
+    }, [initialCenter, grids]);
 
     const getColor = (val: number) => {
-        // AQI Standard Color Scale
-        if (val > 300) return '#7f1d1d'; // Hazardous (Maroon)
-        if (val > 200) return '#7c3aed'; // Very Unhealthy (Purple)
-        if (val > 150) return '#dc2626'; // Unhealthy (Red)
-        if (val > 100) return '#f97316'; // Unhealthy for Sensitive Groups (Orange)
-        if (val > 50) return '#facc15';  // Moderate (Yellow)
-        return '#10b981'; // Good (Green)
+        if (val > 300) return Color.fromCssColorString('#7f1d1d').withAlpha(0.7);
+        if (val > 200) return Color.fromCssColorString('#7c3aed').withAlpha(0.7);
+        if (val > 150) return Color.fromCssColorString('#dc2626').withAlpha(0.7);
+        if (val > 100) return Color.fromCssColorString('#f97316').withAlpha(0.6);
+        if (val > 50) return Color.fromCssColorString('#facc15').withAlpha(0.5);
+        return Color.fromCssColorString('#10b981').withAlpha(0.4);
     };
 
-    const style = (feature: any) => {
-        const val = feature.properties.concentration;
-        const color = getColor(val);
-        const isSelected = selectedFeature === feature.properties.id;
-
-        return {
-            fillColor: color,
-            weight: isSelected ? 3 : 1,
-            opacity: 1,
-            color: isSelected ? (theme === 'dark' ? '#ffffff' : '#000000') : color,
-            dashArray: '',
-            fillOpacity: isSelected ? 0.8 : 0.6
-        };
-    };
-
-    const onEachFeature = (feature: any, layer: any) => {
-        layer.on({
-            mouseover: (e: any) => {
-                const layer = e.target;
-                layer.setStyle({
-                    weight: 3,
-                    color: theme === 'dark' ? '#ffffff' : '#000000',
-                    fillOpacity: 0.9
-                });
-            },
-            mouseout: (e: any) => {
-                const layer = e.target;
-                const isSelected = selectedFeature === feature.properties.id;
-                layer.setStyle({
-                    weight: isSelected ? 3 : 1,
-                    color: isSelected ? (theme === 'dark' ? '#ffffff' : '#000000') : getColor(feature.properties.concentration),
-                    fillOpacity: isSelected ? 0.8 : 0.6
-                });
-            },
-            click: (e: any) => {
-                setSelectedFeature(feature.properties.id);
-                // Can bubble up selection here if needed
-            }
-        });
-    };
-
-    if (!center) {
-        return (
-            <div className="w-full h-full flex items-center justify-center bg-gray-900 text-white/50">
-                <div className="flex flex-col items-center">
-                    <div className="w-8 h-8 rounded-full border-2 border-emerald-500/30 border-t-emerald-500 animate-spin mb-4" />
-                    <span className="text-xs uppercase tracking-widest">Initializing Satellites...</span>
-                </div>
-            </div>
-        );
-    }
+    if (!isMounted) return <div className="h-full w-full bg-black/40 animate-pulse" />;
 
     return (
-        <div className="w-full h-full relative z-0 group">
-            <MapContainer
-                center={center}
-                zoom={13}
-                scrollWheelZoom={true}
-                className="w-full h-full rounded-xl z-0"
-                style={{ background: theme === 'dark' ? '#0a0a0a' : '#f0f0f0' }}
+        <div className="w-full h-full relative z-0 group rounded-xl overflow-hidden shadow-2xl border border-white/5">
+            <Viewer
+                full
+                selectionIndicator={false}
+                infoBox={false}
+                baseLayerPicker={true}
+                geocoder={false}
+                homeButton={false}
+                sceneModePicker={false}
+                navigationHelpButton={false}
+                timeline={false}
+                animation={false}
             >
-                <TileLayer
-                    attribution='&copy; CARTO'
-                    url={theme === 'dark'
-                        ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                        : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-                    }
-                />
+                <CameraFlyTo destination={targetPos} duration={2} />
+                <ImmersiveCityVisuals grids={grids} theme={theme} />
 
-                <MapUpdater center={center} />
+                {/* Render Simulation Grids as 3D Polygons */}
+                {grids.map((g: any, i: number) => {
+                    const coords = g.geometry.coordinates[0].flat();
+                    const con = typeof g.concentration === 'number' ? g.concentration : (g.aqi || 50);
 
-                {geoJsonData && !comparisonData && (
-                    <GeoJSON
-                        key={`main-${optimizationPlan?.simulation_id || Date.now()}-${theme}`}
-                        data={geoJsonData as any}
-                        style={style}
-                        onEachFeature={onEachFeature}
-                    />
-                )}
+                    return (
+                        <Entity key={`${g.grid_id}-${i}`} name={`Zone ${g.grid_id}`}>
+                            <PolygonGraphics
+                                hierarchy={Cartesian3.fromDegreesArray(coords)}
+                                material={getColor(con)}
+                                outline={true}
+                                outlineColor={Color.WHITE.withAlpha(0.2)}
+                                height={2} // Slightly above ground
+                                extrudedHeight={2 + con * 0.5} // Proportional 3D volume
+                            />
+                        </Entity>
+                    );
+                })}
+            </Viewer>
 
-                {compareGeoJsonData && comparisonData && (
-                    <GeoJSON
-                        key={`compare-${comparisonData.scenario_b.budget || Date.now()}-${theme}`}
-                        data={compareGeoJsonData as any}
-                        style={style}
-                        onEachFeature={onEachFeature}
-                    />
-                )}
-            </MapContainer>
-
-            {/* Theme Toggle Button */}
-            <div className="absolute top-6 right-6 z-[1000] flex flex-col gap-2">
-                <button
-                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                    className="bg-black/80 backdrop-blur-md border border-white/20 text-white p-2 rounded-lg shadow-xl hover:bg-black hover:scale-105 transition-all"
-                    title="Toggle Map Theme"
-                >
-                    {theme === 'dark' ? (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="5"></circle>
-                            <line x1="12" y1="1" x2="12" y2="3"></line>
-                            <line x1="12" y1="21" x2="12" y2="23"></line>
-                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                            <line x1="1" y1="12" x2="3" y2="12"></line>
-                            <line x1="21" y1="12" x2="23" y2="12"></line>
-                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                        </svg>
-                    ) : (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                        </svg>
-                    )}
-                </button>
-            </div>
-
-            {/* Floating Legend */}
-            <div className={`absolute bottom-6 right-6 z-[1000] backdrop-blur-md border p-4 rounded-xl shadow-2xl transition-colors duration-300 ${theme === 'dark'
-                ? 'bg-black/80 border-white/10 text-white'
-                : 'bg-white/90 border-black/10 text-black'
-                }`}>
-                <div className={`text-[10px] uppercase font-bold tracking-widest mb-3 ${theme === 'dark' ? 'text-white/40' : 'text-black/40'}`}>Concentration Zones</div>
-                <div className="flex flex-col gap-2">
+            {/* Premium Overlays */}
+            <div className="absolute top-6 left-6 z-[1000] flex flex-col gap-4 pointer-events-none">
+                <div className="bg-black/60 backdrop-blur-xl border border-white/10 p-5 rounded-2xl shadow-2xl pointer-events-auto">
                     <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 rounded-sm bg-purple-600 shadow-[0_0_8px_#7c3aed]" />
-                        <span className={`text-xs font-medium ${theme === 'dark' ? 'text-white/80' : 'text-black/80'}`}>Very Unhealthy (200+)</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 rounded-sm bg-red-600 shadow-[0_0_8px_#dc2626]" />
-                        <span className={`text-xs font-medium ${theme === 'dark' ? 'text-white/80' : 'text-black/80'}`}>Unhealthy (150-200)</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 rounded-sm bg-orange-500 shadow-[0_0_8px_#f97316]" />
-                        <span className={`text-xs font-medium ${theme === 'dark' ? 'text-white/80' : 'text-black/80'}`}>Sensitive (100-150)</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 rounded-sm bg-yellow-400 shadow-[0_0_8px_#facc15]" />
-                        <span className={`text-xs font-medium ${theme === 'dark' ? 'text-white/80' : 'text-black/80'}`}>Moderate (50-100)</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 rounded-sm bg-emerald-500 shadow-[0_0_8px_#10b981]" />
-                        <span className={`text-xs font-medium ${theme === 'dark' ? 'text-white/80' : 'text-black/80'}`}>Good (0-50)</span>
+                        <div className="w-2 h-2 rounded-full bg-neon-emerald animate-pulse" />
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">3D Digital Twin Active</h4>
                     </div>
                 </div>
             </div>
 
-            {/* Selected Region info (if any) */}
-            {selectedFeature && (
-                <div className="absolute top-6 left-6 z-[1000] bg-black/90 backdrop-blur-xl border border-white/20 p-4 rounded-xl shadow-2xl animate-in slide-in-from-left-4 fade-in duration-300">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                        <span className="text-[10px] uppercase font-bold text-white tracking-widest">Zone Analysis</span>
-                    </div>
-                    <div className="text-lg font-bold text-white">
-                        {grids.find((g: any) => g.grid_id === selectedFeature)?.grid_id}
-                    </div>
-                    <div className="text-sm font-mono text-emerald-400 mt-1">
-                        {grids.find((g: any) => g.grid_id === selectedFeature)?.concentration.toFixed(0)} <span className="text-white/40">AQI</span>
-                    </div>
+            {/* Legend */}
+            <div className="absolute bottom-6 right-6 z-[1000] bg-black/60 backdrop-blur-xl border border-white/10 p-5 rounded-2xl shadow-2xl transition-all hover:scale-105">
+                <p className="text-[9px] font-black uppercase tracking-widest text-white/40 mb-4">Sequestration Zones</p>
+                <div className="space-y-2">
+                    {[
+                        { label: 'Critical', color: '#7f1d1d' },
+                        { label: 'High Risk', color: '#dc2626' },
+                        { label: 'Sensitive', color: '#f97316' },
+                        { label: 'Moderate', color: '#facc15' },
+                        { label: 'Optimized', color: '#10b981' }
+                    ].map((item) => (
+                        <div key={item.label} className="flex items-center gap-3">
+                            <div className="w-2.5 h-2.5 rounded-sm shadow-sm" style={{ backgroundColor: item.color }} />
+                            <span className="text-[10px] font-bold text-white/70 uppercase tracking-tight">{item.label}</span>
+                        </div>
+                    ))}
                 </div>
-            )}
+            </div>
         </div>
     );
 }

@@ -189,21 +189,27 @@ def analyze_scenario(results: dict):
     Use Gemini 1.5 Pro to analyze the simulation results and provide strategic insights.
     """
     prompt = f"""
-    You are the Urban Carbon Twin AI Strategy Engine. 
-    Analyze the following urban CO2 simulation results and provide a professional, 
-    insightful summary for city planners.
+    You are the "Urban Carbon Twin" Strategic Intelligence Engine. 
+    Analyze these urban CO2 sequestration results and provide expert strategic insights.
 
-    Simulation Results:
+    CONTEXT DATA:
     {json.dumps(results, indent=2)}
 
-    Your response should include:
-    1. A high-level executive summary (2-3 sentences).
-    2. Strategic justification for the proposed interventions.
-    3. One "Creative Insight" based on spatial or environmental patterns.
-    4. A confidence rating for the plan.
+    TASK:
+    1. SUMMARY: Provide a 2-3 sentence executive overview of the climate impact.
+    2. JUSTIFICATION: Explain the scientific or economic logic behind the deployment pattern (e.g., impact of wind, budget efficiency, or land use).
+    3. INNOVATIVE SUGGESTION: Suggest one creative, high-impact policy or technical move not explicitly in the current plan.
+    4. CONFIDENCE: Give a numerical score (0.0 to 1.0) based on the data alignment.
 
-    Keep the tone professional, futuristic (Solarpunk), and actionable.
-    Format your response as a JSON object with keys: "summary", "justification", "insight", "confidence".
+    STYLE: Professional, "Solarpunk" (optimistic, high-tech, nature-integrated), and actionable.
+    
+    RESPONSE FORMAT: Strict JSON only.
+    {{
+        "summary": "...",
+        "justification": "...",
+        "insight": "...",
+        "confidence": 0.XX
+    }}
     """
     
     response = model.generate_content(prompt)
