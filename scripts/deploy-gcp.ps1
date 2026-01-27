@@ -29,14 +29,34 @@ foreach ($service in $services) {
     Write-Host "Building image..."
     gcloud builds submit --tag gcr.io/$PROJECT_ID/$service "./services/$service" --project $PROJECT_ID
 
+    # Set Environment Variables if service has dependencies
+    $EnvVars = ""
+    if ($service -eq "dispersion-engine") {
+        $EnvVars = "GIS_BASE_URL=$($ServiceUrls['gis-service']),EMISSION_ENGINE_URL=$($ServiceUrls['emission-engine'])"
+    }
+    elseif ($service -eq "optimizer-service") {
+        $EnvVars = "DISPERSION_ENGINE_URL=$($ServiceUrls['dispersion-engine']),INTERVENTION_ENGINE_URL=$($ServiceUrls['intervention-engine'])"
+    }
+
     # Deploy
     Write-Host "Deploying to Cloud Run..."
-    gcloud run deploy $service `
-        --image gcr.io/$PROJECT_ID/$service `
-        --platform managed `
-        --region $REGION `
-        --allow-unauthenticated `
-        --project $PROJECT_ID
+    if ($EnvVars -ne "") {
+        gcloud run deploy $service `
+            --image gcr.io/$PROJECT_ID/$service `
+            --platform managed `
+            --region $REGION `
+            --allow-unauthenticated `
+            --project $PROJECT_ID `
+            --set-env-vars $EnvVars
+    }
+    else {
+        gcloud run deploy $service `
+            --image gcr.io/$PROJECT_ID/$service `
+            --platform managed `
+            --region $REGION `
+            --allow-unauthenticated `
+            --project $PROJECT_ID
+    }
 
     # Capture URL
     $Url = gcloud run services describe $service --platform managed --region $REGION --format 'value(status.url)' --project $PROJECT_ID
