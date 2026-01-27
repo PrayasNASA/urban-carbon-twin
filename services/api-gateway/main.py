@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.scenarios import router as scenario_router
+from app.api.gis import router as gis_router
 
 app = FastAPI(
     title="API Gateway",
@@ -25,6 +26,7 @@ app.add_middleware(
 )
 
 app.include_router(scenario_router)
+app.include_router(gis_router)
 
 
 @app.get("/")
@@ -33,3 +35,10 @@ def health():
         "service": "api-gateway",
         "status": "running"
     }
+
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run(app, host="0.0.0.0", port=port)
