@@ -59,19 +59,25 @@ export default function Dashboard() {
         setData(null);
         setComparisonData(null);
         setAiAnalysis(null);
+
+        if (!city) {
+            setCompareMode(true); // Switch to Global view
+            setGlobalData(null);
+            setLoading(false);
+            return;
+        }
+
         setCompareMode(false); // Switch to single map view
 
         // 2. Update global location context for initialization
-        // Mocking the "Global Data" structure that Co2Globe uses
         setGlobalData({
             place_name: city.name,
             location: city.center,
             full_details: {
-                aqi: 50 + Math.floor(Math.random() * 50), // Initial guess
+                aqi: 50 + Math.floor(Math.random() * 50),
             }
         });
 
-        // 3. Briefly simulate loading for effect
         setTimeout(() => setLoading(false), 800);
     };
 
