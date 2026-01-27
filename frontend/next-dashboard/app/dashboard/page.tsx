@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from "framer-motion";
 import { runScenario, compareScenarios, initializeSimulation, API_GATEWAY, analyzeSimulation } from "@/lib/api";
@@ -47,6 +47,16 @@ export default function Dashboard() {
     const [aiAnalysis, setAiAnalysis] = useState<any>(null);
     const [aiLoading, setAiLoading] = useState(false);
 
+    // Initial Weather Load
+    const hasFetchedInitialWeather = useRef(false);
+    useEffect(() => {
+        if (!hasFetchedInitialWeather.current) {
+            hasFetchedInitialWeather.current = true;
+            // Fetch default weather for New Delhi / System Home
+            handleGlobalSelect(28.6139, 77.2090);
+        }
+    }, []);
+
     // City State
     const [currentCity, setCurrentCity] = useState<any>(null);
 
@@ -59,19 +69,25 @@ export default function Dashboard() {
         setData(null);
         setComparisonData(null);
         setAiAnalysis(null);
+
+        if (!city) {
+            setCompareMode(true); // Switch to Global view
+            setGlobalData(null);
+            setLoading(false);
+            return;
+        }
+
         setCompareMode(false); // Switch to single map view
 
         // 2. Update global location context for initialization
-        // Mocking the "Global Data" structure that Co2Globe uses
         setGlobalData({
             place_name: city.name,
             location: city.center,
             full_details: {
-                aqi: 50 + Math.floor(Math.random() * 50), // Initial guess
+                aqi: 50 + Math.floor(Math.random() * 50),
             }
         });
 
-        // 3. Briefly simulate loading for effect
         setTimeout(() => setLoading(false), 800);
     };
 
@@ -215,9 +231,9 @@ export default function Dashboard() {
                         </div>
 
                         <div className="flex items-center gap-6">
-                            {(data?.weather) && (
-                                <div className="hidden xl:block">
-                                    <WeatherWidget data={data.weather} />
+                            {(data?.weather || globalData?.weather) && (
+                                <div className="hidden lg:block">
+                                    <WeatherWidget data={data?.weather || globalData?.weather} />
                                 </div>
                             )}
                             <div className="hidden lg:flex items-center gap-4 text-[11px] font-bold uppercase tracking-tight text-emerald-500/40">
