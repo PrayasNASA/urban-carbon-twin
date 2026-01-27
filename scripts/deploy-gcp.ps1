@@ -3,50 +3,85 @@ $REGION = "us-central1"
 
 Write-Host "Starting deployment to GCP Project: $PROJECT_ID" -ForegroundColor Cyan
 
+# Define services in dependency order
 $services = @(
     "gis-service",
     "emission-engine",
     "dispersion-engine",
     "intervention-engine",
-    "optimizer-service",
-    "api-gateway"
+    "optimizer-service"
 )
 
-# 1. Enable APIs
+# Store URLs for the final gateway deployment
+$ServiceUrls = @{}
+
+# 1. Enable APIs (idempotent)
 Write-Host "Enabling required APIs..."
 gcloud services enable run.googleapis.com containerregistry.googleapis.com cloudbuild.googleapis.com --project $PROJECT_ID
 
-# 2. Build and Push images
+# 2. Deploy Backend Services
 foreach ($service in $services) {
-    Write-Host "Building and pushing $service..." -ForegroundColor Yellow
-    gcloud builds submit --tag gcr.io/$PROJECT_ID/$service "./services/$service" --project $PROJECT_ID
-}
-
-# 3. Deploy to Cloud Run
-Write-Host "Deploying to Cloud Run..." -ForegroundColor Green
-
-foreach ($service in $services) {
+    Write-Host "`n----------------------------------------"
     Write-Host "Deploying $service..." -ForegroundColor Yellow
-    
-    if ($service -eq "api-gateway") {
-        # Using expanded arguments for robustness
-        gcloud run deploy $service `
-            --image gcr.io/$PROJECT_ID/$service `
-            --platform managed `
-            --region $REGION `
-            --allow-unauthenticated `
-            --project $PROJECT_ID `
-            --set-env-vars "GIS_BASE_URL=https://gis-service-owkex2u2ca-uc.a.run.app,EMISSION_ENGINE_URL=https://emission-engine-owkex2u2ca-uc.a.run.app,DISPERSION_ENGINE_URL=https://dispersion-engine-owkex2u2ca-uc.a.run.app,INTERVENTION_ENGINE_URL=https://intervention-engine-owkex2u2ca-uc.a.run.app,OPTIMIZER_ENGINE_URL=https://optimizer-service-owkex2u2ca-uc.a.run.app,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=$REGION"
+    Write-Host "----------------------------------------"
+
+    # Build
+    Write-Host "Building image..."
+    gcloud builds submit --tag gcr.io/$PROJECT_ID/$service "./services/$service" --project $PROJECT_ID
+
+    # Deploy
+    Write-Host "Deploying to Cloud Run..."
+    gcloud run deploy $service `
+        --image gcr.io/$PROJECT_ID/$service `
+        --platform managed `
+        --region $REGION `
+        --allow-unauthenticated `
+        --project $PROJECT_ID
+
+    # Capture URL
+    $Url = gcloud run services describe $service --platform managed --region $REGION --format 'value(status.url)' --project $PROJECT_ID
+    if ($Url) {
+        Write-Host "Successfully deployed $service at: $Url" -ForegroundColor Green
+        $ServiceUrls[$service] = $Url
     }
     else {
-        gcloud run deploy $service `
-            --image gcr.io/$PROJECT_ID/$service `
-            --platform managed `
-            --region $REGION `
-            --allow-unauthenticated `
-            --project $PROJECT_ID
+        Write-Host "Error: Failed to capture URL for $service" -ForegroundColor Red
+        exit 1
     }
 }
 
-Write-Host "All services deployed!" -ForegroundColor Green
-Write-Host "Please grab the URLs if you need to manually verify them in the Google Cloud Console."
+# 3. Deploy API Gateway with Linked URLs
+Write-Host "`n----------------------------------------"
+Write-Host "Deploying api-gateway..." -ForegroundColor Yellow
+Write-Host "----------------------------------------"
+
+$GisUrl = $ServiceUrls["gis-service"]
+$EmissionUrl = $ServiceUrls["emission-engine"]
+$DispersionUrl = $ServiceUrls["dispersion-engine"]
+$InterventionUrl = $ServiceUrls["intervention-engine"]
+$OptimizerUrl = $ServiceUrls["optimizer-service"]
+
+Write-Host "Linking services:"
+Write-Host "GIS: $GisUrl"
+Write-Host "Emission: $EmissionUrl"
+
+# Build Gateway
+gcloud builds submit --tag gcr.io/$PROJECT_ID/api-gateway "./services/api-gateway" --project $PROJECT_ID
+
+# Deploy Gateway with Env Vars
+gcloud run deploy api-gateway `
+    --image gcr.io/$PROJECT_ID/api-gateway `
+    --platform managed `
+    --region $REGION `
+    --allow-unauthenticated `
+    --project $PROJECT_ID `
+    --set-env-vars "^:^GIS_BASE_URL=$GisUrl:EMISSION_ENGINE_URL=$EmissionUrl:DISPERSION_ENGINE_URL=$DispersionUrl:INTERVENTION_ENGINE_URL=$InterventionUrl:OPTIMIZER_ENGINE_URL=$OptimizerUrl:GOOGLE_CLOUD_PROJECT=$PROJECT_ID:GOOGLE_CLOUD_LOCATION=$REGION"
+
+# Final Output
+$GatewayUrl = gcloud run services describe api-gateway --platform managed --region $REGION --format 'value(status.url)' --project $PROJECT_ID
+
+Write-Host "`n========================================"
+Write-Host "Deployment Complete!" -ForegroundColor Green
+Write-Host "API Gateway: $GatewayUrl"
+Write-Host "Frontend Value (NEXT_PUBLIC_API_GATEWAY): $GatewayUrl"
+Write-Host "========================================"
