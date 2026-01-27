@@ -17,9 +17,13 @@
 
 ## 🖼️ UI Preview & Live Demo
 
-| [ ![Landing Page](assets/page-1.png) ](https://urban-carbon-twin.vercel.app) | [ ![Simulation Grid](assets/page-2.png) ](https://urban-carbon-twin.vercel.app) | [ ![Analytics Dashboard](assets/page-3.png) ](https://urban-carbon-twin.vercel.app) |
+| [ ![Landing](assets/ui0.png) ](https://urban-carbon-twin.vercel.app) | [ ![3D Map](assets/ui1.png) ](https://urban-carbon-twin.vercel.app) | [ ![Strategy](assets/ui2.png) ](https://urban-carbon-twin.vercel.app) |
 | :---: | :---: | :---: |
 | **Interactive Landing** | **3D Topology Map** | **Resource Logic** |
+| [ ![Analytics](assets/ui3.png) ](https://urban-carbon-twin.vercel.app) | [ ![Metrics](assets/ui4.png) ](https://urban-carbon-twin.vercel.app) | [ ![Market](assets/ui5.png) ](https://urban-carbon-twin.vercel.app) |
+| **Scenario Intel** | **Live Metrics** | **Carbon Exchange** |
+| [ ![Policy](assets/ui6.png) ](https://urban-carbon-twin.vercel.app) | | |
+| **Policy Sandbox** | | |
 
 > [!IMPORTANT]
 > **🚀 Live Experience**: Click any image above to explore the **[Urban Carbon Twin Live Deployment](https://urban-carbon-twin.vercel.app)**.
