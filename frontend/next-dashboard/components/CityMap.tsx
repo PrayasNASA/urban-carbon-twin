@@ -15,6 +15,10 @@ const MapUpdater = ({ center }: { center: [number, number] }) => {
     useEffect(() => {
         if (center) {
             map.flyTo(center, 13, { duration: 2 });
+            // Ensure map redraws correctly after transition
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 100);
         }
     }, [center, map]);
     return null;

@@ -156,6 +156,7 @@ export default function Dashboard() {
 
     async function handleGlobalSelect(lat: number, lon: number) {
         setLoading(true);
+        setCurrentCity(null); // Clear selected city when clicking globe
         try {
             const res = await fetch(`${API_GATEWAY}/scenario/gee/co2?lat=${lat}&lon=${lon}`);
             if (!res.ok) throw new Error("GEE Fetch Failed");
@@ -245,7 +246,11 @@ export default function Dashboard() {
                                 <div className="flex items-center justify-between">
                                     <h3 className="text-[11px] font-extrabold text-emerald-500/60 uppercase tracking-[0.2em]">Scenario</h3>
                                     <button
-                                        onClick={() => setCompareMode(!compareMode)}
+                                        onClick={() => {
+                                            const next = !compareMode;
+                                            setCompareMode(next);
+                                            if (next) setCurrentCity(null); // Clear city when entering globe
+                                        }}
                                         className={`text-[10px] font-bold px-3 py-1.5 rounded-md border uppercase tracking-widest transition-all ${compareMode ? 'bg-neon-emerald/20 border-neon-emerald text-neon-emerald shadow-[0_0_10px_rgba(16,185,129,0.2)]' : 'bg-white/5 border-white/10 text-white/40'}`}
                                     >
                                         {compareMode ? 'LOCAL_GRID' : 'GLOBAL_VIEW'}
@@ -313,7 +318,11 @@ export default function Dashboard() {
                                             dispersion={data?.dispersion}
                                             optimizationPlan={data?.optimization_plan}
                                             comparisonData={comparisonData}
-                                            initialCenter={currentCity ? [currentCity.center.lat, currentCity.center.lon] : undefined}
+                                            initialCenter={
+                                                currentCity
+                                                    ? [currentCity.center.lat, currentCity.center.lon]
+                                                    : (globalData?.location ? [globalData.location.lat, globalData.location.lon] : undefined)
+                                            }
                                         />
                                     )}
                                 </div>
