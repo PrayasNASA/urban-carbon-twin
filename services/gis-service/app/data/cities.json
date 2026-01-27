@@ -1,0 +1,46 @@
+[
+    {
+        "id": "new_delhi",
+        "name": "New Delhi",
+        "country": "India",
+        "center": {
+            "lat": 28.6139,
+            "lon": 77.2090
+        },
+        "zoom": 13,
+        "description": "High density urban metrics with extreme pollution variability."
+    },
+    {
+        "id": "new_york",
+        "name": "New York City",
+        "country": "USA",
+        "center": {
+            "lat": 40.7128,
+            "lon": -74.0060
+        },
+        "zoom": 12,
+        "description": "Dense skyscraper canyons affecting dispersion patterns."
+    },
+    {
+        "id": "london",
+        "name": "London",
+        "country": "UK",
+        "center": {
+            "lat": 51.5074,
+            "lon": -0.1278
+        },
+        "zoom": 12,
+        "description": "Complex street layouts with frequent precipitation events."
+    },
+    {
+        "id": "singapore",
+        "name": "Singapore",
+        "country": "Singapore",
+        "center": {
+            "lat": 1.3521,
+            "lon": 103.8198
+        },
+        "zoom": 12,
+        "description": "Tropical climate with integrated green infrastructure."
+    }
+]

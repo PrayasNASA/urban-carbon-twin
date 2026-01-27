@@ -11,11 +11,11 @@ from config import (
 import vertexai
 from vertexai.generative_models import GenerativeModel, Part
 import json
+from .weather_service import get_live_weather
 
 # Initialize Vertex AI
 vertexai.init(project=GOOGLE_CLOUD_PROJECT, location=GOOGLE_CLOUD_LOCATION)
 model = GenerativeModel("gemini-1.5-flash-001")
-import math
 
 
 def run_emissions():
@@ -39,10 +39,10 @@ def fetch_grid_geometries():
         return {}
 
 
-def run_dispersion(wind_speed: float = 0, wind_deg: float = 0):
+def run_dispersion(wind_speed: float = 0, wind_deg: float = 0, temp: float = 25.0, humidity: float = 60.0):
     r = requests.get(
         f"{DISPERSION_ENGINE_URL}/dispersion",
-        params={"wind_speed": wind_speed, "wind_deg": wind_deg}
+        params={"wind_speed": wind_speed, "wind_deg": wind_deg, "temp": temp, "humidity": humidity}
     )
     r.raise_for_status()
     data = r.json()
@@ -61,17 +61,7 @@ def run_dispersion(wind_speed: float = 0, wind_deg: float = 0):
     return data
 
 
-def get_live_weather(lat: float, lon: float):
-    # In a real app, call OpenWeatherMap/Apple Weather
-    # For now, simulate live variations based on coordinates and time
-    import time
-    t = time.time()
-    return {
-        "wind_speed": 5.0 + math.sin(t/3600) * 3,
-        "wind_deg": (180 + math.cos(t/3600) * 90) % 360,
-        "temp": 25.0 + math.sin(t/86400) * 5,
-        "humidity": 60 + math.cos(t/3600) * 20
-    }
+# Removed old get_live_weather simulation
 
 
 def run_optimization(budget: float):
@@ -140,8 +130,13 @@ def run_full_simulation(lat, lon, budget, initial_aqi=None):
     # 2. Start simulation on emission engine (Baseline)
     emissions_resp = init_simulation(lat, lon, budget, initial_aqi)
     
-    # 3. Run Dispersion with Live Wind
-    dispersion_resp = run_dispersion(weather["wind_speed"], weather["wind_deg"])
+    # 3. Run Dispersion with Live Weather
+    dispersion_resp = run_dispersion(
+        weather["wind_speed"], 
+        weather["wind_deg"],
+        weather["temp"],
+        weather["humidity"]
+    )
     
     # 4. Run Optimization
     optimization_resp = run_optimization(budget)
@@ -225,47 +220,17 @@ def analyze_scenario(results: dict):
         return json.loads(text)
     except Exception as e:
         print(f"Error parsing Gemini response: {e}")
-        return {
-            "summary": "AI analysis completed but format was unexpected.",
-            "justification": "Analysis suggests the current plan is viable for the defined budget.",
-            "insight": "Focus on high-density traffic zones for maximum ROI.",
-            "confidence": 0.85,
-            "raw_text": response.text
-        }
+        raise e
 
 
 def get_market_pulse():
     """
-    Simulates a dynamic carbon market with price fluctuations and history.
+    Get real-time carbon market credentials. 
+    Currently returns an error as no live provider is configured.
     """
-    import random
-    import time
-    
-    # Current base price $42.50
-    current_price = 42.50 + random.uniform(-2, 2)
-    
-    # Generate mock history for the last 24 hours
-    history = []
-    now = time.time()
-    for i in range(24):
-        t = now - (24 - i) * 3600
-        # Random walk for history
-        if i == 0:
-            p = 40.0
-        else:
-            p = history[-1]["price"] + random.uniform(-1.5, 1.5)
-        
-        history.append({
-            "timestamp": time.strftime('%H:%M', time.gmtime(t)),
-            "price": round(p, 2)
-        })
-    
-    return {
-        "current_price": round(current_price, 2),
-        "history": history,
-        "market_status": "VOLATILE" if abs(current_price - 42.5) > 1 else "STABLE",
-        "trend": "UP" if current_price > history[-1]["price"] else "DOWN"
-    }
+    # TODO: Integrate real market API (e.g. OPIS, ICE, or equivalent)
+    # For now, we return strict failures instead of mock data
+    raise NotImplementedError("Live Market Data feed is not yet configured.")
 
 
 def calculate_sentiment(optimization_plan: dict):

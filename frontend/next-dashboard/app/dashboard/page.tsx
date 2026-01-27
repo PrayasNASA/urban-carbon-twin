@@ -21,6 +21,8 @@ const GlobalLeaderboard = dynamic(() => import("@/components/GlobalLeaderboard")
 const PolicySandbox = dynamic(() => import("@/components/PolicySandbox"), { ssr: false });
 const AiStrategyNarrative = dynamic(() => import("@/components/AiStrategyNarrative"), { ssr: false });
 const WeatherWidget = dynamic(() => import("@/components/WeatherWidget"), { ssr: false });
+const MarketPulse = dynamic(() => import("@/components/MarketPulse"), { ssr: false });
+const CitySelector = dynamic(() => import("@/components/CitySelector"), { ssr: false });
 
 
 if (typeof window !== "undefined") {
@@ -44,6 +46,34 @@ export default function Dashboard() {
     // AI State
     const [aiAnalysis, setAiAnalysis] = useState<any>(null);
     const [aiLoading, setAiLoading] = useState(false);
+
+    // City State
+    const [currentCity, setCurrentCity] = useState<any>(null);
+
+    const handleCityChange = (city: any) => {
+        setLoading(true);
+        setCurrentCity(city);
+
+        // When city changes:
+        // 1. Reset simulation data
+        setData(null);
+        setComparisonData(null);
+        setAiAnalysis(null);
+        setCompareMode(false); // Switch to single map view
+
+        // 2. Update global location context for initialization
+        // Mocking the "Global Data" structure that Co2Globe uses
+        setGlobalData({
+            place_name: city.name,
+            location: city.center,
+            full_details: {
+                aqi: 50 + Math.floor(Math.random() * 50), // Initial guess
+            }
+        });
+
+        // 3. Briefly simulate loading for effect
+        setTimeout(() => setLoading(false), 800);
+    };
 
     const handleSellCredits = (amount: number, price: number) => {
         if (credits >= amount) {
@@ -203,12 +233,9 @@ export default function Dashboard() {
 
                 {/* 📊 Main Dashboard Content */}
                 <div className="max-w-7xl mx-auto px-8 pb-12 flex flex-col gap-10">
-                    {/* Page Title Row */}
                     <div className="flex items-baseline justify-between mt-8">
                         <h2 className="text-3xl font-bold text-white tracking-tight">Environmental Sequestration Metrics</h2>
-                        <div className="text-[10px] font-black text-neon-emerald uppercase tracking-[0.3em] bg-neon-emerald/5 border border-neon-emerald/10 px-5 py-2 rounded-xl backdrop-blur-xl">
-                            Region: {globalData?.place_name ? globalData.place_name : 'South Asia Core'}
-                        </div>
+                        <CitySelector onCityChange={handleCityChange} />
                     </div>
 
                     {/* 🏗️ Tier 1: Core Simulation Workspace */}
@@ -286,7 +313,7 @@ export default function Dashboard() {
                                             dispersion={data?.dispersion}
                                             optimizationPlan={data?.optimization_plan}
                                             comparisonData={comparisonData}
-                                            initialCenter={globalData?.location ? [globalData.location.lat, globalData.location.lon] : undefined}
+                                            initialCenter={currentCity ? [currentCity.center.lat, currentCity.center.lon] : undefined}
                                         />
                                     )}
                                 </div>

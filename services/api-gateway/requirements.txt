@@ -2,3 +2,4 @@ fastapi
 uvicorn
 requests
 google-cloud-aiplatform
+fpdf2==2.7.9

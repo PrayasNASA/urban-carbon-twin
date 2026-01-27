@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BrainCircuit, Sparkles, TrendingDown, CheckCircle2 } from "lucide-react";
+import { BrainCircuit, Sparkles, TrendingDown, CheckCircle2, Download } from "lucide-react";
 
 interface AiAnalysis {
     summary: string;
@@ -11,6 +11,30 @@ interface AiAnalysis {
 }
 
 export default function AiStrategyNarrative({ analysis, loading }: { analysis: AiAnalysis | null, loading: boolean }) {
+    const handleExport = async () => {
+        if (!analysis) return;
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/scenario/analyze/export`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ analysis })
+            });
+            if (!res.ok) throw new Error("Export failed");
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `Carbon_Twin_Strategy_${new Date().toISOString().split('T')[0]}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        } catch (e) {
+            console.error("PDF Export Error:", e);
+        }
+    };
+
     if (loading) {
         return (
             <div className="glass-panel p-8 animate-pulse">
@@ -107,10 +131,19 @@ export default function AiStrategyNarrative({ analysis, loading }: { analysis: A
                     </div>
                     <span className="text-[9px] font-mono text-white/20 uppercase tracking-widest">Lat: 842ms • Tokens: 242</span>
                 </div>
-                <button className="text-[10px] font-bold text-neon-emerald hover:text-white transition-colors uppercase tracking-widest flex items-center gap-2 group/btn">
-                    Refine Strategy
-                    <motion.span animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>→</motion.span>
-                </button>
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={handleExport}
+                        className="text-[10px] font-bold text-white/60 hover:text-white transition-colors uppercase tracking-widest flex items-center gap-2"
+                    >
+                        <Download className="w-3 h-3" />
+                        Export PDF
+                    </button>
+                    <button className="text-[10px] font-bold text-neon-emerald hover:text-white transition-colors uppercase tracking-widest flex items-center gap-2 group/btn">
+                        Refine Strategy
+                        <motion.span animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>→</motion.span>
+                    </button>
+                </div>
             </div>
         </motion.div>
     );

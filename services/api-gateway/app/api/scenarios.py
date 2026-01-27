@@ -170,3 +170,27 @@ def market_pulse():
         return get_market_pulse()
     except Exception as e:
         return {"error": str(e)}
+
+
+@router.post("/analyze/export")
+def export_analysis_pdf(payload: dict):
+    """
+    Export the analysis as a PDF report.
+    Expects JSON payload with 'analysis' and optional 'scenario_params'.
+    """
+    try:
+        from app.services.pdf_service import create_report_pdf
+        from fastapi.responses import Response
+        
+        analysis = payload.get("analysis", {})
+        params = payload.get("scenario_params", {})
+        
+        pdf_bytes = create_report_pdf(analysis, params)
+        
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": "attachment; filename=carbon_twin_report.pdf"}
+        )
+    except Exception as e:
+        return {"error": str(e)}

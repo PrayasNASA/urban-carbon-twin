@@ -25,13 +25,21 @@ def fetch_emissions():
 
 import math
 
-def simulate_dispersion(adjacency, emissions, centroids=None, wind_speed=0, wind_deg=0, obstructions=None):
+def simulate_dispersion(adjacency, emissions, centroids=None, wind_speed=0, wind_deg=0, obstructions=None, temp=25.0, humidity=60.0):
     state = emissions.copy()
     obstructions = obstructions or {}
     
+    # Atmospheric adjustments
+    # Higher temp = faster diffusion (Boyles Law approximation)
+    temp_factor = 1.0 + (temp - 25.0) * 0.02
+    # Higher humidity = heavier particles = slower diffusion
+    humidity_factor = 1.0 - (humidity - 60.0) * 0.005
+    
+    effective_diffusion = DIFFUSION_FACTOR * temp_factor * humidity_factor
+    # Higher temp might increase natural decay slightly
+    effective_decay = DECAY_FACTOR * (1.0 + max(0, temp - 25.0) * 0.01)
+
     # Pre-calculate wind vector if wind_speed > 0
-    # wind_deg is direction FROM which wind blows. 0=North, 90=East.
-    # Convert to mathematical angle (0=East, 90=North) and flip to "flow" direction
     flow_deg = (270 - wind_deg) % 360
     flow_rad = math.radians(flow_deg)
     ux, uy = math.cos(flow_rad), math.sin(flow_rad)
@@ -45,7 +53,7 @@ def simulate_dispersion(adjacency, emissions, centroids=None, wind_speed=0, wind
                 continue
 
             # Base spread
-            spread_amount = value * DIFFUSION_FACTOR
+            spread_amount = value * effective_diffusion
             
             # 🏙️ Urban Canyon Effect: Buildings obstruct air flow
             # Higher buildings = higher roughness = lower dispersion rate
@@ -89,7 +97,7 @@ def simulate_dispersion(adjacency, emissions, centroids=None, wind_speed=0, wind
 
         # Natural decay
         for g in new_state:
-            new_state[g] *= (1 - DECAY_FACTOR)
+            new_state[g] *= (1 - effective_decay)
 
         state = new_state
 

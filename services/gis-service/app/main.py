@@ -2,6 +2,7 @@ import logging
 from fastapi import FastAPI
 from app.api.grids import router as grid_router
 from app.api.adjacency import router as adjacency_router
+from app.api.cities import router as cities_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -20,6 +21,7 @@ async def startup_event():
 
 app.include_router(grid_router)
 app.include_router(adjacency_router)
+app.include_router(cities_router)
 
 
 @app.get("/")
