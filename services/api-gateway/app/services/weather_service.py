@@ -20,7 +20,14 @@ def get_live_weather(lat: float, lon: float):
             return data
 
     if not OPENWEATHER_API_KEY:
-        raise ValueError("OPENWEATHER_API_KEY is not set. Live weather data is required.")
+        print("⚠️ Warning: OPENWEATHER_API_KEY not set. Using Synthetic Environmental Feed.")
+        return {
+            "wind_speed": 4.5,
+            "wind_deg": 180,
+            "temp": 24.0,
+            "humidity": 55,
+            "source": "Synthetic Environmental Feed"
+        }
 
     try:
         url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"

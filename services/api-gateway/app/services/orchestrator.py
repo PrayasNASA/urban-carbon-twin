@@ -158,11 +158,24 @@ def run_full_simulation(lat, lon, budget, initial_aqi=None):
     if is_dynamic:
         # For Dynamic: Use the self-contained dispersion and plan from emissions engine
         final_dispersion = emissions_disp
-        final_optimization = emissions_resp.get("optimization_plan", optimization_resp)
+        final_optimization = emissions_resp.get("optimization_plan")
+        
+        # Add robust check for missing plan in dynamic mode
+        if final_optimization is None:
+            print(f"⚠️ Warning: Dynamic optimization plan missing in emissions_resp. Keys present: {list(emissions_resp.keys())}")
+            final_optimization = {
+                "error": "Optimization plan missing from emissions engine response",
+                "debug_keys": list(emissions_resp.keys()),
+                "status": "FAILED_DIAGNOSTIC"
+            }
     else:
         # For Static: Use the dispersion engine results (enriched with GIS geoms)
         final_dispersion = dispersion_resp
         final_optimization = optimization_resp
+        
+        # Ensure it's not None even in static mode
+        if final_optimization is None:
+            final_optimization = {"error": "Optimizer service returned no plan", "status": "FAILED_DIAGNOSTIC"}
         
         # SCHEMA UNIFICATION: ResultsPanel expects 'expected_reduction'
         if final_optimization and "plan" in final_optimization:
