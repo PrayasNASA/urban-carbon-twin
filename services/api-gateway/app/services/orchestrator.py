@@ -195,7 +195,11 @@ def run_full_simulation(lat, lon, budget, initial_aqi=None):
 def analyze_scenario(results: dict):
     """
     Use Gemini 1.5 Pro to analyze the simulation results and provide strategic insights.
+    Returns analysis + actual model stats (tokens/latency).
     """
+    import time
+    start_time = time.time()
+    
     prompt = f"""
     You are the "Urban Carbon Twin" Strategic Intelligence Engine. 
     Analyze these urban CO2 sequestration results and provide expert strategic insights.
@@ -221,6 +225,7 @@ def analyze_scenario(results: dict):
     """
     
     response = model.generate_content(prompt)
+    latency_ms = int((time.time() - start_time) * 1000)
     
     try:
         # Attempt to parse JSON from response
@@ -230,20 +235,52 @@ def analyze_scenario(results: dict):
         elif "```" in text:
             text = text.split("```")[1].split("```")[0].strip()
             
-        return json.loads(text)
+        analysis = json.loads(text)
+        
+        # Add metadata for frontend
+        analysis["_stats"] = {
+            "latency": latency_ms,
+            "tokens": response.usage_metadata.candidates_token_count + response.usage_metadata.prompt_token_count
+        }
+        return analysis
     except Exception as e:
         print(f"Error parsing Gemini response: {e}")
-        raise e
+        # Return a fallback object so the UI doesn't break
+        return {
+            "summary": "The simulation analysis engine is temporarily unavailable.",
+            "justification": f"Error: {str(e)}",
+            "insight": "Please check your Vertex AI configuration and credits.",
+            "confidence": 0.1,
+            "_stats": {"latency": latency_ms, "tokens": 0}
+        }
 
 
 def get_market_pulse():
     """
-    Get real-time carbon market credentials. 
-    Currently returns an error as no live provider is configured.
+    Get real-time carbon market credentials.
+    Fallback to synthetic data if no provider is configured.
     """
-    # TODO: Integrate real market API (e.g. OPIS, ICE, or equivalent)
-    # For now, we return strict failures instead of mock data
-    raise NotImplementedError("Live Market Data feed is not yet configured.")
+    import random
+    from datetime import datetime, timedelta
+
+    # Generate synthetic history
+    history = []
+    base_price = 45.50
+    for i in range(20):
+        base_price += random.uniform(-1.2, 1.5)
+        history.append({
+            "timestamp": (datetime.now() - timedelta(minutes=5*(20-i))).isoformat(),
+            "price": round(base_price, 2)
+        })
+
+    return {
+        "current_price": history[-1]["price"],
+        "price_unit": "USD/tCO2",
+        "trend": "UP" if history[-1]["price"] > history[-2]["price"] else "DOWN",
+        "history": history,
+        "market_status": "VOLATILE",
+        "source": "Synthetic Market Feed"
+    }
 
 
 def calculate_sentiment(optimization_plan: dict):

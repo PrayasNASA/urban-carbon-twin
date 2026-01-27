@@ -8,6 +8,10 @@ interface AiAnalysis {
     justification: string;
     insight: string;
     confidence: number;
+    _stats?: {
+        latency: number;
+        tokens: number;
+    };
 }
 
 export default function AiStrategyNarrative({ analysis, loading }: { analysis: AiAnalysis | null, loading: boolean }) {
@@ -129,7 +133,9 @@ export default function AiStrategyNarrative({ analysis, loading }: { analysis: A
                         <div className="w-1.5 h-1.5 rounded-full bg-neon-emerald animate-pulse" />
                         <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Real-time Inference</span>
                     </div>
-                    <span className="text-[9px] font-mono text-white/20 uppercase tracking-widest">Lat: 842ms • Tokens: 242</span>
+                    <span className="text-[9px] font-mono text-white/20 uppercase tracking-widest">
+                        Lat: {analysis._stats?.latency ?? '---'}ms • Tokens: {analysis._stats?.tokens ?? '---'}
+                    </span>
                 </div>
                 <div className="flex items-center gap-4">
                     <button
