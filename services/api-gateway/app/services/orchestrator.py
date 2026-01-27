@@ -8,15 +8,8 @@ from config import (
     GOOGLE_CLOUD_PROJECT,
     GOOGLE_CLOUD_LOCATION
 )
-import vertexai
-from vertexai.generative_models import GenerativeModel, Part
 import json
 from .weather_service import get_live_weather
-
-# Initialize Vertex AI
-vertexai.init(project=GOOGLE_CLOUD_PROJECT, location=GOOGLE_CLOUD_LOCATION)
-model = GenerativeModel("gemini-1.5-flash-001")
-
 
 def run_emissions():
     r = requests.get(f"{EMISSION_ENGINE_URL}/emissions")
@@ -61,9 +54,6 @@ def run_dispersion(wind_speed: float = 0, wind_deg: float = 0, temp: float = 25.
     return data
 
 
-# Removed old get_live_weather simulation
-
-
 def run_optimization(budget: float):
     r = requests.post(
         f"{OPTIMIZER_ENGINE_URL}/optimize",
@@ -85,8 +75,6 @@ def run_interventions(interventions: list):
         # Enrich with geometries for map rendering
         geoms = fetch_grid_geometries()
         if geoms:
-            # Result usually has a 'grids' or list structure. Adjust based on intervention service.
-            # Assuming data is list of grids or data['results']
             results = data if isinstance(data, list) else data.get("results", [])
             for res in results:
                 gid = res.get("grid_id")
@@ -124,13 +112,9 @@ def run_full_simulation(lat, lon, budget, initial_aqi=None):
     """
     Orchestrates the entire simulation: Weather -> Emissions -> Dispersion -> Optimization.
     """
-    # 1. Get Live Weather
     weather = get_live_weather(lat, lon)
-    
-    # 2. Start simulation on emission engine (Baseline)
     emissions_resp = init_simulation(lat, lon, budget, initial_aqi)
     
-    # 3. Run Dispersion with Live Weather
     dispersion_resp = run_dispersion(
         weather["wind_speed"], 
         weather["wind_deg"],
@@ -138,46 +122,24 @@ def run_full_simulation(lat, lon, budget, initial_aqi=None):
         weather["humidity"]
     )
     
-    # 4. Run Optimization
     optimization_resp = run_optimization(budget)
-    
-    # 5. Calculate Social Sentiment
     sentiment = calculate_sentiment(optimization_resp)
     
-    # 6. Result Consolidation Logic
-    # ----------------------------
-    # Priority: Dynamic (Voronoi) > Static (Rectangular)
-    
-    # Check if emissions engine produced a full optimized simulation (Voronoi)
     emissions_disp = emissions_resp.get("dispersion", {})
     voronoi_results = emissions_disp.get("results", [])
-    
-    # We define it as dynamic if it has results with explicit geometries (Voronoi)
     is_dynamic = len(voronoi_results) > 0 and voronoi_results[0].get("geometry")
     
     if is_dynamic:
-        # For Dynamic: Use the self-contained dispersion and plan from emissions engine
         final_dispersion = emissions_disp
         final_optimization = emissions_resp.get("optimization_plan")
-        
-        # Add robust check for missing plan in dynamic mode
         if final_optimization is None:
-            print(f"⚠️ Warning: Dynamic optimization plan missing in emissions_resp. Keys present: {list(emissions_resp.keys())}")
-            final_optimization = {
-                "error": "Optimization plan missing from emissions engine response",
-                "debug_keys": list(emissions_resp.keys()),
-                "status": "FAILED_DIAGNOSTIC"
-            }
+            final_optimization = {"error": "Optimization plan missing", "status": "FAILED_DIAGNOSTIC"}
     else:
-        # For Static: Use the dispersion engine results (enriched with GIS geoms)
         final_dispersion = dispersion_resp
         final_optimization = optimization_resp
-        
-        # Ensure it's not None even in static mode
         if final_optimization is None:
             final_optimization = {"error": "Optimizer service returned no plan", "status": "FAILED_DIAGNOSTIC"}
         
-        # SCHEMA UNIFICATION: ResultsPanel expects 'expected_reduction'
         if final_optimization and "plan" in final_optimization:
             for item in final_optimization["plan"]:
                 if "gain" in item and "expected_reduction" not in item:
@@ -194,41 +156,46 @@ def run_full_simulation(lat, lon, budget, initial_aqi=None):
 
 def analyze_scenario(results: dict):
     """
-    Use Gemini 1.5 Pro to analyze the simulation results and provide strategic insights.
-    Returns analysis + actual model stats (tokens/latency).
+    Use Gemini 1.5 Pro to analyze simulation results.
+    Returns analysis + actual model stats.
     """
     import time
     start_time = time.time()
-    
-    prompt = f"""
-    You are the "Urban Carbon Twin" Strategic Intelligence Engine. 
-    Analyze these urban CO2 sequestration results and provide expert strategic insights.
-
-    CONTEXT DATA:
-    {json.dumps(results, indent=2)}
-
-    TASK:
-    1. SUMMARY: Provide a 2-3 sentence executive overview of the climate impact.
-    2. JUSTIFICATION: Explain the scientific or economic logic behind the deployment pattern (e.g., impact of wind, budget efficiency, or land use).
-    3. INNOVATIVE SUGGESTION: Suggest one creative, high-impact policy or technical move not explicitly in the current plan.
-    4. CONFIDENCE: Give a numerical score (0.0 to 1.0) based on the data alignment.
-
-    STYLE: Professional, "Solarpunk" (optimistic, high-tech, nature-integrated), and actionable.
-    
-    RESPONSE FORMAT: Strict JSON only.
-    {{
-        "summary": "...",
-        "justification": "...",
-        "insight": "...",
-        "confidence": 0.XX
-    }}
-    """
-    
-    response = model.generate_content(prompt)
-    latency_ms = int((time.time() - start_time) * 1000)
+    latency_ms = 0
     
     try:
-        # Attempt to parse JSON from response
+        import vertexai
+        from vertexai.generative_models import GenerativeModel
+        
+        vertexai.init(project=GOOGLE_CLOUD_PROJECT, location=GOOGLE_CLOUD_LOCATION)
+        gen_model = GenerativeModel("gemini-1.5-flash-001")
+        
+        prompt = f"""
+        You are the "Urban Carbon Twin" Strategic Intelligence Engine. 
+        Analyze these urban CO2 sequestration results and provide expert strategic insights.
+
+        CONTEXT DATA:
+        {json.dumps(results, indent=2)}
+
+        TASK:
+        1. SUMMARY: Provide a 2-3 sentence executive overview of the climate impact.
+        2. JUSTIFICATION: Explain the scientific or economic logic behind the deployment pattern.
+        3. INNOVATIVE SUGGESTION: Suggest one creative, high-impact policy/technical move.
+        4. CONFIDENCE: Give a numerical score (0.0 to 1.0).
+
+        STYLE: Professional, Solarpunk, and actionable.
+        RESPONSE FORMAT: Strict JSON only.
+        {{
+            "summary": "...",
+            "justification": "...",
+            "insight": "...",
+            "confidence": 0.XX
+        }}
+        """
+        
+        response = gen_model.generate_content(prompt)
+        latency_ms = int((time.time() - start_time) * 1000)
+        
         text = response.text.strip()
         if "```json" in text:
             text = text.split("```json")[1].split("```")[0].strip()
@@ -237,33 +204,30 @@ def analyze_scenario(results: dict):
             
         analysis = json.loads(text)
         
-        # Add metadata for frontend
-        analysis["_stats"] = {
-            "latency": latency_ms,
-            "tokens": response.usage_metadata.candidates_token_count + response.usage_metadata.prompt_token_count
-        }
+        tokens = 0
+        try:
+            tokens = response.usage_metadata.candidates_token_count + response.usage_metadata.prompt_token_count
+        except:
+            pass
+            
+        analysis["_stats"] = {"latency": latency_ms, "tokens": tokens}
         return analysis
+        
     except Exception as e:
-        print(f"Error parsing Gemini response: {e}")
-        # Return a fallback object so the UI doesn't break
+        latency_ms = int((time.time() - start_time) * 1000)
+        print(f"CRITICAL AI FAILURE: {e}")
         return {
-            "summary": "The simulation analysis engine is temporarily unavailable.",
-            "justification": f"Error: {str(e)}",
-            "insight": "Please check your Vertex AI configuration and credits.",
+            "summary": "AI Intelligence Engine is recalibrating.",
+            "justification": f"Diagnostic: {str(e)}",
+            "insight": "Run another simulation or check Vertex AI permissions.",
             "confidence": 0.1,
             "_stats": {"latency": latency_ms, "tokens": 0}
         }
 
 
 def get_market_pulse():
-    """
-    Get real-time carbon market credentials.
-    Fallback to synthetic data if no provider is configured.
-    """
     import random
     from datetime import datetime, timedelta
-
-    # Generate synthetic history
     history = []
     base_price = 45.50
     for i in range(20):
@@ -284,17 +248,11 @@ def get_market_pulse():
 
 
 def calculate_sentiment(optimization_plan: dict):
-    """
-    Calculates public sentiment based on the chosen interventions.
-    """
     if "error" in optimization_plan or not optimization_plan.get("plan"):
         return {"approval": 0.5, "tag": "NEUTRAL", "reason": "No data available."}
     
-    score = 0.6  # Base approval
-    
-    # Interventions that increase sentiment
+    score = 0.6
     green_boost = ["Urban Reforestation", "Green Rooftops", "Algae Panels"]
-    # Interventions that might be neutral or slightly intrusive
     industrial_penalty = ["Carbon Scrubbers", "DAC Modules", "Roadside Capture"]
     
     plan = optimization_plan.get("plan", [])
@@ -306,15 +264,7 @@ def calculate_sentiment(optimization_plan: dict):
             score -= 0.02
             
     score = max(0.1, min(0.95, score))
-    
-    tags = {
-        (0.8, 1.0): "ENTHUSIASTIC",
-        (0.6, 0.8): "FAVORABLE",
-        (0.4, 0.6): "NEUTRAL",
-        (0.2, 0.4): "SKEPTICAL",
-        (0.0, 0.2): "HOSTILE"
-    }
-    
+    tags = {(0.8, 1.0): "ENTHUSIASTIC", (0.6, 0.8): "FAVORABLE", (0.4, 0.6): "NEUTRAL", (0.2, 0.4): "SKEPTICAL", (0.0, 0.2): "HOSTILE"}
     tag = "NEUTRAL"
     for (low, high), t in tags.items():
         if low <= score < high:
@@ -324,8 +274,5 @@ def calculate_sentiment(optimization_plan: dict):
     return {
         "approval": round(score, 2),
         "tag": tag,
-        "metrics": {
-            "eco_index": round(score * 1.2, 2),
-            "disruption_index": round((1-score) * 0.5, 2)
-        }
+        "metrics": {"eco_index": round(score * 1.2, 2), "disruption_index": round((1-score) * 0.5, 2)}
     }
