@@ -83,12 +83,26 @@ flowchart TD
 
 ---
 
+## ☁️ Google Cloud Platform (GCP) Integration
+
+Urban Carbon Twin is built as a **cloud-native platform**, leveraging the high-performance capabilities of the Google Cloud ecosystem to deliver real-time, AI-driven insights:
+
+- **Google Cloud Run**: Orchestrates the entire microservices mesh. Each engine (GIS, Dispersion, etc.) is deployed as a serverless container, providing auto-scaling and low-latency execution.
+- **Vertex AI (Gemini 1.5)**: Powers the **AI Strategy Engine**. It performs deep analysis of sequestration outcomes to generate professional, "Solarpunk" styled strategic interventions.
+- **Google Earth Engine (GEE)**: Serves as the primary data source for global CO₂ concentration layers, allowing the digital twin to synchronize with real-world satellite observations.
+- **Cloud Build**: Automates the containerization and deployment pipeline for all services directly from the repository.
+- **Cloud Logging**: Captures detailed diagnostic telemetry for every simulation, enabling advanced troubleshooting and performance auditing.
+
+---
+
 ## 🚀 Technical Stack
 
-- **Frontend**: Next.js 15, React 19, **Tailwind CSS v4**, Lucide-React.
-- **Backend**: Python 3.12, FastAPI, Pydantic, NumPy.
-- **Infrastructure**: Docker, Docker Compose, Google Cloud Run, Vercel.
-- **Architecture**: RESTful Microservices, Geo-spatial Data Processing.
+- **Cloud Platform**: Google Cloud Platform (GCP), Vercel.
+- **AI/ML**: Vertex AI (Gemini 1.5 Pro/Flash), Generative Language API.
+- **Geospatial**: Google Earth Engine, GeoJSON Precision Modeling.
+- **Frontend**: Next.js 15 (App Router), React 19, **Tailwind CSS v4**, Framer Motion.
+- **Backend**: Python 3.12, FastAPI, Pydantic v2, FPDF2 (Binary Reports).
+- **Deployment**: Docker, Google Cloud Run, GitHub Actions CI/CD.
 
 ---
 
