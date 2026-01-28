@@ -70,9 +70,13 @@ export default function Home() {
               </span>
             </Link>
 
-            <button className="px-8 py-4 bg-white/5 border border-white/10 text-white font-bold uppercase tracking-widest text-xs rounded-lg hover:bg-white/10 transition-colors">
+            <Link
+              href="/user_book.pdf"
+              target="_blank"
+              className="px-8 py-4 bg-white/5 border border-white/10 text-white font-bold uppercase tracking-widest text-xs rounded-lg hover:bg-white/10 transition-colors"
+            >
               View Documentation
-            </button>
+            </Link>
           </motion.div>
         </div>
 
