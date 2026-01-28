@@ -1,7 +1,13 @@
+$ErrorActionPreference = "Stop"
+$SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$PROJECT_ROOT = Split-Path -Parent $SCRIPT_DIR
+Set-Location $PROJECT_ROOT
+
 $PROJECT_ID = "urbun-carbon-twin"
 $REGION = "us-central1"
 
-Write-Host "Starting deployment to GCP Project: $PROJECT_ID" -ForegroundColor Cyan
+Write-Host "Starting deployment from: $PROJECT_ROOT" -ForegroundColor Cyan
+Write-Host "Target GCP Project: $PROJECT_ID" -ForegroundColor Cyan
 
 # Define services in dependency order
 $services = @(
@@ -17,7 +23,7 @@ $ServiceUrls = @{}
 
 # 1. Enable APIs (idempotent)
 Write-Host "Enabling required APIs..."
-gcloud services enable run.googleapis.com containerregistry.googleapis.com cloudbuild.googleapis.com --project $PROJECT_ID
+gcloud services enable run.googleapis.com containerregistry.googleapis.com cloudbuild.googleapis.com aiplatform.googleapis.com --project $PROJECT_ID
 
 # 2. Deploy Backend Services
 foreach ($service in $services) {

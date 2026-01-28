@@ -186,6 +186,7 @@ def export_analysis_pdf(payload: dict):
         params = payload.get("scenario_params", {})
         
         pdf_bytes = create_report_pdf(analysis, params)
+        print(f"DEBUG: Generated PDF bytes, length: {len(pdf_bytes)}")
         
         return Response(
             content=pdf_bytes,
@@ -193,4 +194,8 @@ def export_analysis_pdf(payload: dict):
             headers={"Content-Disposition": "attachment; filename=carbon_twin_report.pdf"}
         )
     except Exception as e:
-        return {"error": str(e)}
+        import traceback
+        print(f"ERROR in export_analysis_pdf: {e}")
+        print(traceback.format_exc())
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=str(e))
