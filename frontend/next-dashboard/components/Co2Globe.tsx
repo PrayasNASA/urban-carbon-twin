@@ -386,13 +386,13 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
 
 
             {/* Legend for Simultaneous View with Toggles */}
-            {
-                simultaneousView && (
+            {simultaneousView && (
+                <>
+                    {/* Layer Toggles */}
                     <div className="absolute top-24 right-6 z-50 bg-black/60 backdrop-blur-xl p-4 rounded-xl border border-white/10 flex flex-col gap-4 min-w-[200px]">
                         <h4 className="text-[10px] font-extrabold text-white/40 uppercase tracking-[0.2em] border-b border-white/5 pb-2">Visualization Layers</h4>
 
                         <div className="flex flex-col gap-3">
-                            {/* Layer Toggles */}
                             {['aqi', 'temp', 'no2', 'pm25', 'methane'].map((mode) => (
                                 <button
                                     key={mode}
@@ -407,8 +407,83 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
                             ))}
                         </div>
                     </div>
-                )
-            }
+
+                    {/* Active Mode Legend */}
+                    <div className="absolute bottom-10 right-6 z-50 bg-black/60 backdrop-blur-xl p-3 rounded-xl border border-white/10 flex flex-col gap-2 min-w-[150px]">
+                        <h4 className="text-[9px] font-extrabold text-white/30 uppercase tracking-[0.2em] mb-1">Scale: {viewMode.toUpperCase()}</h4>
+                        <div className="flex flex-col gap-2">
+                            {viewMode === 'aqi' && (
+                                <>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-red-600 shadow-[0_0_8px_rgba(220,38,38,0.5)]" />
+                                        <span className="text-[9px] font-bold text-white/60 uppercase">Hazardous ({'>'}200)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.5)]" />
+                                        <span className="text-[9px] font-bold text-white/60 uppercase">Moderate (101-200)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-lime-500 shadow-[0_0_8px_rgba(132,204,22,0.5)]" />
+                                        <span className="text-[9px] font-bold text-white/60 uppercase">Good (0-100)</span>
+                                    </div>
+                                </>
+                            )}
+                            {viewMode === 'temp' && (
+                                <>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-orange-600 shadow-[0_0_8px_rgba(234,88,12,0.5)]" />
+                                        <span className="text-[9px] font-bold text-white/60 uppercase">Heat Stress ({'>'}30°C)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)]" />
+                                        <span className="text-[9px] font-bold text-white/60 uppercase">Neutral (20-30°C)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.5)]" />
+                                        <span className="text-[9px] font-bold text-white/60 uppercase">Cool ({'<'}20°C)</span>
+                                    </div>
+                                </>
+                            )}
+                            {viewMode === 'no2' && (
+                                <>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-purple-600 shadow-[0_0_8px_rgba(147,51,234,0.5)]" />
+                                        <span className="text-[9px] font-bold text-white/60 uppercase">Elevated ({'>'}50 ppb)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-indigo-200 shadow-[0_0_8px_rgba(199,210,254,0.5)]" />
+                                        <span className="text-[9px] font-bold text-white/60 uppercase">Baseline</span>
+                                    </div>
+                                </>
+                            )}
+                            {viewMode === 'pm25' && (
+                                <>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-gray-500 shadow-[0_0_8px_rgba(107,114,128,0.5)]" />
+                                        <span className="text-[9px] font-bold text-white/60 uppercase">High Dust ({'>'}100)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-gray-300 shadow-[0_0_8px_rgba(209,213,219,0.5)]" />
+                                        <span className="text-[9px] font-bold text-white/60 uppercase">Low Dust</span>
+                                    </div>
+                                </>
+                            )}
+                            {viewMode === 'methane' && (
+                                <>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-amber-900 shadow-[0_0_8px_rgba(120,53,15,0.5)]" />
+                                        <span className="text-[9px] font-bold text-white/60 uppercase">Anomaly ({'>'}20 ppb)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-orange-100 shadow-[0_0_8px_rgba(255,247,237,0.5)]" />
+                                        <span className="text-[9px] font-bold text-white/60 uppercase">Background</span>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </>
+            )}
 
             {/* Active Data Overlay - Replaced with EnvironmentalPanel */}
             {
