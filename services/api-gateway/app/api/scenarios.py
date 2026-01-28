@@ -185,13 +185,16 @@ def export_analysis_pdf(payload: dict):
         analysis = payload.get("analysis", {})
         params = payload.get("scenario_params", {})
         
-        pdf_bytes = create_report_pdf(analysis, params)
+        pdf_bytes = bytes(create_report_pdf(analysis, params))
         print(f"DEBUG: Generated PDF bytes, length: {len(pdf_bytes)}")
         
         return Response(
             content=pdf_bytes,
             media_type="application/pdf",
-            headers={"Content-Disposition": "attachment; filename=carbon_twin_report.pdf"}
+            headers={
+                "Content-Disposition": "attachment; filename=carbon_twin_report.pdf",
+                "Content-Length": str(len(pdf_bytes))
+            }
         )
     except Exception as e:
         import traceback
