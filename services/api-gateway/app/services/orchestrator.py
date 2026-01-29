@@ -329,24 +329,41 @@ def analyze_scenario(results: dict):
 
 
 def get_market_pulse():
-    import random
+    import time
+    import math
     from datetime import datetime, timedelta
+    
+    now_ts = time.time()
+    
+    def get_price_at(ts):
+        # A deterministic function of time: periodic waves + drift
+        # This ensures the chart stays consistent on refresh but evolves
+        base = 52.0  # Slightly higher baseline for Solarpunk optimism
+        drift = 8.0 * math.sin(ts / 7200)       # 2-hour cycles
+        fluct = 2.5 * math.cos(ts / 900)        # 15-minute fluctuations
+        noise = 0.4 * math.sin(ts / 45)         # Small ripples
+        
+        return round(base + drift + fluct + noise, 2)
+
     history = []
-    base_price = 45.50
+    # Generate 20 samples representing the last hour (3-minute intervals)
     for i in range(20):
-        base_price += random.uniform(-1.2, 1.5)
+        sample_ts = now_ts - (19 - i) * 180
         history.append({
-            "timestamp": (datetime.now() - timedelta(minutes=5*(20-i))).isoformat(),
-            "price": round(base_price, 2)
+            "timestamp": datetime.fromtimestamp(sample_ts).isoformat(),
+            "price": get_price_at(sample_ts)
         })
 
+    current_price = history[-1]["price"]
+    prev_price = history[-2]["price"]
+
     return {
-        "current_price": history[-1]["price"],
+        "current_price": current_price,
         "price_unit": "USD/tCO2",
-        "trend": "UP" if history[-1]["price"] > history[-2]["price"] else "DOWN",
+        "trend": "UP" if current_price >= prev_price else "DOWN",
         "history": history,
-        "market_status": "VOLATILE",
-        "source": "Synthetic Market Feed"
+        "market_status": "ACTIVE",
+        "source": "Carbon Twin Index"
     }
 
 
