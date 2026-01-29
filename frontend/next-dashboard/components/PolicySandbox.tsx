@@ -11,21 +11,24 @@ interface Policy {
     impact_co2: number; // Percentage reduction
     impact_cost: number; // Cost increase/decrease
     active: boolean;
+    isDynamic?: boolean;
 }
 
 export default function PolicySandbox({ onUpdateImpact, lat, lon }: { onUpdateImpact: (impact: number) => void, lat?: number, lon?: number }) {
     const [policies, setPolicies] = useState<Policy[]>([
-        { id: 'ev_zone', name: 'EV-Only Zone', description: 'Restrict ICE vehicles in city center', impact_co2: 12.5, impact_cost: 50000, active: false },
-        { id: 'green_roof', name: 'Green Roof Mandate', description: 'Require 30% vegetation on new builds', impact_co2: 8.2, impact_cost: 120000, active: false },
-        { id: 'carbon_tax', name: 'Industrial Carbon Tax', description: 'Tax heavy emitters >100 tons/yr', impact_co2: 15.0, impact_cost: -200000, active: false }, // Negative cost = revenue
-        { id: 'public_transit', name: 'Super-Cycle Network', description: 'Expand bike lanes by 400%', impact_co2: 5.4, impact_cost: 25000, active: false }
+        { id: 'ev_zone', name: 'EV-Only Zone', description: 'Restrict ICE vehicles in city center', impact_co2: 0, impact_cost: 0, active: false },
+        { id: 'green_roof', name: 'Green Roof Mandate', description: 'Require 30% vegetation on new builds', impact_co2: 0, impact_cost: 0, active: false },
+        { id: 'carbon_tax', name: 'Industrial Carbon Tax', description: 'Tax heavy emitters >100 tons/yr', impact_co2: 0, impact_cost: 0, active: false },
+        { id: 'public_transit', name: 'Super-Cycle Network', description: 'Expand bike lanes by 400%', impact_co2: 0, impact_cost: 0, active: false }
     ]);
 
     const [isQuerying, setIsQuerying] = useState(false);
+    const [fetchError, setFetchError] = useState(false);
 
     useEffect(() => {
         const fetchImpacts = async () => {
             setIsQuerying(true);
+            setFetchError(false);
             try {
                 const dynamicImpacts = await analyzePolicies(lat, lon);
                 setPolicies(prev => prev.map(p => {
@@ -33,11 +36,13 @@ export default function PolicySandbox({ onUpdateImpact, lat, lon }: { onUpdateIm
                     return dynamic ? {
                         ...p,
                         impact_co2: dynamic.impact_co2,
-                        impact_cost: dynamic.impact_cost ?? p.impact_cost
+                        impact_cost: dynamic.impact_cost ?? p.impact_cost,
+                        isDynamic: true
                     } : p;
                 }));
             } catch (err) {
                 console.error("Failed to fetch policy impacts:", err);
+                setFetchError(true);
             } finally {
                 setIsQuerying(false);
             }
@@ -75,7 +80,8 @@ export default function PolicySandbox({ onUpdateImpact, lat, lon }: { onUpdateIm
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-blue-400"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>
                     <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest">BigQuery Simulator</span>
                 </div>
-                {isQuerying && <span className="text-[9px] text-blue-400 animate-pulse">SYNCING GIS DATA...</span>}
+                {isQuerying && <span className="text-[9px] text-blue-400 animate-pulse uppercase tracking-widest">Querying BI Engine...</span>}
+                {fetchError && <span className="text-[9px] text-rose-400 font-bold uppercase tracking-widest">BI Engine Offline (Check Deployment)</span>}
             </div>
 
             <div className="space-y-3">
@@ -90,7 +96,9 @@ export default function PolicySandbox({ onUpdateImpact, lat, lon }: { onUpdateIm
                         <div className="flex flex-col">
                             <span className={`text-xs font-bold ${policy.active ? 'text-blue-400' : 'text-white'}`}>{policy.name}</span>
                             <span className="text-[10px] text-white/40">{policy.description}</span>
-                            <span className="text-[8px] text-blue-400/50 mt-1 uppercase tracking-widest font-bold">GIS Model: Accurate</span>
+                            <span className={`text-[8px] mt-1 uppercase tracking-widest font-bold ${policy.isDynamic ? 'text-blue-400/50' : 'text-white/10'}`}>
+                                {policy.isDynamic ? "GIS Model: Accurate" : "Baseline Projection"}
+                            </span>
                         </div>
                         <div className="flex flex-col items-end">
                             <span className={`text-[10px] font-mono font-bold ${policy.active ? 'text-neon-emerald' : 'text-white/20'}`}>
