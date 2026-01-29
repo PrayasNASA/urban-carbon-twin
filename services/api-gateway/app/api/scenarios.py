@@ -162,12 +162,12 @@ def market_pulse():
 
 
 @router.get("/policies/analyze")
-def analyze_policies():
+def analyze_policies(lat: float = Query(None), lon: float = Query(None)):
     """
     Get dynamic, GIS-informed CO2 reduction impacts for urban policies.
     """
     try:
-        return calculate_policy_impacts()
+        return calculate_policy_impacts(lat, lon)
     except Exception as e:
         return {"error": str(e)}
 

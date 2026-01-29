@@ -425,7 +425,11 @@ export default function Dashboard() {
                                             exit={{ opacity: 0, x: 10 }}
                                             className="space-y-6"
                                         >
-                                            <PolicySandbox onUpdateImpact={setPolicyImpact} />
+                                            <PolicySandbox
+                                                onUpdateImpact={setPolicyImpact}
+                                                lat={currentCity?.center?.lat || globalData?.location?.lat}
+                                                lon={currentCity?.center?.lon || globalData?.location?.lon}
+                                            />
                                             {policyImpact > 0 && (
                                                 <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/30">
                                                     <div className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">BigQuery Projection</div>

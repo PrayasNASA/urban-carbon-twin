@@ -84,8 +84,12 @@ export async function getMarketPulse() {
   return res.json();
 }
 
-export async function analyzePolicies() {
-  const res = await fetch(`${API_GATEWAY}/scenario/policies/analyze`);
+export async function analyzePolicies(lat?: number, lon?: number) {
+  const url = new URL(`${API_GATEWAY}/scenario/policies/analyze`);
+  if (lat) url.searchParams.append("lat", lat.toString());
+  if (lon) url.searchParams.append("lon", lon.toString());
+
+  const res = await fetch(url.toString());
 
   if (!res.ok) {
     throw new Error("Failed to analyze policies");
