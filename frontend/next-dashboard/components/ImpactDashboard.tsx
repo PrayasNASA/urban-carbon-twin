@@ -12,7 +12,9 @@ interface ImpactStatsProps {
 export default function ImpactDashboard({ data, budget }: ImpactStatsProps) {
     // Mock ROI Calculations based on pollution reduction
     const stats = useMemo(() => {
-        const reduction = data?.optimization_plan?.projected_improvement?.aqi || 0;
+        const reduction = data?.optimization_plan?.projected_improvement?.aqi ||
+            data?.optimization_plan?.total_reduction ||
+            (data?.optimization_plan?.plan?.reduce((acc: number, curr: any) => acc + (curr.expected_reduction || 0), 0)) || 0;
         const healthcareSavings = reduction * 125000; // $125k saved per AQI point reduced
         const roi = budget > 0 ? ((healthcareSavings - budget) / budget) * 100 : 0;
 
