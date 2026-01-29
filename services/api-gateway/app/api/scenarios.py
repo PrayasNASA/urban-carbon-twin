@@ -1,5 +1,3 @@
-from fastapi import APIRouter
-from app.schemas.scenario_schema import ScenarioRequest, ScenarioResponse, ComparisonRequest
 from app.services.orchestrator import (
     run_emissions,
     run_dispersion,
@@ -10,16 +8,7 @@ from app.services.orchestrator import (
     analyze_scenario,
     get_market_pulse
 )
-from app.services.orchestrator import (
-    run_emissions,
-    run_dispersion,
-    run_optimization,
-    run_interventions,
-    get_gee_co2,
-    init_simulation,
-    analyze_scenario,
-    get_market_pulse
-)
+from app.services.policy_service import calculate_policy_impacts
 import os
 from fastapi import Query
 
@@ -168,6 +157,17 @@ def market_pulse():
     """
     try:
         return get_market_pulse()
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.get("/policies/analyze")
+def analyze_policies():
+    """
+    Get dynamic, GIS-informed CO2 reduction impacts for urban policies.
+    """
+    try:
+        return calculate_policy_impacts()
     except Exception as e:
         return {"error": str(e)}
 

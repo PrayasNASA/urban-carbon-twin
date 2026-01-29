@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { analyzePolicies } from '@/lib/api';
 
 interface Policy {
     id: string;
@@ -21,6 +22,24 @@ export default function PolicySandbox({ onUpdateImpact }: { onUpdateImpact: (imp
     ]);
 
     const [isQuerying, setIsQuerying] = useState(false);
+
+    useEffect(() => {
+        const fetchImpacts = async () => {
+            setIsQuerying(true);
+            try {
+                const dynamicImpacts = await analyzePolicies();
+                setPolicies(prev => prev.map(p => {
+                    const dynamic = dynamicImpacts.find((d: any) => d.id === p.id);
+                    return dynamic ? { ...p, impact_co2: dynamic.impact_co2 } : p;
+                }));
+            } catch (err) {
+                console.error("Failed to fetch policy impacts:", err);
+            } finally {
+                setIsQuerying(false);
+            }
+        };
+        fetchImpacts();
+    }, []);
 
     const togglePolicy = (id: string) => {
         setIsQuerying(true);

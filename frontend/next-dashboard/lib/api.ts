@@ -83,3 +83,13 @@ export async function getMarketPulse() {
 
   return res.json();
 }
+
+export async function analyzePolicies() {
+  const res = await fetch(`${API_GATEWAY}/scenario/policies/analyze`);
+
+  if (!res.ok) {
+    throw new Error("Failed to analyze policies");
+  }
+
+  return res.json();
+}
