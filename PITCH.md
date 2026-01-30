@@ -1,13 +1,4 @@
-# Urban Carbon Twin 🏙️🌌✨
-### An Advanced Digital Twin Platform for Urban CO₂ Modeling & Optimization
-
-![Python](https://img.shields.io/badge/Python-3.12-blue)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688)
-![Next.js](https://img.shields.io/badge/Next.js-15-black)
-![License](https://img.shields.io/badge/License-MIT-green)
-![Hackathon](https://img.shields.io/badge/Hackathon-Viksit--Bharat-orange)
-
----
+# 🏙️ Urban Carbon Twin - Logic & Layout for the Win
 
 ## 1️⃣ The Problem (The Hook)
 **"Cities are failing Net Zero commitments because they are flying blind."**
@@ -18,28 +9,13 @@
 
 ---
 
-## 2️⃣ Our Solution (The Flight Simulator)
+## 2️⃣ Our Solution (What we built)
 **Meeting the Urban Carbon Twin.**
 It is not just a dashboard; it is a **Real-Time Policy Flight Simulator** for city planners.
 
 *   **3D Digital Twin:** High-fidelity visualization of urban infrastructure (using Cesium/Resium).
 *   **Live Policy Sandbox:** A powerful engine that allows users to toggle active interventions (Carbon Tax, Green Roofs) and see the *immediate* impact on CO2 emissions and Budget.
 *   **AI Strategy Engine:** We don't just show data; our integrated **Vertex AI** agent suggests the *optimal* path to Net Zero based on local grid telemetry.
-
----
-
-## 🖼️ UI Preview & Live Demo
-
-| [ ![Landing](assets/ui0.png) ](https://urban-carbon-twin.vercel.app) | [ ![3D Map](assets/ui1.png) ](https://urban-carbon-twin.vercel.app) | [ ![Strategy](assets/ui2.png) ](https://urban-carbon-twin.vercel.app) |
-| :---: | :---: | :---: |
-| **Interactive Landing** | **3D Topology Map** | **Resource Logic** |
-| [ ![Analytics](assets/ui3.png) ](https://urban-carbon-twin.vercel.app) | [ ![Metrics](assets/ui4.png) ](https://urban-carbon-twin.vercel.app) | [ ![Market](assets/ui5.png) ](https://urban-carbon-twin.vercel.app) |
-| **Scenario Intel** | **Live Metrics** | **Carbon Exchange** |
-| [ ![Policy](assets/ui6.png) ](https://urban-carbon-twin.vercel.app) | | |
-| **Policy Sandbox** | | |
-
-> [!IMPORTANT]
-> **🚀 Live Experience**: Click any image above to explore the **[Urban Carbon Twin Live Deployment](https://urban-carbon-twin.vercel.app)**.
 
 ---
 
@@ -56,18 +32,29 @@ It is not just a dashboard; it is a **Real-Time Policy Flight Simulator** for ci
 
 ---
 
-## 4️⃣ Key Features & Tech Pillars
+## 4️⃣ Live Demo Flow (Script)
+*Duration: 2 Minutes*
 
-| 🧩 Visibility | 🧠 Intelligence | 📈 Optimization |
-| :--- | :--- | :--- |
-| **Real-time GIS Sync** integrates spatial data into a high-performance 3D dashboard. | **Physics-based Dispersion** models the micro-climatic flow of CO₂ across street layouts. | **Cost-Aware Interventions** use AI to find the most efficient budget allocation. |
+1.  **The "Wow" Opening (0:00-0:30):**
+    *   Launch the app. Show the **3D Globe** spinning and zooming into the specific city grid.
+    *   *Narration:* "Welcome to the future of urban planning. This is the live heartbeat of the city's carbon footprint."
+
+2.  **The "Action" (0:30-1:15):**
+    *   Open the **Policy Sandbox** on the right panel.
+    *   Toggle **"EV-Only Zone"**.
+    *   *Point out:* "Watch how the CO2 projection curve bends *instantly*. This isn't a pre-canned number; it's calculating based on the 1,200km of road network in this specific grid."
+    *   Toggle **"Industrial Carbon Tax"**. Show the revenue (negative cost) increasing.
+
+3.  **The "Closer" (1:15-2:00):**
+    *   Click "Analyze with AI".
+    *   Show the **Vertex AI** generating a unique summary: *"Based on high building density in Sector 7, prioritize Green Roofs over Transit expansion."*
+    *   *Narration:* "The AI becomes the co-pilot for the Mayor."
 
 ---
 
 ## 5️⃣ Tech Stack (The Muscle)
-
 *   **Frontend:** Next.js 16 (App Router), React 19, Tailwind CSS 4, Framer Motion, Cesium (3D Viz).
-*   **Backend:** Python 3.12 (FastAPI), Google Cloud Platform (Cloud Run).
+*   **Backend:** Python (FastAPI), Google Cloud Platform (Cloud Run).
 *   **Intelligence:** Google Gemini / Vertex AI (Generative Strategy).
 *   **Data:** Google Earth Engine (Geospatial Intelligence).
 
@@ -81,27 +68,3 @@ It is not just a dashboard; it is a **Real-Time Policy Flight Simulator** for ci
     *   Scale from Single District -> Full Smart City OS.
 
 **"We are not just mapping the problem. We are simulating the cure."**
-
----
-
-## 🛠️ Quick Start
-
-### 1. Launch with Docker (Recommended)
-Clone the repository and spin up the entire microservice ecosystem:
-```bash
-git clone https://github.com/PrayasNASA/urban-carbon-twin.git
-cd urban-carbon-twin
-docker compose up --build
-```
-
-### 2. Service Access
-- **🌍 Experience Dashboard**: [http://localhost:3000](http://localhost:3000)
-- **⚙️ Simulation Gateway**: [http://localhost:8005/docs](http://localhost:8005/docs)
-- **📍 GIS Spatial Engine**: [http://localhost:8000/docs](http://localhost:8000/docs)
-
----
-
-## 📜 License & Governance
-- **Project Status**: ACTIVE - Developed for strategic urban resilience modeling.
-- **Theme**: Digital Twin for Sustainability & Decarbonization.
-- **Context**: Hack-4-Viksit Bharat Hackathon

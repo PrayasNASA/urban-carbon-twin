@@ -1,3 +1,5 @@
+from fastapi import APIRouter
+from app.schemas.scenario_schema import ScenarioRequest, ScenarioResponse, ComparisonRequest
 from app.services.orchestrator import (
     run_emissions,
     run_dispersion,
