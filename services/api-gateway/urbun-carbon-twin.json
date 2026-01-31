@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "urbun-carbon-twin",
+  "private_key_id": "15cc351ed87c0931826899f869073dc90d13d4a9",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC3kV93o43lnwst\nRwUfIla0JPCsH6fxU3D5/6vOUuL4TNs0cNcyPRqpazEAT5AZ2mzsgt0m0On85nwX\nsrj0hc/Lqs7Ss5v37dCEP9FA5+hKTVUfhfpniywb24ZoVzGfMTrTJG0AYshedVrI\n62dlu8SS6nGR8SsWVvn6KiG5bww5bleMpO3S4Tu/IQexyC/bdQCc9UINVpVUfi06\nX/t5Knw2UwgFHPDnZeZC8FmQlWSQ6KBWQCNaUDBDaGKXBZ9pjho92Us/kWbOVXer\nzMZCK+6Yflmj0rvqYTKqHc2Sopx2TL4UXUBxjLjPtjIuYuYKLyhAi0ncOUyR4XKT\niEUrQvQ7AgMBAAECggEAGuTD8VG3bMA30XrZr72GqV7OGdGLd8orP50rDQ/Mq+cK\nqGytwnD8UnzfUXXWnUsIcUAc6V5rIX+dB5XKDhz6nBKauXjR7WlchruYyyMOv7AD\nvBoTXQ8hN7WaQ/geT33VafCovYk7ZMdZtRzz6Y4wVvvdBq4oC15Twkhg53ty9YjK\njaHrRO4Q54qia4YT/hSTSG6MQM2I98ja9xQmZfFlLg7ege8vVZaRigyTS3rFRnPv\n+veAPirbmvSApWA2mtRqrsKqhV0FlIBDrPy74OTcYLvTzosV4r9Kl6TeSC8llWcb\nLVTnUCJxsyYv7+6KYBt3AVb/I0OzEpgudHbL3nx47QKBgQDxQ0QAmFmaqUMwtVLC\ntEjF4ugI06jJzRDNcKryit/UWb3CzyMzdBKceC3L/QS3k3wwbdtAyO98hEvm2Gwf\nQghnwTlZheNOdoocyyeXrZxXR4M/WSQSccqEp2oHeQlZUBmK3vP3tt6XI5v1t/I7\n7Cdw1bY38TreUaycJkh5t9z7pwKBgQDCx+gAY8Ehn1nIDQr2a7GPEsn5zJhMPz5E\nqRvz56vnZk6SrxkgwtJ6cq1mhxlCzPILci+24+U/WzsMmuplKE7nyzQFMCrFPD4o\ntI+rPMgU6FM4n69pEn4/cWEb1PU9pGAOvGoo/IsFfM5kdAcZeCPsImB9IlzmdtTC\nChWsJDcFTQKBgQCicSXyOKHsLpcczplgmz58bqDIgKqe5UGw8XFISRUXxyyrZAhR\ndo+pZol/VWa9q8HsYatEXYZSEkmArqtuCGncYg8ZJbq8c7feVzLbP3uKkI3gM0bE\nXHV9B7OuQGJ5DiOEi0U8vpX0sXcq5KVmj0SnBl3gIL4APoG3yVb3DULu9QKBgFfW\n9S5vziIOjduk3iPA72MZUxKfDLOd9cPbC6sT+DczsQ1/f3KByY/E9aP+GwtAB4vX\n4+KzpafLybZminwyEFuCDSSl0zP9df6/ZucPUx/yoc0wXlehKmQMCoIVqL8yyMr8\nd1eihENmRGGS3bzDrFeKLT9hZsncHxiemaV284UlAoGBANgakVnEBq6tV6JgyKx1\nv6mMmfqRSZSbdYJsWalLwaZd4b8jCpbM8YPnQvYxRE35cXn8g7GzIXaugvHo4YXS\n19Ep0RclYhkwv2wbM76nLmmyic72kHQd99BnAN2/uR6QR1OkxppWMaHeN6wYjPsT\n8iJw1u88vui1D9Q3Kkykov57\n-----END PRIVATE KEY-----\n",
+  "client_email": "gee-emission-engine@urbun-carbon-twin.iam.gserviceaccount.com",
+  "client_id": "114656261974368827054",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/gee-emission-engine%40urbun-carbon-twin.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

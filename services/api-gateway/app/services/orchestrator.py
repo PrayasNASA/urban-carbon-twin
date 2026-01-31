@@ -241,6 +241,15 @@ def analyze_scenario(results: dict):
     try:
         import vertexai
         from vertexai.generative_models import GenerativeModel
+        import os
+
+        # Path to service account key relative to this file or WORKDIR
+        sa_path = "urbun-carbon-twin.json"
+        if os.path.exists(sa_path):
+            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.abspath(sa_path)
+            print(f"DEBUG: Found service account key at {sa_path}")
+        else:
+            print(f"WARNING: Service account key NOT found at {sa_path}")
         
         # Strategy: fallback through multiple regions and project IDs if needed
         locations = [GOOGLE_CLOUD_LOCATION, "us-east4", "us-west1", "europe-west1"]
@@ -251,6 +260,7 @@ def analyze_scenario(results: dict):
         current_loc = GOOGLE_CLOUD_LOCATION
         response = None
         success = False
+        last_error = "Unknown"
         
         for proj in projects:
             for loc in locations:
@@ -274,7 +284,8 @@ def analyze_scenario(results: dict):
                             continue
                     if success: break
                 except Exception as ie:
-                    print(f"DEBUG: Init failed for {proj} in {loc}: {ie}")
+                    last_error = str(ie)
+                    print(f"DEBUG: Init/Gen failed for {proj} in {loc}: {ie}")
                     continue
             if success: break
             
@@ -288,9 +299,9 @@ def analyze_scenario(results: dict):
                 pass
             
             # FINAL FAIL-SAFE: Return the Heuristic Insight so the UI is NEVER broken
-            print("WARNING: All AI Platforms failed. Returning Heuristic Insight.")
+            print(f"WARNING: All AI Platforms failed. Last Error: {last_error}")
             analysis = generate_heuristic_insight(results)
-            analysis["_stats"]["error"] = "VertexAI_Unavailable_All_Regions"
+            analysis["_stats"]["error"] = last_error
             return analysis
 
         # --- Process the AI Response ---

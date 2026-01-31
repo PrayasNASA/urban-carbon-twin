@@ -54,6 +54,9 @@ services:
       DISPERSION_ENGINE_URL: http://dispersion-engine:8000
       INTERVENTION_ENGINE_URL: http://intervention-engine:8000
       OPTIMIZER_ENGINE_URL: http://optimizer-service:8000
+      GOOGLE_CLOUD_PROJECT: urbun-carbon-twin
+      GOOGLE_CLOUD_LOCATION: us-central1
+      GOOGLE_APPLICATION_CREDENTIALS: /app/urbun-carbon-twin.json
     depends_on:
       - gis-service
       - emission-engine

@@ -101,7 +101,7 @@ gcloud run deploy api-gateway `
     --region $REGION `
     --allow-unauthenticated `
     --project $PROJECT_ID `
-    --set-env-vars "GIS_BASE_URL=$GisUrl,EMISSION_ENGINE_URL=$EmissionUrl,DISPERSION_ENGINE_URL=$DispersionUrl,INTERVENTION_ENGINE_URL=$InterventionUrl,OPTIMIZER_ENGINE_URL=$OptimizerUrl,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=$REGION"
+    --set-env-vars "GIS_BASE_URL=$GisUrl,EMISSION_ENGINE_URL=$EmissionUrl,DISPERSION_ENGINE_URL=$DispersionUrl,INTERVENTION_ENGINE_URL=$InterventionUrl,OPTIMIZER_ENGINE_URL=$OptimizerUrl,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=$REGION,GOOGLE_APPLICATION_CREDENTIALS=/app/urbun-carbon-twin.json"
 
 # Final Output
 $GatewayUrl = gcloud run services describe api-gateway --platform managed --region $REGION --format 'value(status.url)' --project $PROJECT_ID
