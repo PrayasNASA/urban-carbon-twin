@@ -15,6 +15,7 @@ origins = [
     "http://127.0.0.1:3000",
     "http://127.0.0.1:3001",
     "https://urban-carbon-twin.vercel.app",
+    "https://next-dashboard-owkex2u2ca-uc.a.run.app",
 ]
 
 app.add_middleware(
