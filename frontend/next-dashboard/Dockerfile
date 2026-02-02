@@ -9,6 +9,10 @@ RUN npm install
 # Copy source
 COPY . .
 
+# Build args
+ARG NEXT_PUBLIC_API_GATEWAY
+ENV NEXT_PUBLIC_API_GATEWAY=$NEXT_PUBLIC_API_GATEWAY
+
 # Build Next.js app
 RUN npm run build
 
