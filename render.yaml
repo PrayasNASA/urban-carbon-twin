@@ -1,0 +1,108 @@
+services:
+  - type: web
+    name: gis-service
+    env: docker
+    plan: free
+    dockerfilePath: ./services/gis-service/Dockerfile
+    dockerContext: ./services/gis-service
+
+  - type: web
+    name: emission-engine
+    env: docker
+    plan: free
+    dockerfilePath: ./services/emission-engine/Dockerfile
+    dockerContext: ./services/emission-engine
+    envVars:
+      - key: GIS_BASE_URL
+        fromService:
+          type: web
+          name: gis-service
+          property: url
+
+  - type: web
+    name: dispersion-engine
+    env: docker
+    plan: free
+    dockerfilePath: ./services/dispersion-engine/Dockerfile
+    dockerContext: ./services/dispersion-engine
+    envVars:
+      - key: GIS_BASE_URL
+        fromService:
+          type: web
+          name: gis-service
+          property: url
+      - key: EMISSION_ENGINE_URL
+        fromService:
+          type: web
+          name: emission-engine
+          property: url
+
+  - type: web
+    name: intervention-engine
+    env: docker
+    plan: free
+    dockerfilePath: ./services/intervention-engine/Dockerfile
+    dockerContext: ./services/intervention-engine
+    envVars:
+      - key: DISPERSION_ENGINE_URL
+        fromService:
+          type: web
+          name: dispersion-engine
+          property: url
+
+  - type: web
+    name: optimizer-service
+    env: docker
+    plan: free
+    dockerfilePath: ./services/optimizer-service/Dockerfile
+    dockerContext: ./services/optimizer-service
+    envVars:
+      - key: DISPERSION_ENGINE_URL
+        fromService:
+          type: web
+          name: dispersion-engine
+          property: url
+      - key: INTERVENTION_ENGINE_URL
+        fromService:
+          type: web
+          name: intervention-engine
+          property: url
+
+  - type: web
+    name: api-gateway
+    env: docker
+    plan: free
+    dockerfilePath: ./services/api-gateway/Dockerfile
+    dockerContext: ./services/api-gateway
+    envVars:
+      - key: GOOGLE_CLOUD_PROJECT
+        value: urbun-carbon-twin
+      - key: GOOGLE_CLOUD_LOCATION
+        value: us-central1
+      - key: GOOGLE_APPLICATION_CREDENTIALS
+        value: /app/urbun-carbon-twin.json
+      - key: GIS_BASE_URL
+        fromService:
+          type: web
+          name: gis-service
+          property: url
+      - key: EMISSION_ENGINE_URL
+        fromService:
+          type: web
+          name: emission-engine
+          property: url
+      - key: DISPERSION_ENGINE_URL
+        fromService:
+          type: web
+          name: dispersion-engine
+          property: url
+      - key: INTERVENTION_ENGINE_URL
+        fromService:
+          type: web
+          name: intervention-engine
+          property: url
+      - key: OPTIMIZER_ENGINE_URL
+        fromService:
+          type: web
+          name: optimizer-service
+          property: url
