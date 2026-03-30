@@ -1,15 +1,20 @@
 
 import os
 
-GIS_BASE_URL = os.getenv(
+def _ensure_http(url: str) -> str:
+    if url and not url.startswith("http"):
+        return f"http://{url}"
+    return url
+
+GIS_BASE_URL = _ensure_http(os.getenv(
     "GIS_BASE_URL",
     "http://localhost:8000"
-)
+))
 
-EMISSION_ENGINE_URL = os.getenv(
+EMISSION_ENGINE_URL = _ensure_http(os.getenv(
     "EMISSION_ENGINE_URL",
     "http://localhost:8001"
-)
+))
 
 # # Service endpoints
 # GIS_BASE_URL = "http://localhost:8000"

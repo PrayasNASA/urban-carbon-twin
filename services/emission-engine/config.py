@@ -9,7 +9,12 @@ INDUSTRIAL_EMISSION_FACTOR = 5.0   # kg CO2 per grid (baseline)
 
 import os
 
-GIS_BASE_URL = os.getenv(
+def _ensure_http(url: str) -> str:
+    if url and not url.startswith("http"):
+        return f"http://{url}"
+    return url
+
+GIS_BASE_URL = _ensure_http(os.getenv(
     "GIS_BASE_URL",
     "http://localhost:8000"
-)
+))

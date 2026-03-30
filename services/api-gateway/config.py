@@ -10,10 +10,15 @@
 
 import os
 
-GIS_BASE_URL = os.getenv("GIS_BASE_URL", "http://localhost:8000")
-EMISSION_ENGINE_URL = os.getenv("EMISSION_ENGINE_URL", "http://localhost:8001")
-DISPERSION_ENGINE_URL = os.getenv("DISPERSION_ENGINE_URL", "http://localhost:8002")
-INTERVENTION_ENGINE_URL = os.getenv("INTERVENTION_ENGINE_URL", "http://localhost:8003")
-OPTIMIZER_ENGINE_URL = os.getenv("OPTIMIZER_ENGINE_URL", "http://localhost:8004")
+def _ensure_http(url: str) -> str:
+    if url and not url.startswith("http"):
+        return f"http://{url}"
+    return url
+
+GIS_BASE_URL = _ensure_http(os.getenv("GIS_BASE_URL", "http://localhost:8000"))
+EMISSION_ENGINE_URL = _ensure_http(os.getenv("EMISSION_ENGINE_URL", "http://localhost:8001"))
+DISPERSION_ENGINE_URL = _ensure_http(os.getenv("DISPERSION_ENGINE_URL", "http://localhost:8002"))
+INTERVENTION_ENGINE_URL = _ensure_http(os.getenv("INTERVENTION_ENGINE_URL", "http://localhost:8003"))
+OPTIMIZER_ENGINE_URL = _ensure_http(os.getenv("OPTIMIZER_ENGINE_URL", "http://localhost:8004"))
 GOOGLE_CLOUD_PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT", "urbun-carbon-twin")
 GOOGLE_CLOUD_LOCATION = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")

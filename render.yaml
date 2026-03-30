@@ -17,7 +17,7 @@ services:
         fromService:
           type: web
           name: gis-service
-          property: url
+          property: hostport
 
   - type: web
     name: dispersion-engine
@@ -30,12 +30,12 @@ services:
         fromService:
           type: web
           name: gis-service
-          property: url
+          property: hostport
       - key: EMISSION_ENGINE_URL
         fromService:
           type: web
           name: emission-engine
-          property: url
+          property: hostport
 
   - type: web
     name: intervention-engine
@@ -48,7 +48,7 @@ services:
         fromService:
           type: web
           name: dispersion-engine
-          property: url
+          property: hostport
 
   - type: web
     name: optimizer-service
@@ -61,12 +61,12 @@ services:
         fromService:
           type: web
           name: dispersion-engine
-          property: url
+          property: hostport
       - key: INTERVENTION_ENGINE_URL
         fromService:
           type: web
           name: intervention-engine
-          property: url
+          property: hostport
 
   - type: web
     name: api-gateway
@@ -85,24 +85,24 @@ services:
         fromService:
           type: web
           name: gis-service
-          property: url
+          property: hostport
       - key: EMISSION_ENGINE_URL
         fromService:
           type: web
           name: emission-engine
-          property: url
+          property: hostport
       - key: DISPERSION_ENGINE_URL
         fromService:
           type: web
           name: dispersion-engine
-          property: url
+          property: hostport
       - key: INTERVENTION_ENGINE_URL
         fromService:
           type: web
           name: intervention-engine
-          property: url
+          property: hostport
       - key: OPTIMIZER_ENGINE_URL
         fromService:
           type: web
           name: optimizer-service
-          property: url
+          property: hostport

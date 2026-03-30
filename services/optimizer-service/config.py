@@ -1,14 +1,19 @@
 import os
 
-DISPERSION_ENGINE_URL = os.getenv(
+def _ensure_http(url: str) -> str:
+    if url and not url.startswith("http"):
+        return f"http://{url}"
+    return url
+
+DISPERSION_ENGINE_URL = _ensure_http(os.getenv(
     "DISPERSION_ENGINE_URL",
     "http://localhost:8002"
-)
+))
 
-INTERVENTION_ENGINE_URL = os.getenv(
+INTERVENTION_ENGINE_URL = _ensure_http(os.getenv(
     "INTERVENTION_ENGINE_URL",
     "http://localhost:8003"
-)
+))
 
 
 # Upstream services
