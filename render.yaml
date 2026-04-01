@@ -14,10 +14,7 @@ services:
     dockerContext: ./services/emission-engine
     envVars:
       - key: GIS_BASE_URL
-        fromService:
-          type: web
-          name: gis-service
-          property: hostport
+        value: https://gis-service.onrender.com
 
   - type: web
     name: dispersion-engine
@@ -27,15 +24,9 @@ services:
     dockerContext: ./services/dispersion-engine
     envVars:
       - key: GIS_BASE_URL
-        fromService:
-          type: web
-          name: gis-service
-          property: hostport
+        value: https://gis-service.onrender.com
       - key: EMISSION_ENGINE_URL
-        fromService:
-          type: web
-          name: emission-engine
-          property: hostport
+        value: https://emission-engine.onrender.com
 
   - type: web
     name: intervention-engine
@@ -45,10 +36,7 @@ services:
     dockerContext: ./services/intervention-engine
     envVars:
       - key: DISPERSION_ENGINE_URL
-        fromService:
-          type: web
-          name: dispersion-engine
-          property: hostport
+        value: https://dispersion-engine.onrender.com
 
   - type: web
     name: optimizer-service
@@ -58,15 +46,9 @@ services:
     dockerContext: ./services/optimizer-service
     envVars:
       - key: DISPERSION_ENGINE_URL
-        fromService:
-          type: web
-          name: dispersion-engine
-          property: hostport
+        value: https://dispersion-engine.onrender.com
       - key: INTERVENTION_ENGINE_URL
-        fromService:
-          type: web
-          name: intervention-engine
-          property: hostport
+        value: https://intervention-engine-cjs1.onrender.com
 
   - type: web
     name: api-gateway
@@ -82,27 +64,12 @@ services:
       - key: GOOGLE_APPLICATION_CREDENTIALS
         value: /app/urbun-carbon-twin.json
       - key: GIS_BASE_URL
-        fromService:
-          type: web
-          name: gis-service
-          property: hostport
+        value: https://gis-service.onrender.com
       - key: EMISSION_ENGINE_URL
-        fromService:
-          type: web
-          name: emission-engine
-          property: hostport
+        value: https://emission-engine.onrender.com
       - key: DISPERSION_ENGINE_URL
-        fromService:
-          type: web
-          name: dispersion-engine
-          property: hostport
+        value: https://dispersion-engine.onrender.com
       - key: INTERVENTION_ENGINE_URL
-        fromService:
-          type: web
-          name: intervention-engine
-          property: hostport
+        value: https://intervention-engine-cjs1.onrender.com
       - key: OPTIMIZER_ENGINE_URL
-        fromService:
-          type: web
-          name: optimizer-service
-          property: hostport
+        value: https://optimizer-service.onrender.com

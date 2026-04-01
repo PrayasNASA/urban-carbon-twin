@@ -1,9 +1,8 @@
-
 "use client";
 
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { Cartesian3, Color, ScreenSpaceEventType, Cartographic, Math as CesiumMath, ScreenSpaceEventHandler, Fog, CallbackProperty, PostProcessStage, Cesium3DTileStyle } from "cesium";
+import { Ion, Cartesian3, Color, ScreenSpaceEventType, Cartographic, Math as CesiumMath, ScreenSpaceEventHandler, Fog, CallbackProperty, PostProcessStage, Cesium3DTileStyle, UrlTemplateImageryProvider } from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import { useCesium } from "resium";
 
@@ -11,6 +10,7 @@ import { useCesium } from "resium";
 const Viewer = dynamic(() => import("resium").then((mod) => mod.Viewer), { ssr: false });
 const Entity = dynamic(() => import("resium").then((mod) => mod.Entity), { ssr: false });
 const CameraFlyTo = dynamic(() => import("resium").then((mod) => mod.CameraFlyTo), { ssr: false });
+const ImageryLayer = dynamic(() => import("resium").then((mod) => mod.ImageryLayer), { ssr: false });
 
 interface Co2Data {
     value: number;
@@ -182,11 +182,13 @@ const ImmersiveVisuals = () => {
 
                 // Fallback to older sync method or skip if async creator is missing
                 let terrainProvider;
+                // Temporarily disabled: Cesium's free tier default token is blocking localhost/vercel.
+                // You must supply Ion.defaultAccessToken to re-enable 3D Buildings and World Terrain!
+                /*
                 if (Cesium.createWorldTerrainAsync) {
                     terrainProvider = await Cesium.createWorldTerrainAsync();
                 } else {
                     console.warn("createWorldTerrainAsync not found, skipping terrain.");
-                    // Optional: terrainProvider = Cesium.createWorldTerrain(); // logic for older versions if needed
                 }
 
                 if (terrainProvider) {
@@ -196,27 +198,11 @@ const ImmersiveVisuals = () => {
                 if (Cesium.createOsmBuildingsAsync) {
                     try {
                         const tileset = await Cesium.createOsmBuildingsAsync();
-
-                        // Solarpunk Styling: Dark base with neon highlights
-                        // Using simpler compatibility-first expressions
-                        tileset.style = new Cesium.Cesium3DTileStyle({
-                            color: {
-                                conditions: [
-                                    // Use regex test which is safer for strings/numbers than direct > operator in some Cesium versions
-                                    ["regExp('^[0-9]{3,}$').test(String(${height}))", "color('rgba(16, 185, 129, 0.5)')"],
-                                    ["regExp('^[0-9]{2,}$').test(String(${height}))", "color('rgba(16, 185, 129, 0.3)')"],
-                                    ["true", "color('rgba(255, 255, 255, 0.1)')"]
-                                ]
-                            }
-                        });
-
+                        // ... style
                         viewer.scene.primitives.add(tileset);
-                    } catch (tilesetError) {
-                        console.warn("Failed to apply 3D building tileset:", tilesetError);
-                    }
-                } else {
-                    console.warn("createOsmBuildingsAsync not found, skipping 3D buildings.");
+                    } catch (tilesetError) {}
                 }
+                */
 
             } catch (error: any) {
                 console.error("Failed to load immersive assets (detailed):", error, error.message, error.stack);
@@ -288,12 +274,20 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
                 full
                 selectionIndicator={false}
                 infoBox={false}
-                geocoder={true}
+                geocoder={false}
                 homeButton={true}
-                baseLayerPicker={true}
+                baseLayerPicker={false}
                 sceneModePicker={true}
                 navigationHelpButton={false}
+                imageryProvider={false}
             >
+                <ImageryLayer 
+                    imageryProvider={new UrlTemplateImageryProvider({
+                        url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+                        subdomains: ["a", "b", "c", "d"],
+                        credit: "Map tiles by Carto, under CC BY 3.0. Data by OpenStreetMap, under ODbL." 
+                    })} 
+                />
                 <CameraFlyTo destination={targetPos} duration={2} />
                 <ImmersiveVisuals />
                 <Helper onSelect={onSelectLocation} />

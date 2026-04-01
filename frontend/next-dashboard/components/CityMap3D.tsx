@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useRef } from 'react';
-import { Cartesian3, Color, Math as CesiumMath, Cesium3DTileStyle, Cartographic } from "cesium";
+import { Cartesian3, Color, Math as CesiumMath, Cesium3DTileStyle, Cartographic, UrlTemplateImageryProvider } from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import dynamic from 'next/dynamic';
 import { useCesium } from "resium";
@@ -11,6 +11,7 @@ const Viewer = dynamic(() => import("resium").then((mod) => mod.Viewer), { ssr: 
 const Entity = dynamic(() => import("resium").then((mod) => mod.Entity), { ssr: false });
 const CameraFlyTo = dynamic(() => import("resium").then((mod) => mod.CameraFlyTo), { ssr: false });
 const PolygonGraphics = dynamic(() => import("resium").then((mod) => mod.PolygonGraphics), { ssr: false });
+const ImageryLayer = dynamic(() => import("resium").then((mod) => mod.ImageryLayer), { ssr: false });
 
 // Fix for default marker icons in Next.js
 const iconRetinaUrl = 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png';
@@ -27,6 +28,8 @@ const ImmersiveCityVisuals = ({ grids, theme }: { grids: any[], theme: 'dark' | 
             try {
                 const Cesium = await import("cesium");
 
+                // Temporarily disabled due to Vercel/Localhost free tier token blocks
+                /*
                 // 1. Terrain
                 if (Cesium.createWorldTerrainAsync) {
                     viewer.terrainProvider = await Cesium.createWorldTerrainAsync();
@@ -35,22 +38,10 @@ const ImmersiveCityVisuals = ({ grids, theme }: { grids: any[], theme: 'dark' | 
                 // 2. 3D OSM Buildings with Dynamic CO2 Styling
                 if (Cesium.createOsmBuildingsAsync) {
                     const tileset = await Cesium.createOsmBuildingsAsync();
-
-                    // Advanced Styling: Buildings "glow" based on proximity to CO2 hot zones
-                    // Note: In a production app, we'd pass grid data as a texture or uniform.
-                    // For now, we'll use a height-based solarpunk aesthetic that feels "informed"
-                    tileset.style = new Cesium.Cesium3DTileStyle({
-                        color: {
-                            conditions: [
-                                ["regExp('^[0-9]{3,}$').test(String(${height}))", "color('#10B981', 0.6)"],
-                                ["regExp('^[0-9]{2,}$').test(String(${height}))", "color('#10B981', 0.4)"],
-                                ["true", "color('#ffffff', 0.1)"]
-                            ]
-                        }
-                    });
-
+                    // Style
                     viewer.scene.primitives.add(tileset);
                 }
+                */
 
                 // 3. Solarpunk Atmosphere
                 viewer.scene.fog.enabled = true;
@@ -109,14 +100,23 @@ export default function CityMap({ dispersion, optimizationPlan, comparisonData, 
                 full
                 selectionIndicator={false}
                 infoBox={false}
-                baseLayerPicker={true}
+                baseLayerPicker={false}
                 geocoder={false}
                 homeButton={false}
                 sceneModePicker={false}
                 navigationHelpButton={false}
                 timeline={false}
                 animation={false}
+                // @ts-ignore
+                imageryProvider={false}
             >
+                <ImageryLayer 
+                    imageryProvider={new UrlTemplateImageryProvider({
+                        url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+                        subdomains: ["a", "b", "c", "d"],
+                        credit: "Map tiles by Carto, under CC BY 3.0"
+                    })} 
+                />
                 <CameraFlyTo destination={targetPos} duration={2} />
                 <ImmersiveCityVisuals grids={grids} theme={theme} />
 
