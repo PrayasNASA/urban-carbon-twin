@@ -1,4 +1,4 @@
-export const API_GATEWAY = process.env.NEXT_PUBLIC_API_GATEWAY || "https://api-gateway-916807068717.us-central1.run.app";
+export const API_GATEWAY = process.env.NEXT_PUBLIC_API_GATEWAY || "https://api-gateway-yn5z.onrender.com";
 
 export async function runScenario(budget: number) {
   const res = await fetch(`${API_GATEWAY}/scenario`, {
