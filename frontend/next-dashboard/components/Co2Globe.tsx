@@ -279,6 +279,7 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
                 baseLayerPicker={false}
                 sceneModePicker={true}
                 navigationHelpButton={false}
+                // @ts-ignore
                 imageryProvider={false}
             >
                 <ImageryLayer 
