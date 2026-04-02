@@ -11,7 +11,12 @@ const Viewer = dynamic(() => import("resium").then((mod) => mod.Viewer), { ssr: 
 const Entity = dynamic(() => import("resium").then((mod) => mod.Entity), { ssr: false });
 const CameraFlyTo = dynamic(() => import("resium").then((mod) => mod.CameraFlyTo), { ssr: false });
 const PolygonGraphics = dynamic(() => import("resium").then((mod) => mod.PolygonGraphics), { ssr: false });
-const ImageryLayer = dynamic(() => import("resium").then((mod) => mod.ImageryLayer), { ssr: false });
+
+// Inject Ion token if available to restore gorgeous default maps
+if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_CESIUM_ACCESS_TOKEN) {
+    const { Ion } = require("cesium");
+    Ion.defaultAccessToken = process.env.NEXT_PUBLIC_CESIUM_ACCESS_TOKEN;
+}
 
 // Fix for default marker icons in Next.js
 const iconRetinaUrl = 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png';
@@ -28,8 +33,6 @@ const ImmersiveCityVisuals = ({ grids, theme }: { grids: any[], theme: 'dark' | 
             try {
                 const Cesium = await import("cesium");
 
-                // Temporarily disabled due to Vercel/Localhost free tier token blocks
-                /*
                 // 1. Terrain
                 if (Cesium.createWorldTerrainAsync) {
                     viewer.terrainProvider = await Cesium.createWorldTerrainAsync();
@@ -38,10 +41,17 @@ const ImmersiveCityVisuals = ({ grids, theme }: { grids: any[], theme: 'dark' | 
                 // 2. 3D OSM Buildings with Dynamic CO2 Styling
                 if (Cesium.createOsmBuildingsAsync) {
                     const tileset = await Cesium.createOsmBuildingsAsync();
-                    // Style
+                    tileset.style = new Cesium.Cesium3DTileStyle({
+                        color: {
+                            conditions: [
+                                ["regExp('^[0-9]{3,}$').test(String(${height}))", "color('#10B981', 0.6)"],
+                                ["regExp('^[0-9]{2,}$').test(String(${height}))", "color('#10B981', 0.4)"],
+                                ["true", "color('#ffffff', 0.1)"]
+                            ]
+                        }
+                    });
                     viewer.scene.primitives.add(tileset);
                 }
-                */
 
                 // 3. Solarpunk Atmosphere
                 viewer.scene.fog.enabled = true;
@@ -100,23 +110,14 @@ export default function CityMap({ dispersion, optimizationPlan, comparisonData, 
                 full
                 selectionIndicator={false}
                 infoBox={false}
-                baseLayerPicker={false}
+                baseLayerPicker={true}
                 geocoder={false}
                 homeButton={false}
                 sceneModePicker={false}
                 navigationHelpButton={false}
                 timeline={false}
                 animation={false}
-                // @ts-ignore
-                imageryProvider={false}
             >
-                <ImageryLayer 
-                    imageryProvider={new UrlTemplateImageryProvider({
-                        url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-                        subdomains: ["a", "b", "c", "d"],
-                        credit: "Map tiles by Carto, under CC BY 3.0"
-                    })} 
-                />
                 <CameraFlyTo destination={targetPos} duration={2} />
                 <ImmersiveCityVisuals grids={grids} theme={theme} />
 

@@ -6,6 +6,11 @@ import { Ion, Cartesian3, Color, ScreenSpaceEventType, Cartographic, Math as Ces
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import { useCesium } from "resium";
 
+// Inject Ion token if available to restore gorgeous default maps
+if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_CESIUM_ACCESS_TOKEN) {
+    Ion.defaultAccessToken = process.env.NEXT_PUBLIC_CESIUM_ACCESS_TOKEN;
+}
+
 // Dynamically import Resium components to avoid SSR issues with Cesium
 const Viewer = dynamic(() => import("resium").then((mod) => mod.Viewer), { ssr: false });
 const Entity = dynamic(() => import("resium").then((mod) => mod.Entity), { ssr: false });
@@ -180,15 +185,9 @@ const ImmersiveVisuals = () => {
                 // Dynamically import the entire Cesium module to inspect available exports
                 const Cesium = await import("cesium");
 
-                // Fallback to older sync method or skip if async creator is missing
                 let terrainProvider;
-                // Temporarily disabled: Cesium's free tier default token is blocking localhost/vercel.
-                // You must supply Ion.defaultAccessToken to re-enable 3D Buildings and World Terrain!
-                /*
                 if (Cesium.createWorldTerrainAsync) {
                     terrainProvider = await Cesium.createWorldTerrainAsync();
-                } else {
-                    console.warn("createWorldTerrainAsync not found, skipping terrain.");
                 }
 
                 if (terrainProvider) {
@@ -198,11 +197,19 @@ const ImmersiveVisuals = () => {
                 if (Cesium.createOsmBuildingsAsync) {
                     try {
                         const tileset = await Cesium.createOsmBuildingsAsync();
-                        // ... style
+                        // Solarpunk Styling: Dark base with neon highlights
+                        tileset.style = new Cesium.Cesium3DTileStyle({
+                            color: {
+                                conditions: [
+                                    ["regExp('^[0-9]{3,}$').test(String(${height}))", "color('rgba(16, 185, 129, 0.5)')"],
+                                    ["regExp('^[0-9]{2,}$').test(String(${height}))", "color('rgba(16, 185, 129, 0.3)')"],
+                                    ["true", "color('rgba(255, 255, 255, 0.1)')"]
+                                ]
+                            }
+                        });
                         viewer.scene.primitives.add(tileset);
                     } catch (tilesetError) {}
                 }
-                */
 
             } catch (error: any) {
                 console.error("Failed to load immersive assets (detailed):", error, error.message, error.stack);
@@ -274,21 +281,12 @@ const Co2Globe: React.FC<Co2GlobeProps & { onSelectLocation?: (lat: number, lon:
                 full
                 selectionIndicator={false}
                 infoBox={false}
-                geocoder={false}
+                geocoder={true}
                 homeButton={true}
-                baseLayerPicker={false}
+                baseLayerPicker={true}
                 sceneModePicker={true}
                 navigationHelpButton={false}
-                // @ts-ignore
-                imageryProvider={false}
             >
-                <ImageryLayer 
-                    imageryProvider={new UrlTemplateImageryProvider({
-                        url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-                        subdomains: ["a", "b", "c", "d"],
-                        credit: "Map tiles by Carto, under CC BY 3.0. Data by OpenStreetMap, under ODbL." 
-                    })} 
-                />
                 <CameraFlyTo destination={targetPos} duration={2} />
                 <ImmersiveVisuals />
                 <Helper onSelect={onSelectLocation} />
