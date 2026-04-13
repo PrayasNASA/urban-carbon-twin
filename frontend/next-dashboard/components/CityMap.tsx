@@ -142,6 +142,7 @@ export default function CityMap({ dispersion, optimizationPlan, comparisonData, 
             </div>
 
             {/* Legend Overlay */}
+            {/* /* and this is absoule the bottom and the text */ }
             <div className="absolute bottom-6 left-6 z-[400] bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-xl shadow-2xl">
                 <h4 className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-3">Concentration Zones</h4>
                 <div className="space-y-2">
