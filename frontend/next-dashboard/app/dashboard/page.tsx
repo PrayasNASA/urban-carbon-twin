@@ -27,6 +27,10 @@ const CitySelector = dynamic(() => import("@/components/CitySelector"), { ssr: f
 
 if (typeof window !== "undefined") {
     (window as any).CESIUM_BASE_URL = "/cesium";
+    // Set Cesium Ion access token for imagery, terrain, and 3D buildings
+    import("cesium").then((Cesium) => {
+        Cesium.Ion.defaultAccessToken = process.env.NEXT_PUBLIC_CESIUM_ACCESS_TOKEN || "";
+    });
 }
 
 export default function Dashboard() {
