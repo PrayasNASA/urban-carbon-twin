@@ -3,9 +3,14 @@
 
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { Cartesian3, Color, ScreenSpaceEventType, Cartographic, Math as CesiumMath, ScreenSpaceEventHandler, Fog, CallbackProperty, PostProcessStage, Cesium3DTileStyle } from "cesium";
+import { Cartesian3, Color, ScreenSpaceEventType, Cartographic, Math as CesiumMath, ScreenSpaceEventHandler, Fog, CallbackProperty, PostProcessStage, Cesium3DTileStyle, Ion } from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import { useCesium } from "resium";
+
+// Set Cesium Ion access token for map imagery, terrain, and 3D tile services
+if (typeof window !== "undefined") {
+    Ion.defaultAccessToken = process.env.NEXT_PUBLIC_CESIUM_ACCESS_TOKEN || "";
+}
 
 // Dynamically import Resium components to avoid SSR issues with Cesium
 const Viewer = dynamic(() => import("resium").then((mod) => mod.Viewer), { ssr: false });

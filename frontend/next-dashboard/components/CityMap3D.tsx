@@ -1,10 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState, useRef } from 'react';
-import { Cartesian3, Color, Math as CesiumMath, Cesium3DTileStyle, Cartographic } from "cesium";
+import { Cartesian3, Color, Math as CesiumMath, Cesium3DTileStyle, Cartographic, Ion } from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import dynamic from 'next/dynamic';
 import { useCesium } from "resium";
+
+// Set Cesium Ion access token for map imagery, terrain, and 3D tile services
+if (typeof window !== "undefined") {
+    Ion.defaultAccessToken = process.env.NEXT_PUBLIC_CESIUM_ACCESS_TOKEN || "";
+}
 
 // Dynamically import Resium components
 const Viewer = dynamic(() => import("resium").then((mod) => mod.Viewer), { ssr: false });
