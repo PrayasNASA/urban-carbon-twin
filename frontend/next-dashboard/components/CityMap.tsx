@@ -55,8 +55,8 @@ export default function CityMap({ dispersion, optimizationPlan, comparisonData, 
             : [28.6139, 77.2090]); // Default New Delhi
 
     const getColor = (val: number) => {
-        if (val > 300) return '#7f1d1d'; // Severe (Dark Red)
-        if (val > 200) return '#7c3aed'; // Very Unhealthy (Purple) - Matches Image 2
+        if (val > 300) return '#831843'; // Hazardous (Maroon)
+        if (val > 200) return '#7c3aed'; // Very Unhealthy (Purple)
         if (val > 150) return '#dc2626'; // Unhealthy (Red)
         if (val > 100) return '#f97316'; // Sensitive (Orange)
         if (val > 50) return '#facc15';  // Moderate (Yellow)
@@ -146,7 +146,8 @@ export default function CityMap({ dispersion, optimizationPlan, comparisonData, 
                 <h4 className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-3">Concentration Zones</h4>
                 <div className="space-y-2">
                     {[
-                        { label: 'Very Unhealthy (200+)', color: '#7c3aed' }, // Purple
+                        { label: 'Hazardous (300+)', color: '#831843' },      // Maroon
+                        { label: 'Very Unhealthy (200-300)', color: '#7c3aed' }, // Purple
                         { label: 'Unhealthy (150-200)', color: '#dc2626' },   // Red
                         { label: 'Sensitive (100-150)', color: '#f97316' },   // Orange
                         { label: 'Moderate (50-100)', color: '#facc15' },     // Yellow
