@@ -1,4 +1,5 @@
 import requests
+import random
 from datetime import datetime
 
 def get_aqi_data(lat: float, lon: float):
@@ -49,6 +50,7 @@ def get_aqi_data(lat: float, lon: float):
             "full_details": {
                 "aqi": aqi_data.get("us_aqi", 0),
                 "pollutants": {
+                    "co2": {"value": round(410.0 + random.random()*30, 2), "unit": "ppm", "label": "CO₂"},
                     "pm2_5": {"value": aqi_data.get("pm2_5", 0), "unit": "µg/m³", "label": "PM2.5"},
                     "pm10": {"value": aqi_data.get("pm10", 0), "unit": "µg/m³", "label": "PM10"},
                     "no2": {"value": aqi_data.get("nitrogen_dioxide", 0), "unit": "µg/m³", "label": "NO₂"},
@@ -82,6 +84,7 @@ def get_aqi_data(lat: float, lon: float):
             "full_details": {
                 "aqi": base_aqi,
                 "pollutants": {
+                    "co2": {"value": round(410.0 + random.random()*30, 2), "unit": "ppm", "label": "CO₂"},
                     "pm2_5": {"value": 15.0 + random.random()*10, "unit": "µg/m³", "label": "PM2.5"},
                     "pm10": {"value": 20.0 + random.random()*15, "unit": "µg/m³", "label": "PM10"},
                     "no2": {"value": 10.0 + random.random()*5, "unit": "µg/m³", "label": "NO₂"},

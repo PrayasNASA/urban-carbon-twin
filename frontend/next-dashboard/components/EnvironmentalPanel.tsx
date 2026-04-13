@@ -12,9 +12,16 @@ interface EnvironmentalPanelProps {
 const PollutantItem = ({ label, value, unit, max = 200 }: any) => {
     const percentage = Math.min((value / max) * 100, 100);
     let color = "bg-emerald-500";
-    if (value > 50) color = "bg-amber-500";
-    if (value > 100) color = "bg-rose-500";
-    if (value > 200) color = "bg-purple-500";
+    
+    if (label === 'CO₂') {
+        if (value > 450) color = "bg-amber-500";
+        if (value > 600) color = "bg-rose-500";
+        if (value > 1000) color = "bg-purple-500";
+    } else {
+        if (value > 50) color = "bg-amber-500";
+        if (value > 100) color = "bg-rose-500";
+        if (value > 200) color = "bg-purple-500";
+    }
 
     return (
         <div className="flex flex-col gap-1.5 p-3 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
@@ -113,9 +120,13 @@ export default function EnvironmentalPanel({ data, onSimulate, onClose }: Enviro
                         <span className="text-[9px] text-white/30 uppercase">µg/m³</span>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
-                        {pollutants && Object.entries(pollutants).map(([key, p]: any) => (
-                            <PollutantItem key={key} label={p.label} value={p.value} unit={p.unit} />
-                        ))}
+                        {pollutants && Object.entries(pollutants).map(([key, p]: any) => {
+                            let max = 200;
+                            if (key === 'co2') max = 600; // CO2 is around 400ppm
+                            else if (key === 'co') max = 1000;
+                            else if (key === 'no2' || key === 'o3') max = 300;
+                            return <PollutantItem key={key} label={p.label} value={p.value} unit={p.unit} max={max} />;
+                        })}
                     </div>
                 </div>
 
