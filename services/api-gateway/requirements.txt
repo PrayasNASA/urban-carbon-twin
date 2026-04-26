@@ -10,6 +10,7 @@ numpy
 pydantic
 pyproj
 requests
+scikit-learn
 scipy
 shapely
 uvicorn

@@ -12,12 +12,14 @@ export default function ScenarioPanel({
   setBudget,
   idealBudget,
 }: {
-  onRun: (budget: number) => void;
+  onRun: (budget: number, hotspotMethod: string, optMethod: string) => void;
   loading: boolean;
   budget: number;
   setBudget: (b: number) => void;
   idealBudget?: number;
 }) {
+  const [hotspotMethod, setHotspotMethod] = useState("threshold");
+  const [optMethod, setOptMethod] = useState("greedy");
   return (
     <div className="flex flex-col gap-6 w-full">
       {/* 🎚️ Connected Capital Control */}
@@ -93,6 +95,34 @@ export default function ScenarioPanel({
       {/* 💡 Intelligence Context Box */}
       <div className="p-6 premium-blur border border-white/5 rounded-2xl relative overflow-hidden group hover:border-neon-emerald/20 transition-all duration-500">
         <div className="absolute top-0 left-0 w-1 h-full bg-neon-emerald/50 shadow-[0_0_15px_#10B981]" />
+        
+        <div className="flex flex-col gap-4 mb-4">
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.1em]">Hotspot Detection</label>
+            <select
+              value={hotspotMethod}
+              onChange={(e) => setHotspotMethod(e.target.value)}
+              className="bg-black/50 border border-white/10 rounded-lg p-2 text-xs text-white outline-none focus:border-neon-emerald/50 transition-colors"
+            >
+              <option value="threshold">Threshold (Fast)</option>
+              <option value="kmeans">K-Means (Balanced)</option>
+              <option value="dbscan">DBSCAN (High Precision)</option>
+            </select>
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-black text-white/40 uppercase tracking-[0.1em]">Optimization Strategy</label>
+            <select
+              value={optMethod}
+              onChange={(e) => setOptMethod(e.target.value)}
+              className="bg-black/50 border border-white/10 rounded-lg p-2 text-xs text-white outline-none focus:border-neon-emerald/50 transition-colors"
+            >
+              <option value="greedy">Greedy (Immediate Return)</option>
+              <option value="genetic">Genetic (Evolutionary)</option>
+              <option value="linear">Linear Programming (Rigorous)</option>
+            </select>
+          </div>
+        </div>
+
         <p className="text-[12px] text-white/60 leading-relaxed font-medium">
           <span className="text-neon-emerald font-black uppercase mr-3 tracking-[0.2em] text-[10px] bg-neon-emerald/10 px-2 py-0.5 rounded">Insight</span>
           Deployments exceeding <span className="text-white font-bold">$50K</span> activate regional swarm agents, increasing capture efficiency by <span className="text-neon-emerald font-black">24.3%</span>.
@@ -101,7 +131,7 @@ export default function ScenarioPanel({
 
       {/* ⚡ Primary Execution CTA */}
       <button
-        onClick={() => onRun(budget)}
+        onClick={() => onRun(budget, hotspotMethod, optMethod)}
         disabled={loading}
         className={`w-full py-5 px-10 rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-5 active:scale-[0.97] shadow-2xl group ${loading
           ? "bg-white/5 text-white/20 cursor-not-allowed border border-white/5"

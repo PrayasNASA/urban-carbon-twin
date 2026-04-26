@@ -135,7 +135,9 @@ def initialize_simulation(payload: dict):
             payload.get("lat"), 
             payload.get("lon"), 
             payload.get("budget"),
-            payload.get("initial_aqi")
+            payload.get("initial_aqi"),
+            payload.get("hotspot_method", "threshold"),
+            payload.get("opt_method", "greedy")
         )
     except Exception as e:
         return {"error": str(e)}

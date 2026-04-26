@@ -122,7 +122,7 @@ export default function Dashboard() {
         }
     }
 
-    async function handleRunSimulation(budget: number) {
+    async function handleRunSimulation(budget: number, hotspotMethod: string = "threshold", optMethod: string = "greedy") {
         setLoading(true);
         setError(null);
         setComparisonData(null);
@@ -130,7 +130,7 @@ export default function Dashboard() {
             if (globalData) {
                 // Scenario A: Dynamic Global Point
                 const initialAqi = globalData?.full_details?.aqi || 50;
-                const result = await initializeSimulation(globalData.location.lat, globalData.location.lon, budget, initialAqi);
+                const result = await initializeSimulation(globalData.location.lat, globalData.location.lon, budget, initialAqi, hotspotMethod, optMethod);
                 handleSimulationSuccess(result);
             }
             else if (compareMode) {
