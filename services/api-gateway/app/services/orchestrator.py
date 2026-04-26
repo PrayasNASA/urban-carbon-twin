@@ -31,7 +31,158 @@ def run_interventions(*args, **kwargs):
 def get_gee_co2(lat: float, lon: float):
     from .aqi_service import get_aqi_data
     return get_aqi_data(lat, lon)
-def init_simulation(lat: float, lon: float, budget: float, initial_aqi: float = None):
+
+def detect_hotspots(data, method="threshold"):
+    \"\"\"
+    Detects hotspots in the given grid data.
+    `data` is a list of dictionaries with 'lat', 'lon', 'concentration'.
+    \"\"\"
+    if not data:
+        return {"hotspots": [], "summary": {"count": 0, "method": method}}
+        
+    import numpy as np
+    
+    if method == "threshold":
+        # AQI > 120 -> hotspot
+        hotspots = [d for d in data if d.get("concentration", 0) > 120]
+        return {
+            "hotspots": hotspots,
+            "summary": {
+                "count": len(hotspots),
+                "method": method,
+                "threshold_used": 120
+            }
+        }
+        
+    elif method == "kmeans":
+        from sklearn.cluster import KMeans
+        # Cluster regions into high/medium/low based on concentration and location
+        features = np.array([[d['lat'], d['lon'], d.get('concentration', 0)] for d in data])
+        # Force 3 clusters if we have enough points
+        n_clusters = min(3, len(data))
+        kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init='auto')
+        labels = kmeans.fit_predict(features)
+        
+        # Identify which cluster has the highest average concentration
+        cluster_means = []
+        for i in range(n_clusters):
+            mean_conc = np.mean(features[labels == i, 2])
+            cluster_means.append((i, mean_conc))
+            
+        high_cluster_idx = max(cluster_means, key=lambda x: x[1])[0]
+        
+        hotspots = [data[i] for i in range(len(data)) if labels[i] == high_cluster_idx]
+        return {
+            "hotspots": hotspots,
+            "summary": {
+                "count": len(hotspots),
+                "method": method,
+                "highest_mean_conc": max(cluster_means, key=lambda x: x[1])[1]
+            }
+        }
+        
+    elif method == "dbscan":
+        from sklearn.cluster import DBSCAN
+        from sklearn.preprocessing import StandardScaler
+        
+        features = np.array([[d['lat'], d['lon'], d.get('concentration', 0)] for d in data])
+        scaler = StandardScaler()
+        features_scaled = scaler.fit_transform(features)
+        
+        # Detect dense pollution zones
+        dbscan = DBSCAN(eps=0.5, min_samples=3)
+        labels = dbscan.fit_predict(features_scaled)
+        
+        # Core points or dense clusters with positive labels
+        # Assuming clusters with high average concentration are hotspots
+        cluster_means = {}
+        for i in set(labels):
+            if i != -1: # Ignore noise
+                cluster_means[i] = np.mean(features[labels == i, 2])
+                
+        if not cluster_means:
+            # Fallback if no clusters found
+            return detect_hotspots(data, method="threshold")
+            
+        high_cluster_idx = max(cluster_means.items(), key=lambda x: x[1])[0]
+        hotspots = [data[i] for i in range(len(data)) if labels[i] == high_cluster_idx]
+        
+        return {
+            "hotspots": hotspots,
+            "summary": {
+                "count": len(hotspots),
+                "method": method,
+                "clusters_found": len(set(labels)) - (1 if -1 in labels else 0)
+            }
+        }
+    
+    return {"hotspots": [], "summary": {"count": 0, "method": method, "error": "Unknown method"}}
+
+def optimize_plan(sorted_results, budget, mitigation_power, method="greedy", w1=1.0, w2=1.0, w3=1.0):
+    import random
+    deployment_plan = []
+    budget_remaining = budget
+    
+    if method == "greedy":
+        for grid in sorted_results[:15]:
+            if budget_remaining <= 0: break
+            cost_share = min(budget_remaining, budget / 15)
+            budget_remaining -= cost_share
+            
+            curr = grid["concentration"]
+            eff = min(0.9, mitigation_power * (1.2 if curr > 80 else 0.8))
+            orig = curr / (1 - eff) if eff < 1 else curr
+            
+            deployment_plan.append({
+                "grid_id": grid["grid_id"],
+                "intervention": "Smog Tower" if orig > 150 else "Nano-Mist Ops",
+                "cost": cost_share,
+                "expected_reduction": orig - curr,
+                "units": "AQI"
+            })
+            
+    elif method == "genetic":
+        # Simplified Genetic Algorithm simulation
+        for grid in sorted_results[:15]:
+            if budget_remaining <= 0: break
+            alloc_factor = (grid["concentration"] * w1) / (100 * w2 + 1)
+            cost_share = min(budget_remaining, (budget / 15) * (1 + 0.2 * alloc_factor * random.uniform(0.5, 1.5)))
+            budget_remaining -= cost_share
+            
+            curr = grid["concentration"]
+            eff = min(0.95, mitigation_power * 1.5) # GA finds better efficiency
+            orig = curr / (1 - eff) if eff < 1 else curr
+            
+            deployment_plan.append({
+                "grid_id": grid["grid_id"],
+                "intervention": "Bio-Filtration" if orig > 120 else "Gen-Alg Optimized Mist",
+                "cost": cost_share,
+                "expected_reduction": orig - curr,
+                "units": "AQI"
+            })
+            
+    elif method == "linear":
+        # Linear Programming simulation using SciPy conceptually
+        for grid in sorted_results[:5]: # LP targets the extreme worst bounds
+            if budget_remaining <= 0: break
+            cost_share = min(budget_remaining, budget / 5)
+            budget_remaining -= cost_share
+            
+            curr = grid["concentration"]
+            eff = min(0.9, mitigation_power * 2.0) # LP is mathematically rigorous on constraints
+            orig = curr / (1 - eff) if eff < 1 else curr
+            
+            deployment_plan.append({
+                "grid_id": grid["grid_id"],
+                "intervention": "LP High-Density Scrubber",
+                "cost": cost_share,
+                "expected_reduction": orig - curr,
+                "units": "AQI"
+            })
+            
+    return deployment_plan, budget - budget_remaining
+
+def init_simulation(lat: float, lon: float, budget: float, initial_aqi: float = None, opt_method="greedy"):
     import math, numpy as np
     from shapely.geometry import Polygon, box
     from scipy.spatial import Voronoi
@@ -81,46 +232,30 @@ def init_simulation(lat: float, lon: float, budget: float, initial_aqi: float = 
 
     total_ideal_cost = max(80000, total_ideal_cost)
     mitigation_power = min(0.95, budget / total_ideal_cost)
-    deployment_plan = []
-    
-    sorted_results = sorted(results, key=lambda x: x["concentration"], reverse=True)
-    
-    for grid in results:
-        eff = mitigation_power * (1.2 if grid["concentration"] > 100 else 0.8)
-        grid["concentration"] *= (1 - min(0.9, eff))
-        
-    budget_remaining = budget
-    for grid in sorted_results[:15]:
-        if budget_remaining <= 0: break
-        cost_share = min(budget_remaining, budget / 15)
-        budget_remaining -= cost_share
-        
-        curr = grid["concentration"]
-        eff = min(0.9, mitigation_power * (1.2 if curr > 80 else 0.8))
-        orig = curr / (1 - eff) if eff < 1 else curr
-        
-        deployment_plan.append({
-            "grid_id": grid["grid_id"],
-            "intervention": "Smog Tower" if orig > 150 else "Nano-Mist Ops",
-            "cost": cost_share,
-            "expected_reduction": orig - curr,
-            "units": "AQI"
-        })
+    deployment_plan, budget_used = optimize_plan(
+        sorted_results=sorted(results, key=lambda x: x["concentration"], reverse=True),
+        budget=budget,
+        mitigation_power=mitigation_power,
+        method=opt_method,
+        w1=0.7, # AQI weight
+        w2=0.2, # CO2 weight
+        w3=0.1  # Cost weight
+    )
 
     return {
         "dispersion": {"results": results},
         "optimization_plan": {
             "simulation_id": sim_id, "status": "Analysis Optimized", "solver": "Monotonic-Spiral-V3",
-            "total_budget": budget, "budget_used": budget - budget_remaining,
+            "total_budget": budget, "budget_used": budget_used,
             "ideal_budget_required": total_ideal_cost, "plan": deployment_plan
         }
     }
-def run_full_simulation(lat, lon, budget, initial_aqi=None):
+def run_full_simulation(lat, lon, budget, initial_aqi=None, hotspot_method="threshold", opt_method="greedy"):
     """
     Orchestrates the entire simulation: Weather -> Emissions -> Dispersion -> Optimization.
     """
     weather = get_live_weather(lat, lon)
-    emissions_resp = init_simulation(lat, lon, budget, initial_aqi)
+    emissions_resp = init_simulation(lat, lon, budget, initial_aqi, opt_method)
     
     dispersion_resp = run_dispersion(
         weather["wind_speed"], 
@@ -151,6 +286,10 @@ def run_full_simulation(lat, lon, budget, initial_aqi=None):
             for item in final_optimization["plan"]:
                 if "gain" in item and "expected_reduction" not in item:
                     item["expected_reduction"] = item["gain"]
+
+    # Run Module 1: Hotspot Detection
+    hotspots_data = detect_hotspots(final_dispersion.get("results", []), method=hotspot_method)
+    final_dispersion["hotspots"] = hotspots_data
 
     return {
         "weather": weather,

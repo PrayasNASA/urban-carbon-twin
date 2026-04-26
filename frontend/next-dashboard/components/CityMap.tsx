@@ -154,6 +154,7 @@ export default function CityMap({ dispersion, optimizationPlan, comparisonData, 
                         { label: 'Moderate (50-100)', color: '#facc15' },     // Yellow
                         { label: 'Good (0-50)', color: '#10b981' }            // Green
                     ].map((item) => (
+                        // add this point in the middle of the map and this is not doing the same as the upooer is doning writ this
                         <div key={item.label} className="flex items-center gap-3">
                             <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: item.color }} />
                             <span className="text-[10px] font-bold text-white/70 uppercase tracking-tight">{item.label}</span>
