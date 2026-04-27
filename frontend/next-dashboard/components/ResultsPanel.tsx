@@ -2,14 +2,48 @@
 
 import { motion } from "framer-motion";
 
-export default function ResultsPanel({ optimization }: { optimization: any }) {
+export default function ResultsPanel({ optimization, dispersion }: { optimization: any, dispersion?: any }) {
   const plan = optimization?.plan || [];
+  const results = dispersion?.results || [];
   const totalBudget = optimization?.total_budget || 0;
   const budgetUsed = optimization?.budget_used || 0;
   const carbonAvoided = plan.reduce((acc: number, curr: any) => acc + curr.expected_reduction, 0);
 
+  // Calculate before/after metrics
+  const totalInitialAqi = results.reduce((acc: number, curr: any) => acc + curr.concentration, 0);
+  const avgInitialAqi = results.length > 0 ? totalInitialAqi / results.length : 0;
+  const avgFinalAqi = results.length > 0 ? (totalInitialAqi - carbonAvoided) / results.length : 0;
+  const initialAqiCategory = avgInitialAqi > 300 ? "Hazardous" : avgInitialAqi > 200 ? "Very Unhealthy" : avgInitialAqi > 150 ? "Unhealthy" : avgInitialAqi > 100 ? "Unhealthy for Sensitive" : avgInitialAqi > 50 ? "Moderate" : "Good";
+  const finalAqiCategory = avgFinalAqi > 300 ? "Hazardous" : avgFinalAqi > 200 ? "Very Unhealthy" : avgFinalAqi > 150 ? "Unhealthy" : avgFinalAqi > 100 ? "Unhealthy for Sensitive" : avgFinalAqi > 50 ? "Moderate" : "Good";
+
   return (
     <div className="flex flex-col gap-10">
+      {/* 🔄 Before vs After City-Wide Comparison */}
+      {results.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-black/20 p-6 rounded-2xl border border-white/5 shadow-inner">
+          <div className="flex flex-col gap-2">
+            <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.25em]">Initial State (Before)</span>
+            <div className="flex items-end gap-3">
+              <span className="text-4xl font-extrabold text-rose-500 tabular-nums">{avgInitialAqi.toFixed(0)}</span>
+              <span className="text-xs font-bold text-rose-500/80 uppercase tracking-widest mb-1">{initialAqiCategory}</span>
+            </div>
+            <div className="w-full h-1 bg-rose-500/20 rounded-full mt-2 overflow-hidden">
+               <div className="h-full bg-rose-500" style={{ width: `${Math.min(100, (avgInitialAqi / 500) * 100)}%` }} />
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.25em]">Optimized State (After)</span>
+            <div className="flex items-end gap-3">
+              <span className="text-4xl font-extrabold text-neon-emerald tabular-nums">{avgFinalAqi.toFixed(0)}</span>
+              <span className="text-xs font-bold text-neon-emerald/80 uppercase tracking-widest mb-1">{finalAqiCategory}</span>
+            </div>
+            <div className="w-full h-1 bg-neon-emerald/20 rounded-full mt-2 overflow-hidden">
+               <div className="h-full bg-neon-emerald" style={{ width: `${Math.min(100, (avgFinalAqi / 500) * 100)}%` }} />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 📊 Primary Performance Indicators */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="p-6 lg:p-8 glass-panel !border-white/10 bg-white/10 rounded-xl shadow-xl overflow-hidden">
@@ -55,7 +89,13 @@ export default function ResultsPanel({ optimization }: { optimization: any }) {
 
         {plan.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {plan.map((p: any, idx: number) => (
+            {plan.map((p: any, idx: number) => {
+              // Find the original grid data to show initial state
+              const gridData = results.find((r: any) => r.grid_id === p.grid_id);
+              const initialGridAqi = gridData ? gridData.concentration : 0;
+              const finalGridAqi = Math.max(0, initialGridAqi - p.expected_reduction);
+              
+              return (
               <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 10 }}
@@ -85,18 +125,31 @@ export default function ResultsPanel({ optimization }: { optimization: any }) {
                   </p>
                 </div>
 
-                <div className="flex justify-between items-center text-[11px] pt-6 border-t border-white/10 relative z-10 gap-2">
-                  <div className="flex flex-col gap-1 shrink-0">
-                    <span className="text-white/30 font-bold uppercase text-[8px] lg:text-[9px] tracking-[0.2em]">Cap_Alloc</span>
-                    <span className="text-white font-bold font-mono text-[12px] lg:text-[13px] tracking-tight truncate">${p.cost.toLocaleString()}</span>
+                <div className="flex flex-col text-[11px] pt-6 border-t border-white/10 relative z-10 gap-3">
+                  <div className="flex justify-between items-center w-full">
+                    <div className="flex flex-col gap-1 shrink-0">
+                      <span className="text-white/30 font-bold uppercase text-[8px] lg:text-[9px] tracking-[0.2em]">Initial AQI</span>
+                      <span className="text-rose-400 font-bold font-mono text-[12px] lg:text-[13px] tracking-tight">{initialGridAqi.toFixed(0)}</span>
+                    </div>
+                    <div className="flex flex-col gap-1 items-center shrink-0">
+                      <span className="text-white/30 font-bold uppercase text-[8px] lg:text-[9px] tracking-[0.2em]">Reduction</span>
+                      <span className="text-neon-emerald font-extrabold font-mono text-[12px] lg:text-[13px] tracking-tight">-{p.expected_reduction.toFixed(0)}</span>
+                    </div>
+                    <div className="flex flex-col items-end gap-1 shrink-0 text-right">
+                      <span className="text-white/30 font-bold uppercase text-[8px] lg:text-[9px] tracking-[0.2em]">Final AQI</span>
+                      <span className="text-white font-extrabold font-mono text-[12px] lg:text-[13px] tracking-tight whitespace-nowrap">{finalGridAqi.toFixed(0)}</span>
+                    </div>
                   </div>
-                  <div className="flex flex-col items-end gap-1 shrink-0 text-right">
-                    <span className="text-neon-emerald/50 font-bold uppercase text-[8px] lg:text-[9px] tracking-[0.2em]">Impact_Delta</span>
-                    <span className="text-neon-emerald font-extrabold font-mono text-[12px] lg:text-[13px] tracking-tight whitespace-nowrap">-{p.expected_reduction.toFixed(1)} AQI</span>
+                  
+                  {/* Allocation Context */}
+                  <div className="flex justify-between items-center w-full mt-2 pt-2 border-t border-white/5">
+                    <span className="text-white/30 font-bold uppercase text-[8px] lg:text-[9px] tracking-[0.2em]">Capital Allocated</span>
+                    <span className="text-white font-bold font-mono text-[10px] lg:text-[11px] tracking-tight truncate">${p.cost.toLocaleString()}</span>
                   </div>
                 </div>
               </motion.div>
-            ))}
+            )
+          })}
           </div>
         ) : (
           <div className="h-64 glass-panel !bg-white/5 border border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center text-white/20 gap-4">
