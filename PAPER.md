@@ -58,3 +58,32 @@ The validation protocol dynamically spins up a high-resolution simulation grid d
 
 Empirical testing within the simulation environment indicates that density-based hotspot detection combined with the GA-optimized multi-objective planner reduces overall localized AQI metrics by an average of 18\% more efficiently than random or uniform capital distribution, highlighting the critical value of intelligent, spatially-aware deployment.
 ```
+
+## 4. Visualizing the Data (New Delhi Case Study)
+
+The following visualizations were generated using a synthetic case study modeled on **New Delhi, India**, explicitly targeting known high-emission geographic profiles to validate our algorithms.
+
+### Graph Explanations
+
+1. **AQI Improvement Graph (Before vs After)**
+   *   **Explanation:** This bar chart illustrates the localized drop in AQI across five distinct zones in New Delhi: Anand Vihar (Industrial), Connaught Place (Downtown), Dwarka (Residential), DND Flyway (Transit), and Lodhi Gardens (Park). It visually confirms that the decision-intelligence framework successfully pulls hazardous industrial and transit zones well below the critical AQI threshold post-intervention.
+2. **Optimization Algorithm Comparison**
+   *   **Explanation:** This multi-objective comparison chart evaluates Greedy, Genetic (GA), and Linear Programming (LP) algorithms across three metrics: AQI Reduction, CO2 Sequestration, and Cost Efficiency. It highlights how GA provides the most balanced, synergistic deployment, while LP maxes out raw AQI reduction but suffers from low cost-efficiency.
+3. **Hotspot Detection Comparison**
+   *   **Explanation:** Simulated spatial data representing New Delhi's topography is passed through three clustering algorithms. The scatter plots demonstrate why DBSCAN is superior: while the Threshold approach flags vast swaths indiscriminately and K-Means forces geometric boundaries, DBSCAN accurately isolates dense, organically shaped pollution clouds while ignoring scattered sensor noise.
+4. **Cost vs AQI Trade-off (Pareto Frontier)**
+   *   **Explanation:** This curve demonstrates the economic law of diminishing returns regarding capital deployment. As the budget increases, the marginal gain in AQI reduction flattens. The graph explicitly shows the GA frontier consistently outperforming the Greedy frontier at every budget increment, securing higher total network reduction for the same capital.
+5. **Resource Allocation Efficiency**
+   *   **Explanation:** A stacked bar chart showing how different algorithms "spend" the budget. The GA intelligently diversifies capital across Nature-based (Bio-Filtration) and Tech-based (Nano-Mist) interventions, whereas LP heavily over-indexes on expensive, heavy-duty industrial Scrubbers.
+6. **Temporal Simulation (24-Hour Cycle)**
+   *   **Explanation:** Modeling the diurnal AQI cycle of New Delhi, this time-series graph shows peak pollution hours. An intervention is deployed at hour 10. The green area highlights the divergence between the unmitigated decay curve (natural atmospheric dispersion) and the sharply accelerated decay forced by the active mitigation assets.
+8. **CO₂ Emission vs Sequestration Balance (12-Month Projection)**
+   *   **Explanation:** A stacked area chart demonstrating the city's gross carbon emissions against the growing sequestration capacity provided by mitigation assets (e.g., Bio-Filtration) over a 12-month period. The point where the white "Net CO2 Footprint" line crosses the blue target line marks the achievement of Urban Net-Zero for the targeted zones.
+9. **Sentiment Impact Correlation (Dual-Axis Line Chart)**
+   *   **Explanation:** This dual-axis graph maps simulated public sentiment against the disruptiveness of the deployed interventions. It illustrates that while heavy infrastructure deployment (like industrial scrubbers) initially causes high disruption and lowers public sentiment, the subsequent dramatic improvement in air quality rapidly drives public approval to over 90%.
+10. **Intervention ROI Scatter Plot**
+    *   **Explanation:** Analyzing individual intervention technologies (Nature-Based, Tech-Based, and Industrial) by plotting their *Capital Cost* versus *Total Carbon Captured*. The scatter plot clearly shows Tech-Based and Nature-Based interventions dominating the "Optimal ROI Frontier", while heavy Industrial Scrubbers fall behind in cost-efficiency despite high absolute capture rates.
+11. **Wind Dispersion Heatmap Projection**
+    *   **Explanation:** A 2D spatial heatmap demonstrating the atmospheric dispersion of a pollution plume driven by prevailing southeasterly winds. The graph visually proves the efficacy of the intelligence system by showing how strategically placing a mitigation asset up-wind of a densely populated sector drastically truncates the plume's reach.
+12. **Carbon Market Financial Forecast (5-Year)**
+    *   **Explanation:** A dual-axis bar and line chart projecting the volume of carbon credits generated by the city's newly installed sequestration infrastructure over five years. When mapped against forecasted carbon market prices, it provides a strong economic argument, showing exponential revenue growth that ultimately offsets the initial capital expenditure.

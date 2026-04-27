@@ -374,7 +374,7 @@ export default function Dashboard() {
                                     )}
                                 </div>
                             </div>
-                            <ResultsPanel optimization={data?.optimization_plan} />
+                            <ResultsPanel optimization={data?.optimization_plan} dispersion={data?.dispersion} />
                             <ImpactDashboard data={data} budget={balance} />
                         </div>
 

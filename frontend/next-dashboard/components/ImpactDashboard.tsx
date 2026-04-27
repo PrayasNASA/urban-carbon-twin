@@ -18,11 +18,18 @@ export default function ImpactDashboard({ data, budget }: ImpactStatsProps) {
         const healthcareSavings = reduction * 125000; // $125k saved per AQI point reduced
         const roi = budget > 0 ? ((healthcareSavings - budget) / budget) * 100 : 0;
 
+        const results = data?.dispersion?.results || [];
+        const totalInitialAqi = results.reduce((acc: number, curr: any) => acc + curr.concentration, 0);
+        const clearancePercent = totalInitialAqi > 0 ? (reduction / totalInitialAqi) * 100 : 0;
+
         return {
             healthcareSavings,
             roi: roi.toFixed(1),
             livesSaved: Math.floor(reduction * 1.2), // 1.2 lives per AQI point
-            productivityGain: (reduction * 0.5).toFixed(1) // % gain in workforce productivity
+            productivityGain: (reduction * 0.5).toFixed(1), // % gain in workforce productivity
+            clearancePercent: clearancePercent.toFixed(1),
+            initialAqiSum: totalInitialAqi,
+            reductionSum: reduction
         };
     }, [data, budget]);
 
@@ -39,6 +46,32 @@ export default function ImpactDashboard({ data, budget }: ImpactStatsProps) {
                     BigQuery BI Engine
                 </div>
             </div>
+
+            {/* Clearance Progress Bar */}
+            {stats.initialAqiSum > 0 && (
+                <div className="mb-8 p-5 bg-white/5 border border-white/10 rounded-xl relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 shadow-[0_0_15px_#3B82F6]" />
+                    <div className="flex justify-between items-end mb-3">
+                        <div className="flex flex-col gap-1">
+                            <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.25em]">City-wide Emissions Cleared</span>
+                            <span className="text-white font-mono text-[10px] tracking-widest">
+                                <span className="text-rose-400">{stats.initialAqiSum.toFixed(0)}</span> INIT ➔ <span className="text-neon-emerald">{(stats.initialAqiSum - stats.reductionSum).toFixed(0)}</span> RESIDUAL
+                            </span>
+                        </div>
+                        <span className="text-2xl font-black text-blue-400 tabular-nums">{stats.clearancePercent}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-black/40 rounded-full overflow-hidden shadow-inner">
+                        <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${stats.clearancePercent}%` }}
+                            transition={{ duration: 1.5, ease: "easeOut" }}
+                            className="h-full bg-gradient-to-r from-blue-600 to-blue-400 relative"
+                        >
+                            <div className="absolute top-0 right-0 bottom-0 w-4 bg-white/20 animate-pulse" />
+                        </motion.div>
+                    </div>
+                </div>
+            )}
 
             <div className="grid grid-cols-4 gap-4">
                 {/* 1. Healthcare Savings */}
